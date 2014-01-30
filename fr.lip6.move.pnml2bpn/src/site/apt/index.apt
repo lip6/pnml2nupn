@@ -1,0 +1,45 @@
+~~
+~~  Copyright 2014 Universite Paris Ouest Nanterre & Sorbonne Universites, Univ. Paris 06 - CNRS UMR 7606 (LIP6/MoVe)
+~~  All rights reserved.   This program and the accompanying materials
+~~  are made available under the terms of the Eclipse Public License v1.0
+~~  which accompanies this distribution, and is available at
+~~  http://www.eclipse.org/legal/epl-v10.html
+~~
+~~  Project leader / Initial Contributor:
+~~    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
+~~
+~~  Contributors:
+~~    ${ocontributors} - <$oemails}>
+~~
+~~  Mailing list:
+~~    lom-messan.hillah@lip6.fr
+~~
+
+ ------
+Petri Nets PNML to BPN Converter
+ ------
+ ------
+2014-01
+ ------
+
+PNML to Basic Petri Nets (BPN) Converter
+
+  This tool converts 1-Safe Place/Transition Petri Nets from the {{{http://www.pnml.org}PNML}} standard format
+  into the {{{http://cadp.inria.fr/man/caesar.bdd.html#sect4}Basic Petri Net}} (BPN) format. 
+
+  Thanks to the Bounds tool by {{{http://www.lip6.fr/actualite/personnes-fiche.php?ident=P165}Emmanuel Paviot-Adet}},
+this tool first checks that the P/T Net model in PNML you want to translate into BPN is 1-Safe. If that condition is not satisfied, the translation does not happen.
+  
+  Download it from the {{{./download.html}dedicated page}}.   
+
+Execution
+
+ PNML to BPN Converter can simply be run on the command line. It is expecting either a set of paths to 
+ PNML files, or to folders containing them, or a mix of files and folders. It scans folders recursively,
+ looking for PNML files.
+
+Supported Standard Petri Net Type
+
+ This tool only supports Place/Transition (P/T) Nets, that are 1-Safe.
+
+  

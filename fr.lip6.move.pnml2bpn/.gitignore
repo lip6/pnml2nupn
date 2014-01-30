@@ -1,0 +1,11 @@
+.settings
+resources
+dependency-reduced-pom.xml
+makeJar-*.xml
+.DS_Store
+target
+lib
+dist
+bin
+src/main/resources/bounds
+.classpath

@@ -1,0 +1,33 @@
+~~
+~~  Copyright 2014 Universite Paris Ouest Nanterre & Sorbonne Universites, Univ. Paris 06 - CNRS UMR 7606 (LIP6/MoVe)
+~~  All rights reserved.   This program and the accompanying materials
+~~  are made available under the terms of the Eclipse Public License v1.0
+~~  which accompanies this distribution, and is available at
+~~  http://www.eclipse.org/legal/epl-v10.html
+~~
+~~  Project leader / Initial Contributor:
+~~    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
+~~
+~~  Contributors:
+~~    ${ocontributors} - <$oemails}>
+~~
+~~  Mailing list:
+~~    lom-messan.hillah@lip6.fr
+~~
+
+ -------
+Usage
+ -------
+ -------
+2014-01
+ -------
+
+Invocation
+  
+  We provide a {{{./download/pnml2bpn.sh}Shell script}} to help you increase productivity in using PNML to BPN Converter.
+In particular, a set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
+
+  For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
+PNML documents (a few hundreds KB), we advise you decrease it (current setting is 2 GB). If you use large documents,
+(a few hundreds MB to GB), then you should increase it in order to avoid out of memory errors.   
+
