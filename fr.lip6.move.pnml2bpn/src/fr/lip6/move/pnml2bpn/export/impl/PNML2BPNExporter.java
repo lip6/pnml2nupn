@@ -58,7 +58,10 @@ import fr.lip6.move.pnml2bpn.utils.SafePNChecker;
  * 
  */
 public final class PNML2BPNExporter implements PNMLExporter {
+	@SuppressWarnings("unused")
 	private static final String PNML2BPN_EXT = ".pnml2bpn";
+	private static final String TRANS_EXT = ".trans";
+	private static final String STATES_EXT = ".states";
 	private static final String STOP = "STOP";
 	private static final String PLACE_MAPPING_MSG = "Places ID mapping BPN -- PNML";
 	private static final String TRANSITIONS_MAPPING_MSG = "Transitions ID mapping BPN -- PNML";
@@ -77,15 +80,15 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private static final String ONE = "1";
 	private static final String DOTS = "...";
 
-	private Logger log;
+	private Logger log = null;
 
 	private Object2LongOpenHashMap<String> placesId2bpnMap = null;
 
 	private Object2LongOpenHashMap<String> trId2bpnMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap = null;
-	private File currentInputFile;
-	private SafePNChecker spnc;
+	private File currentInputFile = null;
+	private SafePNChecker spnc = null;
 
 	public PNML2BPNExporter() {
 		spnc = new SafePNChecker();
@@ -179,20 +182,26 @@ public final class PNML2BPNExporter implements PNMLExporter {
 								+ this.currentInputFile.getCanonicalPath());
 			}
 			log.info("Net appears to be 1-Safe.");
-			// Open BPN and Tool specific files channels, and init write queues
+			// Open BPN and mapping files channels, and init write queues
+			File outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile.getCanonicalPath()) + TRANS_EXT);
+			File outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile.getCanonicalPath()) + STATES_EXT);
+			// Channels for BPN, transitions and places id mapping
 			OutChannelBean ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
-			File outTSFile = new File(outFile.getCanonicalPath() + PNML2BPN_EXT);
 			OutChannelBean ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
+			OutChannelBean ocbPs = PNML2BPNUtils.openOutChannel(outPSFile);
+			// Queues for BPN, transitions and places id mapping
 			BlockingQueue<String> bpnQueue = initQueue();
 			BlockingQueue<String> tsQueue = initQueue();
+			BlockingQueue<String> psQueue = initQueue();
 			// Start writers
 			Thread bpnWriter = startWriter(ocbBpn, bpnQueue);
 			Thread tsWriter = startWriter(ocbTs, tsQueue);
+			Thread psWriter = startWriter(ocbPs, psQueue);
 
 			// Init data type for places id and export places
 			initPlacesMap();
 			log.info("Exporting places.");
-			exportPlacesIntoUnits(ap, vn, bpnQueue, tsQueue);
+			exportPlacesIntoUnits(ap, vn, bpnQueue, psQueue);
 
 			// Init data type for transitions id and export transitions
 			initTransitionsMaps();
@@ -202,15 +211,18 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			// Stop Writers
 			bpnQueue.put(STOP);
 			tsQueue.put(STOP);
+			psQueue.put(STOP);
 			bpnWriter.join();
 			tsWriter.join();
+			psWriter.join();
 			// Close channels
 			PNML2BPNUtils.closeOutChannel(ocbBpn);
 			PNML2BPNUtils.closeOutChannel(ocbTs);
+			PNML2BPNUtils.closeOutChannel(ocbPs);
 			// clear maps
 			clearAllMaps();
-			log.info("See BPN and mapping files: {} and {}",
-					outFile.getCanonicalPath(), outTSFile.getCanonicalPath());
+			log.info("See BPN and mapping files: {}, {} and {}",
+					outFile.getCanonicalPath(), outTSFile.getCanonicalPath(), outPSFile.getCanonicalPath());
 		} catch (NavExceptionHuge | XPathParseExceptionHuge
 				| XPathEvalExceptionHuge | ParseExceptionHuge
 				| InvalidSafeNetException | InternalException e) {
