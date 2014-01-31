@@ -24,10 +24,15 @@ Changelog
 * What's new in version ${project.version}?
 
   * Transformation is refined: 
+  
   	* places numbered from 0
+  	
   	* transitions are ordred
+  	
   	* root unit is the last
-  	* id mappings are splitted in 2 files, one for states and the other for transitions 
+  	
+  	* id mappings are splitted in 2 files, one for states and the other for transitions
+  	
   
   * Relies on Cami2PNML v2.1.6
 
