@@ -10,7 +10,7 @@
 	<packaging>jar</packaging>
 
 	<name>PNML (1-Safe) P/T Nets to BPN Translation Tool</name>
-	
+
 	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
 
 	<url>http://pnml.lip6.fr/pnml2bpn/index.html</url>
@@ -43,9 +43,16 @@
 		</developer>
 	</developers>
 
+	<scm>
+		<url>scm:svn:https://github.com/lhillah/pnml2bpn.git</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/lhillah/pnml2bpn/issues</url>
+	</issueManagement>
 	<licenses>
 		<license>
-			<name>CNRS UMR 7606 - LIP6 / PNML Framework License</name>
+			<name>PNML2BPN License</name>
 			<url>http://pnml.lip6.fr/resources/License</url>
 		</license>
 	</licenses>
@@ -54,6 +61,19 @@
 			<post>lom-messan.hillah@lip6.fr</post>
 		</mailingList>
 	</mailingLists>
+
+	<distributionManagement>
+		<repository>
+			<id>deployment</id>
+			<name>Public Releases</name>
+			<url>http://miage11.u-paris10.fr:8081/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>deployment</id>
+			<name>Snaphots</name>
+			<url>http://miage11.u-paris10.fr:8081/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<reporting>
 		<plugins>
@@ -105,6 +125,8 @@
 					<exclude>**/*.bpn</exclude>
 					<exclude>**/*.pnml2bpn</exclude>
 					<exclude>**/*.txt</exclude>
+					<exclude>**/*.states</exclude>
+					<exclude>**/*.trans</exclude>
 				</excludes>
 			</resource>
 			<resource>
@@ -251,24 +273,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>2.7</version>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<descriptors>
-						<descriptor>src/main/assembly/assembly.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
