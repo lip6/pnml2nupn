@@ -293,7 +293,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		long tId, pId;
 		LongBigArrayBigList pls = null;
 		ap.selectXPath(PNMLPaths.ARCS_PATH);
-		tsQueue.put(TRANSITIONS_MAPPING_MSG + NL);
+		//@deprecated tsQueue.put(TRANSITIONS_MAPPING_MSG + NL);
 		while ((ap.evalXPath()) != -1) {
 			pls = null;
 			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
@@ -389,7 +389,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		// initial places
 		ap.selectXPath(PNMLPaths.PLACES_MARKING);
 		String id;
-		tsQueue.put(PLACE_MAPPING_MSG + NL);
+		// @deprecated tsQueue.put(PLACE_MAPPING_MSG + NL);
 		List<Long> initPlaces = new ArrayList<>();
 		// TODO Check: do we need to clone the vn for using it in the loop?
 		// (Case of several initial places...)
