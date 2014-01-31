@@ -217,6 +217,12 @@ public final class PNML2BPNUtils {
 		//return result;
 	}
 	
+	/**
+	 * Extracts a file from a source path to a destination path.
+	 * @param fromPath
+	 * @param toPath
+	 * @throws IOException
+	 */
 	public static final void extractFile(String fromPath, String toPath) throws IOException {
 		
 		InputStream input = PNML2BPNUtils.class.getClassLoader().getResourceAsStream(fromPath);
@@ -234,7 +240,15 @@ public final class PNML2BPNUtils {
 		}
 		output.close();
 		input.close();
-		
+	}
+	/**
+	 * Extracts the basename of a file path.
+	 * @param path
+	 * @return
+	 */
+	public static final String extractBaseName(String path) {
+		int dotPos = path.lastIndexOf('.');
+		return path.substring(0, dotPos);
 	}
 	
 }
