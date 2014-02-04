@@ -23,11 +23,39 @@ Usage
  -------
 
 Invocation
+
+  This tool expects a set of paths to PNML files or to directories as arguments, where to find the PNML files.
+  It will recursively scan directories and their sub-directories, looking for PNML files.
   
+  You may provide a mix of paths to PNML files and directories containing them.
+  
+  
+Command-line invocation
+
+  The basic command-line invocation is the following (update the name of the jar to the latest version of this tool):
+  
+ <java -jar fr.lip6.move.pnml2bpn-1.1.5.jar pathToFile [pathToFolder pathToAnotherFile ...]>
+
+ Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9):
+ 
+ <java -d64 -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -jar fr.lip6.move.pnml2bpn-1.1.5.jar pathToFile [pathToFolder pathToAnotherFile ...]>
+ 
+ In particular, increase the value of <-Xmx> argument which allocates max memory to the heap,
+ when you are dealing with very large input files. In the above invocation, it is set to 2 GB.
+ 
+Invocation using a Shell script
+
   We provide a {{{./download/pnml2bpn.sh}Shell script}} to help you increase productivity in using PNML to BPN Converter.
 In particular, a set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
 
   For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
 PNML documents (a few hundreds KB), we advise you decrease it (current setting is 2 GB). If you use large documents,
-(a few hundreds MB to GB), then you should increase it in order to avoid out of memory errors.   
+(a few hundreds MB to GB), then you should increase it in order to avoid out of memory errors.
+
+Debug information
+
+  In case of error, you may want the program to print the stack trace, to provide the tool author
+  with useful information for debugging. To enable this, set the PNML2BPN_DEBUG environment variable to true
+  before invoking this tool.
+   
 
