@@ -181,8 +181,10 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			}
 			log.info("Net appears to be 1-Safe.");
 			// Open BPN and mapping files channels, and init write queues
-			File outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile.getCanonicalPath()) + TRANS_EXT);
-			File outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile.getCanonicalPath()) + STATES_EXT);
+			File outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
+					.getCanonicalPath()) + TRANS_EXT);
+			File outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile
+					.getCanonicalPath()) + STATES_EXT);
 			// Channels for BPN, transitions and places id mapping
 			OutChannelBean ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
 			OutChannelBean ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
@@ -220,7 +222,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			// clear maps
 			clearAllMaps();
 			log.info("See BPN and mapping files: {}, {} and {}",
-					outFile.getCanonicalPath(), outTSFile.getCanonicalPath(), outPSFile.getCanonicalPath());
+					outFile.getCanonicalPath(), outTSFile.getCanonicalPath(),
+					outPSFile.getCanonicalPath());
 		} catch (NavExceptionHuge | XPathParseExceptionHuge
 				| XPathEvalExceptionHuge | ParseExceptionHuge
 				| InvalidSafeNetException | InternalException e) {
@@ -291,7 +294,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		long tId, pId;
 		LongBigArrayBigList pls = null;
 		ap.selectXPath(PNMLPaths.ARCS_PATH);
-		//@deprecated tsQueue.put(TRANSITIONS_MAPPING_MSG + NL);
+		// @deprecated tsQueue.put(TRANSITIONS_MAPPING_MSG + NL);
 		while ((ap.evalXPath()) != -1) {
 			pls = null;
 			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
@@ -329,8 +332,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
-		LongCollection allTr =new LongRBTreeSet(trId2bpnMap.values());
-	
+		LongCollection allTr = new LongRBTreeSet(trId2bpnMap.values());
+
 		for (long trId : allTr) {
 			bpnsb.append(T).append(trId);
 			buildConnectedPlaces2Transition(bpnsb, trId, tr2InPlacesMap);
@@ -413,14 +416,14 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
-		
+
 		// count all places
 		ap.selectXPath(PNMLPaths.COUNT_PLACES_PATH);
 		long nb = (long) ap.evalXPathToNumber();
 		StringBuilder bpnsb = new StringBuilder();
 		// Write Number of places
 		bpnsb.append(PLACES).append(WS).append(HK).append(nb).append(WS)
-				.append(ZERO).append(DOTS).append(nb-1).append(NL);
+				.append(ZERO).append(DOTS).append(nb - 1).append(NL);
 		// / TODO Handle case where there are several initial places
 		if (initPlaces.size() > 1) {
 			bpnsb.append(INIT_PLACES).append(WS).append(HK)
@@ -432,37 +435,48 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			bpnsb.append(INIT_PLACE).append(WS).append(ZERO);
 		}
 		bpnsb.append(NL);
-		// Write the number of Units
-		bpnsb.append(UNITS).append(WS).append(HK).append(nb + 1).append(WS)
-				.append(ZERO).append(DOTS).append(nb).append(NL);
+		// Write the number of Units. Check case there is just one place.
+		if (nb > 1) {
+			bpnsb.append(UNITS).append(WS).append(HK).append(nb + 1).append(WS)
+					.append(ZERO).append(DOTS).append(nb).append(NL);
+		} else {
+			bpnsb.append(UNITS).append(WS).append(HK).append(nb).append(WS)
+					.append(ZERO).append(DOTS).append(nb - 1).append(NL);
+		}
 
-		//TODO No solution yet for the case where there are several initial places
+		// FIXME No solution yet for the case where there are several initial
+		// places
 		if (initPlaces.size() > 1) {
 			log.error("Attention: there are several initial places and no solution yet for the correct encoding of the resulting BPN.");
-			throw new InternalException("No solution yet to export into BPN the case of several initial places");
+			throw new InternalException(
+					"No solution yet to export into BPN the case of several initial places");
 		}
-		// Root unit declaration
-		bpnsb.append(ROOT_UNIT).append(WS).append(nb).append(NL);
+		// Root unit declaration - id is N. Check case there is just one place.
+		if (nb > 1) {
+			bpnsb.append(ROOT_UNIT).append(WS).append(nb).append(NL);
+		} else {
+			bpnsb.append(ROOT_UNIT).append(WS).append(nb - 1).append(NL);
+		}
 		bpnQueue.put(bpnsb.toString());
 		bpnsb.delete(0, bpnsb.length());
 
 		// One place per unit, keep track of their PNML id in ts file
 		// First the initial places
 		long count = 0L;
-		for (Long l: initPlaces) {
+		for (Long l : initPlaces) {
 			bpnsb.append(U).append(count).append(WS).append(HK).append(ONE)
-			.append(WS).append(l).append(DOTS).append(l)
-			.append(WS).append(HK).append(ZERO).append(NL);
+					.append(WS).append(l).append(DOTS).append(l).append(WS)
+					.append(HK).append(ZERO).append(NL);
 			bpnQueue.put(bpnsb.toString());
 			count++;
 		}
 		bpnsb.delete(0, bpnsb.length());
-		
+
 		// Then the rest
 		ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
 		StringBuilder tsmapping = new StringBuilder();
 		while ((ap.evalXPath()) != -1) {
-			
+
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			tsmapping.append(iDCount).append(WS).append(id).append(NL);
 			tsQueue.put(tsmapping.toString());
@@ -473,15 +487,27 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			placesId2bpnMap.put(id, iDCount);
 			bpnsb.delete(0, bpnsb.length());
 			tsmapping.delete(0, tsmapping.length());
-			count++; iDCount++;
+			count++;
+			iDCount++;
 		}
 		tsmapping = null;
-		// / Root Unit N and its subunits
-		bpnsb.append(U).append(nb).append(WS).append(HK).append(ZERO)
-				.append(WS).append(ONE).append(DOTS).append(ZERO).append(WS)
-				.append(HK).append(nb);
-		for (count = 0L; count < nb; count++) {
-			bpnsb.append(WS).append(count);
+		// / Root Unit N and its subunits. Check case there is just one place.
+		if (nb > 1) {
+			bpnsb.append(U).append(nb).append(WS).append(HK).append(ZERO)
+					.append(WS).append(ONE).append(DOTS).append(ZERO)
+					.append(WS).append(HK).append(nb);
+			for (count = 0L; count < nb; count++) {
+				bpnsb.append(WS).append(count);
+			}
+		} else if (nb == 1) {
+			// DO NOTHING, already handled above.
+			log.warn("We encountered the case where there is just one place in the net.");
+		} else { // FIXME This case should not happen.
+			bpnsb.append(U).append(nb).append(WS).append(HK).append(ZERO)
+					.append(WS).append(ONE).append(DOTS).append(ZERO)
+					.append(WS).append(HK).append(ZERO);
+			log.warn("We encountered the case where there is no place at all in the net.");
+			log.error("This violates the rules stating that root unit must have at least 2 sub-units, if it does not contain any place.");
 		}
 		bpnsb.append(NL);
 		bpnQueue.put(bpnsb.toString());

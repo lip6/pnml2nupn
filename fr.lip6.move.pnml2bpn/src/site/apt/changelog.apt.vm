@@ -23,6 +23,14 @@ Changelog
 
 * What's new in version ${project.version}?
 
+  * Handles the case where there is just one place (then just one unit, which is the root one)
+  
+  * Error message in the case there is no place (root unit must have at least 2 sub-units,
+   if it does not contain any place).
+
+
+* What's new in version 1.1.4?
+
   * Transformation is refined: 
   
   	* places numbered from 0
