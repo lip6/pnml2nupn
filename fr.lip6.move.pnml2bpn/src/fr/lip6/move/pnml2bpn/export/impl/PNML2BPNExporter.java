@@ -63,8 +63,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private static final String TRANS_EXT = ".trans";
 	private static final String STATES_EXT = ".states";
 	private static final String STOP = "STOP";
-	private static final String PLACE_MAPPING_MSG = "Places ID mapping BPN -- PNML";
-	private static final String TRANSITIONS_MAPPING_MSG = "Transitions ID mapping BPN -- PNML";
 	private static final String NL = "\n";
 	private static final String HK = "#";
 	private static final String PLACES = "places";
