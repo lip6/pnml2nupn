@@ -19,7 +19,7 @@
 Petri Nets PNML to BPN Converter
  ------
  ------
-2014-01
+2014-02
  ------
 
 PNML to Basic Petri Nets (BPN) Converter
@@ -37,6 +37,8 @@ Execution
  PNML to BPN Converter can simply be run on the command line. It is expecting either a set of paths to 
  PNML files, or to folders containing them, or a mix of files and folders. It scans folders recursively,
  looking for PNML files.
+ 
+ Usage information is available on {{{./usage.html}the dedicated page}}.
 
 Supported Standard Petri Net Type
 
