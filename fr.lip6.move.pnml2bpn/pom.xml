@@ -5,7 +5,7 @@
 
 	<groupId>fr.lip6.move.bpn</groupId>
 	<artifactId>fr.lip6.move.pnml2bpn</artifactId>
-	<version>1.1.5</version>
+	<version>1.1.6</version>
 
 	<packaging>jar</packaging>
 
@@ -108,7 +108,7 @@
 		<dependency>
 			<groupId>fr.lip6.move.cpnami2</groupId>
 			<artifactId>cami2pnml</artifactId>
-			<version>2.1.5</version>
+			<version>2.1.7</version>
 		</dependency>
 	</dependencies>
 
@@ -170,6 +170,9 @@
 					<useDefaultMapping>true</useDefaultMapping>
 					<properties>
 						<year>${project.inceptionYear}</year>
+						<organisation>
+						Universite Paris Ouest and Sorbonne Universites, Univ. Paris 06 - CNRS UMR 7606 (LIP6)
+						</organisation>
 						<maincontributor>Lom Messan Hillah</maincontributor>
 						<email>lom-messan.hillah@lip6.fr</email>
 						<mailing>lom-messan.hillah@lip6.fr</mailing>
