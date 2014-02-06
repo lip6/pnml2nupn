@@ -10,6 +10,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: fr.lip6.move.pnml2bpn;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
  fr.lip6.move.pnml2bpn.exceptions,
  fr.lip6.move.pnml2bpn.export;uses:="org.slf4j",
- fr.lip6.move.pnml2bpn.export.impl;uses:="fr.lip6.move.pnml2bpn.export,org.slf4j"
+ fr.lip6.move.pnml2bpn.export.impl;uses:="fr.lip6.move.pnml2bpn.export,org.slf4j",
+ fr.lip6.move.pnml2bpn.utils
 Bundle-Vendor: %providerName
 Bundle-ClassPath: .
