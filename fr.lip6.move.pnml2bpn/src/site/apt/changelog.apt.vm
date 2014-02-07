@@ -26,6 +26,10 @@ Changelog
 
 * What's new in version ${project.version}?
 
+  * Relies on Cami2Pnml 2.1.8
+
+* What's new in version 1.1.5?
+
   * Handles the case where there is just one place (then just one unit, which is the root one)
   
   * Error message in the case there is no place (root unit must have at least 2 sub-units,
