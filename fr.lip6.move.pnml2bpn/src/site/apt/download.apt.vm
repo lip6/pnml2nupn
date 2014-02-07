@@ -19,7 +19,7 @@
 Download PNML to BPN Converter ${project.version}
  ------
  ------
-2014-01
+2014-02
  ------
 
 Download PNML to BPN Converter ${project.version}
@@ -29,7 +29,7 @@ Download PNML to BPN Converter ${project.version}
 
 * Single jar with all dependencies
 
-  Download it from {{{./download/${project.artifactId}-${project.version}.jar}this link}}.
+  Download it from {{{./download/${project.artifactId}-latest-version.jar}this link}}.
 
 
 Requirements

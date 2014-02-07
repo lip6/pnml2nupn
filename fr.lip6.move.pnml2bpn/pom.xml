@@ -233,7 +233,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.artifactId}-${project.version}</finalName>
+					<finalName>${project.artifactId}-latest-version</finalName>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -254,8 +254,8 @@
 				<version>1.7</version>
 				<configuration>
 					<target>
-						<copy file="target/${project.artifactId}-${project.version}.jar"
-							tofile="src/site/resources/download/${project.artifactId}-${project.version}.jar" />
+						<copy file="target/${project.artifactId}-latest-version.jar"
+							tofile="src/site/resources/download/${project.artifactId}-latest-version.jar" />
 					</target>
 				</configuration>
 				<executions>
