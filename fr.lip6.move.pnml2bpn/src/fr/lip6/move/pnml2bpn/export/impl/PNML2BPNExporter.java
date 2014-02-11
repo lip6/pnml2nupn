@@ -235,15 +235,15 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				| InvalidSafeNetException | InternalException
 				| InvalidNetException e) {
 			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
-					ocbPs, outTSFile, outPSFile);
+					ocbPs, outTSFile, outPSFile, journal);
 			throw new PNMLImportExportException(e);
 		} catch (InterruptedException e) {
 			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
-					ocbPs, outTSFile, outPSFile);
+					ocbPs, outTSFile, outPSFile, journal);
 			throw e;
 		} catch (IOException e) {
 			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
-					ocbPs, outTSFile, outPSFile);
+					ocbPs, outTSFile, outPSFile, journal);
 			throw e;
 		}
 	}
@@ -259,17 +259,20 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * @param ocbPs
 	 * @param outTSFile
 	 * @param outPSFile
+	 * @param journal 
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
 	private void emergencyStop(File outFile, BlockingQueue<String> bpnQueue,
 			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue,
 			OutChannelBean ocbBpn, OutChannelBean ocbTs, OutChannelBean ocbPs,
-			File outTSFile, File outPSFile) throws InterruptedException,
+			File outTSFile, File outPSFile, Logger journal) throws InterruptedException,
 			IOException {
+		
 		cancelWriters(bpnQueue, tsQueue, psQueue);
 		closeChannels(ocbBpn, ocbTs, ocbPs);
 		deleteOutputFiles(outFile, outTSFile, outPSFile);
+		journal.error("Emergency stop. Cancelled the translation and removed opened resources.");
 	}
 
 	/**
