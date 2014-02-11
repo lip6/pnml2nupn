@@ -67,8 +67,10 @@ public final class PNML2BPNUtils {
 	}
 
 	public static void closeOutChannel(OutChannelBean ocb) throws IOException {
-		ocb.getFc().close();
-		ocb.getFos().close();
+		if (ocb != null) {
+			ocb.getFc().close();
+			ocb.getFos().close();
+		}
 
 	}
 
