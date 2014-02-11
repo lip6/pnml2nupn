@@ -294,6 +294,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	}
 
 	/**
+	 * Close output channels.
 	 * @param ocbBpn
 	 * @param ocbTs
 	 * @param ocbPs
@@ -307,7 +308,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	}
 
 	/**
-	 * Emergency stop.
+	 * Cancels writers in case of emergency stop.
 	 * @param bpnQueue
 	 * @param tsQueue
 	 * @param psQueue
