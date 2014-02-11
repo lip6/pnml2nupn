@@ -249,6 +249,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	}
 
 	/**
+	 * Emergency stop.
 	 * @param outFile
 	 * @param bpnQueue
 	 * @param tsQueue
