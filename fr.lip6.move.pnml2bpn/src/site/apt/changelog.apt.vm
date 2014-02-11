@@ -26,6 +26,12 @@ Changelog
 
 * What's new in version ${project.version}?
 
+  * Bug fix on querying initial markings
+  
+  * Bug fix on cleaning buffer in writing loop
+
+* What's new in version 1.1.6?
+
   * Relies on Cami2Pnml 2.1.8
 
 * What's new in version 1.1.5?
