@@ -138,16 +138,17 @@ public final class SafePNChecker {
 		try {
 			// wait for finishing bounds executable during a determined amount
 			// of time.
-			timer = new Timer();
+			/*timer = new Timer();
 			TimerTask tt = new StopWaitingTask(Thread.currentThread());
-			timer.schedule(tt, WAITING_TIME);
+			timer.schedule(tt, WAITING_TIME);*/
 			boundsExitValue = pr.waitFor();
-			tt.cancel();
-			timer.cancel();
+			/*tt.cancel();
+			timer.cancel();*/
 		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+			//Thread.currentThread().interrupt();
+			res = false;
 			throw new ExecutionException(
-					"Waited too long for Bounds executable to terminate",
+					"Interrupted while waiting for bounds tool to complete",
 					e.getCause());
 		}
 		return res;
