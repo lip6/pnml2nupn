@@ -26,9 +26,12 @@ Changelog
 
 * What's new in version ${project.version}?
 
-  * Bug fix on querying initial markings
+  * Bug fix on querying initial markings and non-marked place$
   
   * Bug fix on cleaning buffer in writing loop
+  
+  * Transformation fails in the case where there is no marked place, 
+  and where there are more then one marked place.
 
 * What's new in version 1.1.6?
 
