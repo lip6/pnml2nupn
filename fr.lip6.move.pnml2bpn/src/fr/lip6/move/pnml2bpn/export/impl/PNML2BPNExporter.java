@@ -517,7 +517,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		// (Case of several initial places...)
 		while ((ap.evalXPath()) != -1) {
 			vn.toElement(VTDNavHuge.PARENT);
-			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			if (id != null) {
 				try {
