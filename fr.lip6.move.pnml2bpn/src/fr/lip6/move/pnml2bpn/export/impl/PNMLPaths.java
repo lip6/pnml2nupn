@@ -46,7 +46,9 @@ public final class PNMLPaths {
 	
 	public static final String PLACES_MARKING = PLACES_PATH + "/initialMarking[text > 0]";
 	
-	public static final String PLACES_PATH_EXCEPT_MKG = PAGES_PATH + "/child::place[not(child::initialMarking)]";
+	public static final String PLACES_PATH_EXCEPT_MKG = PAGES_PATH + "/child::place[not(child::initialMarking)]" 
+			+ " | " + PLACES_PATH + "/initialMarking[text <= 0]";
+	
 	
 	public static final String TRANSITIONS_PATH = PAGES_PATH + "/transition";
 	
