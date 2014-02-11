@@ -26,7 +26,7 @@ Changelog
 
 * What's new in version ${project.version}?
 
-  * Bug fix on querying initial markings and non-marked place$
+  * Bug fix on querying initial markings and non-marked place
   
   * Bug fix on cleaning buffer in writing loop
   
