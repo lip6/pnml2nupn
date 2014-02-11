@@ -272,7 +272,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		cancelWriters(bpnQueue, tsQueue, psQueue);
 		closeChannels(ocbBpn, ocbTs, ocbPs);
 		deleteOutputFiles(outFile, outTSFile, outPSFile);
-		journal.error("Emergency stop. Cancelled the translation and removed opened resources.");
+		journal.error("Emergency stop. Cancelled the translation and released opened resources.");
 	}
 
 	/**
