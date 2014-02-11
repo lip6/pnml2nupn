@@ -60,11 +60,11 @@ import fr.lip6.move.pnml2bpn.utils.SafePNChecker;
  * 
  */
 public final class PNML2BPNExporter implements PNMLExporter {
-	@SuppressWarnings("unused")
-	private static final String PNML2BPN_EXT = ".pnml2bpn";
+
 	private static final String TRANS_EXT = ".trans";
 	private static final String STATES_EXT = ".states";
 	private static final String STOP = "STOP";
+	private static final String CANCEL = "CANCEL";
 	private static final String NL = "\n";
 	private static final String HK = "#";
 	private static final String PLACES = "places";
@@ -160,6 +160,14 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			PNMLImportExportException, IOException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
 		VTDGenHuge vg = new VTDGenHuge();
+		BlockingQueue<String> bpnQueue = null ;
+		BlockingQueue<String> tsQueue  = null;
+		BlockingQueue<String> psQueue = null;
+		OutChannelBean ocbBpn = null;
+		OutChannelBean ocbTs = null;
+		OutChannelBean ocbPs = null;
+		File outTSFile = null;
+		File outPSFile =null;
 		try {
 			xb.readFile(inFile.getCanonicalPath());
 			vg.setDoc(xb);
@@ -183,18 +191,18 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			}
 			log.info("Net appears to be 1-Safe.");
 			// Open BPN and mapping files channels, and init write queues
-			File outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
+			outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + TRANS_EXT);
-			File outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile
+			outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + STATES_EXT);
 			// Channels for BPN, transitions and places id mapping
-			OutChannelBean ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
-			OutChannelBean ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
-			OutChannelBean ocbPs = PNML2BPNUtils.openOutChannel(outPSFile);
+			ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
+			ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
+			ocbPs = PNML2BPNUtils.openOutChannel(outPSFile);
 			// Queues for BPN, transitions and places id mapping
-			BlockingQueue<String> bpnQueue = initQueue();
-			BlockingQueue<String> tsQueue = initQueue();
-			BlockingQueue<String> psQueue = initQueue();
+			bpnQueue = initQueue();
+			tsQueue = initQueue();
+			psQueue = initQueue();
 			// Start writers
 			Thread bpnWriter = startWriter(ocbBpn, bpnQueue);
 			Thread tsWriter = startWriter(ocbTs, tsQueue);
@@ -211,16 +219,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			exportTransitions(ap, vn, bpnQueue, tsQueue);
 
 			// Stop Writers
-			bpnQueue.put(STOP);
-			tsQueue.put(STOP);
-			psQueue.put(STOP);
+			stopWriters(bpnQueue, tsQueue, psQueue);
 			bpnWriter.join();
 			tsWriter.join();
 			psWriter.join();
 			// Close channels
-			PNML2BPNUtils.closeOutChannel(ocbBpn);
-			PNML2BPNUtils.closeOutChannel(ocbTs);
-			PNML2BPNUtils.closeOutChannel(ocbPs);
+			closeChannels(ocbBpn, ocbTs, ocbPs);
 			// clear maps
 			clearAllMaps();
 			log.info("See BPN and mapping files: {}, {} and {}",
@@ -230,12 +234,102 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				| XPathEvalExceptionHuge | ParseExceptionHuge
 				| InvalidSafeNetException | InternalException
 				| InvalidNetException e) {
+			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
+					ocbPs, outTSFile, outPSFile);
 			throw new PNMLImportExportException(e);
 		} catch (InterruptedException e) {
+			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
+					ocbPs, outTSFile, outPSFile);
 			throw e;
 		} catch (IOException e) {
+			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
+					ocbPs, outTSFile, outPSFile);
 			throw e;
 		}
+	}
+
+	/**
+	 * @param outFile
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @param psQueue
+	 * @param ocbBpn
+	 * @param ocbTs
+	 * @param ocbPs
+	 * @param outTSFile
+	 * @param outPSFile
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	private void emergencyStop(File outFile, BlockingQueue<String> bpnQueue,
+			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue,
+			OutChannelBean ocbBpn, OutChannelBean ocbTs, OutChannelBean ocbPs,
+			File outTSFile, File outPSFile) throws InterruptedException,
+			IOException {
+		cancelWriters(bpnQueue, tsQueue, psQueue);
+		closeChannels(ocbBpn, ocbTs, ocbPs);
+		deleteOutputFiles(outFile, outTSFile, outPSFile);
+	}
+
+	/**
+	 * Emergency stop actions.
+	 * @param outFile
+	 * @param outTSFile
+	 * @param outPSFile
+	 */
+	private void deleteOutputFiles(File outFile, File outTSFile, File outPSFile) {
+		if (outFile != null && outFile.exists()) {
+			outFile.delete();
+		}
+		if (outPSFile != null && outPSFile.exists()) {
+			outPSFile.delete();
+		}
+		if (outTSFile != null && outTSFile.exists()) {
+			outTSFile.delete();
+		}
+	}
+
+	/**
+	 * @param ocbBpn
+	 * @param ocbTs
+	 * @param ocbPs
+	 * @throws IOException
+	 */
+	private void closeChannels(OutChannelBean ocbBpn, OutChannelBean ocbTs,
+			OutChannelBean ocbPs) throws IOException {
+		PNML2BPNUtils.closeOutChannel(ocbBpn);
+		PNML2BPNUtils.closeOutChannel(ocbTs);
+		PNML2BPNUtils.closeOutChannel(ocbPs);
+	}
+
+	/**
+	 * Emergency stop.
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @param psQueue
+	 * @throws InterruptedException
+	 */
+	private void cancelWriters(BlockingQueue<String> bpnQueue,
+			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
+			throws InterruptedException {
+		bpnQueue.put(CANCEL);
+		tsQueue.put(CANCEL);
+		psQueue.put(CANCEL);
+	}
+
+	/**
+	 * Normal stop.
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @param psQueue
+	 * @throws InterruptedException
+	 */
+	private void stopWriters(BlockingQueue<String> bpnQueue,
+			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
+			throws InterruptedException {
+		bpnQueue.put(STOP);
+		tsQueue.put(STOP);
+		psQueue.put(STOP);
 	}
 
 	/**
