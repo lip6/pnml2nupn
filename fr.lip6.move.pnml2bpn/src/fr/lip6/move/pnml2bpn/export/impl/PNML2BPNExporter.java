@@ -45,6 +45,7 @@ import com.ximpleware.extended.XPathEvalExceptionHuge;
 import com.ximpleware.extended.XPathParseExceptionHuge;
 
 import fr.lip6.move.pnml2bpn.exceptions.InternalException;
+import fr.lip6.move.pnml2bpn.exceptions.InvalidNetException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidSafeNetException;
 import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
@@ -227,7 +228,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					outPSFile.getCanonicalPath());
 		} catch (NavExceptionHuge | XPathParseExceptionHuge
 				| XPathEvalExceptionHuge | ParseExceptionHuge
-				| InvalidSafeNetException | InternalException e) {
+				| InvalidSafeNetException | InternalException |InvalidNetException e) {
 			throw new PNMLImportExportException(e);
 		} catch (InterruptedException e) {
 			throw e;
@@ -386,7 +387,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
 			throws XPathParseExceptionHuge, XPathEvalExceptionHuge,
 			NavExceptionHuge, InvalidSafeNetException, InternalException,
-			InterruptedException {
+			InterruptedException, InvalidNetException {
 		long iDCount = 0L;
 		// initial places
 		ap.selectXPath(PNMLPaths.PLACES_MARKING);
@@ -412,8 +413,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				}
 			}
 		}
+		// exit point if there is no initial place in the net
 		if (initPlaces.size() == 0) {
-			log.warn("Attention: there is no initial place in this net!");
+			throw new InvalidNetException("Error: there is no initial place in this net!");
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
@@ -449,7 +451,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		// places
 		if (initPlaces.size() > 1) {
 			log.error("Attention: there are several initial places and no solution yet for the correct encoding of the resulting BPN.");
-			throw new InternalException(
+			throw new InvalidNetException(
 					"No solution yet to export into BPN the case of several initial places");
 		}
 		// Root unit declaration - id is N. Check case there is just one place.
@@ -470,8 +472,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					.append(HK).append(ZERO).append(NL);
 			bpnQueue.put(bpnsb.toString());
 			count++;
+			bpnsb.delete(0, bpnsb.length());
 		}
-		bpnsb.delete(0, bpnsb.length());
 
 		// Then the rest
 		ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
@@ -507,8 +509,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			bpnsb.append(U).append(nb).append(WS).append(HK).append(ZERO)
 					.append(WS).append(ONE).append(DOTS).append(ZERO)
 					.append(WS).append(HK).append(ZERO);
-			log.warn("We encountered the case where there is no place at all in the net.");
+			log.error("We encountered the case where there is no place at all in the net.");
 			log.error("This violates the rules stating that root unit must have at least 2 sub-units, if it does not contain any place.");
+			throw new InvalidNetException("No place in the net! See error messages above.");
 		}
 		bpnsb.append(NL);
 		bpnQueue.put(bpnsb.toString());
