@@ -317,9 +317,15 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private void cancelWriters(BlockingQueue<String> bpnQueue,
 			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
 			throws InterruptedException {
-		bpnQueue.put(CANCEL);
-		tsQueue.put(CANCEL);
-		psQueue.put(CANCEL);
+		if (bpnQueue != null) {
+			bpnQueue.put(CANCEL);
+		}
+		if (tsQueue != null) {
+			tsQueue.put(CANCEL);
+		}
+		if (psQueue != null) {
+			psQueue.put(CANCEL);
+		}
 	}
 
 	/**
