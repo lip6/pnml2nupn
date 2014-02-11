@@ -37,6 +37,7 @@ import fr.lip6.move.pnml2bpn.utils.PNML2BPNUtils;
 public final class BPNWriter implements Runnable {
 
 	private static final String STOP = "STOP";
+	private static final String CANCEL = "CANCEL";
 	private OutChannelBean ocb;
 	private BlockingQueue<String> queue;
 	private Logger log;
@@ -56,7 +57,7 @@ public final class BPNWriter implements Runnable {
 		String msg;
 		try {
 			msg = queue.take();
-			while (!STOP.equalsIgnoreCase(msg)) {
+			while (!STOP.equalsIgnoreCase(msg) && !CANCEL.equalsIgnoreCase(msg)) {
 				PNML2BPNUtils.writeToChannel(ocb, msg, bytebuf, contents);
 				contents.clear();
 				msg = queue.take();
