@@ -99,15 +99,15 @@ public final class MainPNML2BPN {
 		}
 		// Force BPN generation property
 		String forceBpnGen = System.getProperty(FORCE_BPN_GENERATION);
-		if (forceBpnGen != null && !Boolean.valueOf(forceBpnGen)) {
-			isForceBPNGen = false;
-		} else {
+		if (forceBpnGen != null && Boolean.valueOf(forceBpnGen)) {
 			isForceBPNGen = true;
+		} else {
+			isForceBPNGen = false;
 			msg.append(
 					"Forcing BPN generation not set. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
 					.append(FORCE_BPN_GENERATION)
 					.append(" property like so: java -D")
-					.append(FORCE_BPN_GENERATION).append("=false [JVM OPTIONS] -jar ...");
+					.append(FORCE_BPN_GENERATION).append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		}
