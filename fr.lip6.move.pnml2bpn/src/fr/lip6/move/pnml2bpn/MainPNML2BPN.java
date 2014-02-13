@@ -44,6 +44,7 @@ public final class MainPNML2BPN {
 	private static final String PNML_EXT = ".pnml";
 	private static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";
 	private static final String CAMI_TMP_DELETE = "cami.tmp.delete";
+	private static final String FORCE_BPN_GENERATION = "force.bpn.generation";
 	private static boolean isDebug;
 
 	private static List<String> pathDest;
@@ -51,6 +52,7 @@ public final class MainPNML2BPN {
 	private static PNMLFilenameFilter pff;
 	private static DirFileFilter dff;
 	private static boolean isCamiTmpDelete;
+	private static boolean isForceBPNGen;
 	
 	private MainPNML2BPN() {
 		super();
@@ -67,7 +69,7 @@ public final class MainPNML2BPN {
 			myLog.error("At least the path to one PNML P/T file is expected. You may provide a file, a directory, or a mix of several of these.");
 			return;
 		}
-		
+		// Debug mode?
 		String debug = System.getenv(PNML2BPN_DEBUG);
 		if ("true".equalsIgnoreCase(debug)) {
 			setDebug(true);
@@ -81,21 +83,35 @@ public final class MainPNML2BPN {
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		}
-		
+		// Keep Cami property
 		String remove = System.getProperty(CAMI_TMP_DELETE);
 		if (remove != null && !Boolean.valueOf(remove)) {
 			isCamiTmpDelete = false;
 		} else {
 			isCamiTmpDelete = true;
 			msg.append(
-					"Keeping temporary Cami file property not set. If you want to keep temporary Cami file then invoque this program with ")
+					"Keeping temporary Cami file property not set. If you want to keep temporary Cami file then invoke this program with ")
 					.append(CAMI_TMP_DELETE)
 					.append(" property like so: java -D")
 					.append(CAMI_TMP_DELETE).append("=false [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		}
-			
+		// Force BPN generation property
+		String forceBpnGen = System.getProperty(FORCE_BPN_GENERATION);
+		if (forceBpnGen != null && !Boolean.valueOf(forceBpnGen)) {
+			isForceBPNGen = false;
+		} else {
+			isForceBPNGen = true;
+			msg.append(
+					"Forcing BPN generation not set. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
+					.append(FORCE_BPN_GENERATION)
+					.append(" property like so: java -D")
+					.append(FORCE_BPN_GENERATION).append("=false [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		}
+		
 		try {
 			extractSrcDestPaths(args);
 		} catch (IOException e1) {
@@ -216,6 +232,10 @@ public final class MainPNML2BPN {
 	
 	public static synchronized boolean isCamiTmpDelete() {
 		return isCamiTmpDelete;
+	}
+	
+	public static synchronized boolean isForceBPNGen() {
+		return isForceBPNGen;
 	}
 
 	public static synchronized void printStackTrace(Exception e) {
