@@ -44,6 +44,7 @@ import com.ximpleware.extended.XMLMemMappedBuffer;
 import com.ximpleware.extended.XPathEvalExceptionHuge;
 import com.ximpleware.extended.XPathParseExceptionHuge;
 
+import fr.lip6.move.pnml2bpn.MainPNML2BPN;
 import fr.lip6.move.pnml2bpn.exceptions.InternalException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidNetException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
@@ -160,14 +161,14 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			PNMLImportExportException, IOException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
 		VTDGenHuge vg = new VTDGenHuge();
-		BlockingQueue<String> bpnQueue = null ;
-		BlockingQueue<String> tsQueue  = null;
+		BlockingQueue<String> bpnQueue = null;
+		BlockingQueue<String> tsQueue = null;
 		BlockingQueue<String> psQueue = null;
 		OutChannelBean ocbBpn = null;
 		OutChannelBean ocbTs = null;
 		OutChannelBean ocbPs = null;
 		File outTSFile = null;
-		File outPSFile =null;
+		File outPSFile = null;
 		try {
 			xb.readFile(inFile.getCanonicalPath());
 			vg.setDoc(xb);
@@ -185,11 +186,19 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			// The net must be 1-safe.
 			log.info("Checking it is 1-Safe.");
 			if (!isNet1Safe()) {
-				throw new InvalidSafeNetException(
-						"The net(s) in the submitted document is not 1-safe: "
-								+ this.currentInputFile.getCanonicalPath());
+				if (MainPNML2BPN.isForceBPNGen()) {
+					journal.warn(
+							"The net(s) in the submitted document is not 1-safe, but forced BPN generation is set: {}",
+							this.currentInputFile.getCanonicalPath());
+					journal.warn("Continuing BPN generation.");
+				} else {
+					throw new InvalidSafeNetException(
+							"The net(s) in the submitted document is not 1-safe: "
+									+ this.currentInputFile.getCanonicalPath());
+				}
+			} else {
+				log.info("Net appears to be 1-Safe.");
 			}
-			log.info("Net appears to be 1-Safe.");
 			// Open BPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + TRANS_EXT);
@@ -250,6 +259,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	/**
 	 * Emergency stop.
+	 * 
 	 * @param outFile
 	 * @param bpnQueue
 	 * @param tsQueue
@@ -259,16 +269,16 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * @param ocbPs
 	 * @param outTSFile
 	 * @param outPSFile
-	 * @param journal 
+	 * @param journal
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
 	private void emergencyStop(File outFile, BlockingQueue<String> bpnQueue,
 			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue,
 			OutChannelBean ocbBpn, OutChannelBean ocbTs, OutChannelBean ocbPs,
-			File outTSFile, File outPSFile, Logger journal) throws InterruptedException,
-			IOException {
-		
+			File outTSFile, File outPSFile, Logger journal)
+			throws InterruptedException, IOException {
+
 		cancelWriters(bpnQueue, tsQueue, psQueue);
 		closeChannels(ocbBpn, ocbTs, ocbPs);
 		deleteOutputFiles(outFile, outTSFile, outPSFile);
@@ -277,6 +287,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	/**
 	 * Emergency stop actions.
+	 * 
 	 * @param outFile
 	 * @param outTSFile
 	 * @param outPSFile
@@ -295,6 +306,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	/**
 	 * Close output channels.
+	 * 
 	 * @param ocbBpn
 	 * @param ocbTs
 	 * @param ocbPs
@@ -309,6 +321,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	/**
 	 * Cancels writers in case of emergency stop.
+	 * 
 	 * @param bpnQueue
 	 * @param tsQueue
 	 * @param psQueue
@@ -330,6 +343,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	/**
 	 * Normal stop.
+	 * 
 	 * @param bpnQueue
 	 * @param tsQueue
 	 * @param psQueue
@@ -469,7 +483,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			plsSize = 0L;
 		}
 		bpnsb.append(WS).append(HK).append(plsSize);
-			
+
 		if (plsSize > 0L) {
 			for (long plId : pls) {
 				bpnsb.append(WS).append(plId);
@@ -495,9 +509,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			InterruptedException, InvalidNetException {
 		long iDCount = 0L;
 		long nbMarkedPlaces = 0L;
-		 ap.selectXPath(PNMLPaths.COUNT_MARKED_PLACES);
-		 nbMarkedPlaces = (long) ap.evalXPathToNumber();
-		 
+		ap.selectXPath(PNMLPaths.COUNT_MARKED_PLACES);
+		nbMarkedPlaces = (long) ap.evalXPathToNumber();
+
 		// FIXME: exit point if there is no initial place in the net
 		if (nbMarkedPlaces == 0L) {
 			throw new InvalidNetException(
