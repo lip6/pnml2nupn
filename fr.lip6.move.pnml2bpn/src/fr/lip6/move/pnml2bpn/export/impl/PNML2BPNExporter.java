@@ -469,9 +469,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			plsSize = 0L;
 		}
 		bpnsb.append(WS).append(HK).append(plsSize);
-		if (plsSize == 0L) { // convention for empty sets
-			bpnsb.append(WS).append(ONE).append(DOTS).append(ZERO);
-		} else {
+			
+		if (plsSize > 0L) {
 			for (long plId : pls) {
 				bpnsb.append(WS).append(plId);
 			}
