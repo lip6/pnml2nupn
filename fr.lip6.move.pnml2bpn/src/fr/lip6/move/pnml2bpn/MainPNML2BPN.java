@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -45,6 +46,7 @@ public final class MainPNML2BPN {
 	private static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";
 	private static final String CAMI_TMP_DELETE = "cami.tmp.delete";
 	private static final String FORCE_BPN_GENERATION = "force.bpn.generation";
+	private static final String BOUNDS_CHECKING = "bounds.checking";
 	private static boolean isDebug;
 
 	private static List<String> pathDest;
@@ -53,7 +55,8 @@ public final class MainPNML2BPN {
 	private static DirFileFilter dff;
 	private static boolean isCamiTmpDelete;
 	private static boolean isForceBPNGen;
-	
+	private static boolean isBoundsChecking;
+
 	private MainPNML2BPN() {
 		super();
 	}
@@ -70,57 +73,22 @@ public final class MainPNML2BPN {
 			return;
 		}
 		// Debug mode?
-		String debug = System.getenv(PNML2BPN_DEBUG);
-		if ("true".equalsIgnoreCase(debug)) {
-			setDebug(true);
-		} else {
-			setDebug(false);
-			msg.append(
-					"Debug mode not set. If you want to activate the debug mode (print stackstaces in case of errors), then set the ")
-					.append(PNML2BPN_DEBUG)
-					.append(" environnement variable like so: export ")
-					.append(PNML2BPN_DEBUG).append("=true.");
-			myLog.warn(msg.toString());
-			msg.delete(0, msg.length());
-		}
+		checkDebugMode(myLog, msg);
 		// Keep Cami property
-		String remove = System.getProperty(CAMI_TMP_DELETE);
-		if (remove != null && !Boolean.valueOf(remove)) {
-			isCamiTmpDelete = false;
-		} else {
-			isCamiTmpDelete = true;
-			msg.append(
-					"Keeping temporary Cami file property not set. If you want to keep temporary Cami file then invoke this program with ")
-					.append(CAMI_TMP_DELETE)
-					.append(" property like so: java -D")
-					.append(CAMI_TMP_DELETE).append("=false [JVM OPTIONS] -jar ...");
-			myLog.warn(msg.toString());
-			msg.delete(0, msg.length());
-		}
+		checkCamiKeepingMode(myLog, msg);
 		// Force BPN generation property
-		String forceBpnGen = System.getProperty(FORCE_BPN_GENERATION);
-		if (forceBpnGen != null && Boolean.valueOf(forceBpnGen)) {
-			isForceBPNGen = true;
-		} else {
-			isForceBPNGen = false;
-			msg.append(
-					"Forcing BPN generation not set. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
-					.append(FORCE_BPN_GENERATION)
-					.append(" property like so: java -D")
-					.append(FORCE_BPN_GENERATION).append("=true [JVM OPTIONS] -jar ...");
-			myLog.warn(msg.toString());
-			msg.delete(0, msg.length());
-		}
-		
+		checkForceBPNGenMode(myLog, msg);
+		// Bounds checking property
+		checkBoundsCheckingMode(myLog, msg);
+
 		try {
 			extractSrcDestPaths(args);
 		} catch (IOException e1) {
 			myLog.error("Could not successfully extract all source files paths. See log.");
 			myLog.error(e1.getMessage());
-			if(MainPNML2BPN.isDebug) {
+			if (MainPNML2BPN.isDebug) {
 				e1.printStackTrace();
 			}
-			
 		}
 		long startTime = System.nanoTime();
 		PNMLExporter pe = new PNML2BPNFactory().createExporter();
@@ -165,10 +133,94 @@ public final class MainPNML2BPN {
 		}
 	}
 
+	private static void checkBoundsCheckingMode(org.slf4j.Logger myLog,
+			StringBuilder msg) {
+		String boundsChecking = System.getProperty(BOUNDS_CHECKING);
+		if (boundsChecking != null && Boolean.valueOf(boundsChecking)) {
+			isBoundsChecking = true;
+		} else {
+			isBoundsChecking = false;
+			msg.append(
+					"Bounds checking not set. Default is true. If you want to disable bounds checking, then invoke this program with ")
+					.append(BOUNDS_CHECKING)
+					.append(" property like so: java -D")
+					.append(BOUNDS_CHECKING)
+					.append("=true [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		}
+	}
+
 	/**
-	 * Extracts PNML files (scans directories recursively) from command-line arguments.
+	 * @param myLog
+	 * @param msg
+	 */
+	private static void checkForceBPNGenMode(org.slf4j.Logger myLog,
+			StringBuilder msg) {
+		String forceBpnGen = System.getProperty(FORCE_BPN_GENERATION);
+		if (forceBpnGen != null && Boolean.valueOf(forceBpnGen)) {
+			isForceBPNGen = true;
+		} else {
+			isForceBPNGen = false;
+			msg.append(
+					"Forcing BPN generation not set. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
+					.append(FORCE_BPN_GENERATION)
+					.append(" property like so: java -D")
+					.append(FORCE_BPN_GENERATION)
+					.append("=true [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		}
+	}
+
+	/**
+	 * @param myLog
+	 * @param msg
+	 */
+	private static void checkCamiKeepingMode(org.slf4j.Logger myLog,
+			StringBuilder msg) {
+		String remove = System.getProperty(CAMI_TMP_DELETE);
+		if (remove != null && !Boolean.valueOf(remove)) {
+			isCamiTmpDelete = false;
+		} else {
+			isCamiTmpDelete = true;
+			msg.append(
+					"Keeping temporary Cami file property not set. If you want to keep temporary Cami file then invoke this program with ")
+					.append(CAMI_TMP_DELETE)
+					.append(" property like so: java -D")
+					.append(CAMI_TMP_DELETE)
+					.append("=false [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		}
+	}
+
+	/**
+	 * @param myLog
+	 * @param msg
+	 */
+	private static void checkDebugMode(org.slf4j.Logger myLog, StringBuilder msg) {
+		String debug = System.getenv(PNML2BPN_DEBUG);
+		if ("true".equalsIgnoreCase(debug)) {
+			setDebug(true);
+		} else {
+			setDebug(false);
+			msg.append(
+					"Debug mode not set. If you want to activate the debug mode (print stackstaces in case of errors), then set the ")
+					.append(PNML2BPN_DEBUG)
+					.append(" environnement variable like so: export ")
+					.append(PNML2BPN_DEBUG).append("=true.");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		}
+	}
+
+	/**
+	 * Extracts PNML files (scans directories recursively) from command-line
+	 * arguments.
+	 * 
 	 * @param args
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private static void extractSrcDestPaths(String[] args) throws IOException {
 		pathDest = new ArrayList<String>();
@@ -186,35 +238,37 @@ public final class MainPNML2BPN {
 				srcFiles = extractSrcFiles(srcf, pff, dff);
 				for (File f : srcFiles) {
 					pathSrc.add(f.getCanonicalPath());
-					pathDest.add(f.getCanonicalPath().replaceAll(PNML_EXT, BPN_EXT));
+					pathDest.add(f.getCanonicalPath().replaceAll(PNML_EXT,
+							BPN_EXT));
 				}
 			}
 		}
 	}
 
-	private static File[] extractSrcFiles(File srcf, PNMLFilenameFilter pff, DirFileFilter dff) {
+	private static File[] extractSrcFiles(File srcf, PNMLFilenameFilter pff,
+			DirFileFilter dff) {
 		List<File> res = new ArrayList<File>();
-		
+
 		// filter PNML files
 		File[] pfiles = srcf.listFiles(pff);
 		res.addAll(Arrays.asList(pfiles));
-		
+
 		// filter directories
 		pfiles = srcf.listFiles(dff);
-		for (File f: pfiles) {
+		for (File f : pfiles) {
 			res.addAll(Arrays.asList(extractSrcFiles(f, pff, dff)));
 		}
 
 		return res.toArray(new File[0]);
 	}
-	
+
 	private static final class PNMLFilenameFilter implements FilenameFilter {
 		@Override
 		public boolean accept(File dir, String name) {
 			return name.endsWith(PNML_EXT);
 		}
 	}
-	
+
 	private static final class DirFileFilter implements FileFilter {
 		@Override
 		public boolean accept(File pathname) {
@@ -222,22 +276,57 @@ public final class MainPNML2BPN {
 		}
 	}
 
+	/**
+	 * Returns true if debug mode is set.
+	 * 
+	 * @return
+	 */
 	public static boolean isDebug() {
 		return isDebug;
 	}
 
+	/**
+	 * Sets the debug mode according to parameter: enable (true) or disable
+	 * (false).
+	 * 
+	 * @param isDebug
+	 */
 	public static synchronized void setDebug(boolean isDebug) {
 		MainPNML2BPN.isDebug = isDebug;
 	}
-	
+
+	/**
+	 * Returns true if temporary Cami file should be deleted, false otherwise.
+	 * 
+	 * @return
+	 */
 	public static synchronized boolean isCamiTmpDelete() {
 		return isCamiTmpDelete;
 	}
-	
+
+	/**
+	 * Returns true if BPN generation is forced, even if the net is not 1-safe.
+	 * 
+	 * @return
+	 */
 	public static synchronized boolean isForceBPNGen() {
 		return isForceBPNGen;
 	}
 
+	/**
+	 * Returns true if bounds checking is enabled (default), false otherwise.
+	 * 
+	 * @return
+	 */
+	public static synchronized boolean isBoundsChecking() {
+		return isBoundsChecking;
+	}
+
+	/**
+	 * Prints the stack trace of the exception passed as parameter.
+	 * 
+	 * @param e
+	 */
 	public static synchronized void printStackTrace(Exception e) {
 		if (MainPNML2BPN.isDebug) {
 			e.printStackTrace();
