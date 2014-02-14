@@ -183,21 +183,26 @@ public final class PNML2BPNExporter implements PNMLExporter {
 						"The contained Petri net(s) in the following file is not a P/T Net. Only P/T Nets are supported: "
 								+ this.currentInputFile.getCanonicalPath());
 			}
-			// The net must be 1-safe.
-			log.info("Checking it is 1-Safe.");
-			if (!isNet1Safe()) {
-				if (MainPNML2BPN.isForceBPNGen()) {
-					journal.warn(
-							"The net(s) in the submitted document is not 1-safe, but forced BPN generation is set: {}",
-							this.currentInputFile.getCanonicalPath());
-					journal.warn("Continuing BPN generation.");
+			// The net must be 1-safe, if bounds checking is enabled.
+			if (MainPNML2BPN.isBoundsChecking()) {
+				log.info("Checking it is 1-Safe.");
+				if (!isNet1Safe()) {
+					if (MainPNML2BPN.isForceBPNGen()) {
+						journal.warn(
+								"The net(s) in the submitted document is not 1-safe, but forced BPN generation is set: {}",
+								this.currentInputFile.getCanonicalPath());
+						journal.warn("Continuing BPN generation.");
+					} else {
+						throw new InvalidSafeNetException(
+								"The net(s) in the submitted document is not 1-safe: "
+										+ this.currentInputFile
+												.getCanonicalPath());
+					}
 				} else {
-					throw new InvalidSafeNetException(
-							"The net(s) in the submitted document is not 1-safe: "
-									+ this.currentInputFile.getCanonicalPath());
+					log.info("Net appears to be 1-Safe.");
 				}
 			} else {
-				log.info("Net appears to be 1-Safe.");
+				log.info("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
 			}
 			// Open BPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile

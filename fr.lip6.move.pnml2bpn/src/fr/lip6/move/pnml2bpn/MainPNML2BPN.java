@@ -145,7 +145,7 @@ public final class MainPNML2BPN {
 					.append(BOUNDS_CHECKING)
 					.append(" property like so: java -D")
 					.append(BOUNDS_CHECKING)
-					.append("=true [JVM OPTIONS] -jar ...");
+					.append("=false [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		}
@@ -163,7 +163,7 @@ public final class MainPNML2BPN {
 		} else {
 			isForceBPNGen = false;
 			msg.append(
-					"Forcing BPN generation not set. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
+					"Forcing BPN generation not set. Default is false. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
 					.append(FORCE_BPN_GENERATION)
 					.append(" property like so: java -D")
 					.append(FORCE_BPN_GENERATION)
