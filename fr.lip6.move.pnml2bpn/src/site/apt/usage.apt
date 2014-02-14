@@ -59,4 +59,21 @@ Debug information
   with useful information for debugging. To enable this, set the PNML2BPN_DEBUG environment variable to true
   before invoking this tool.
    
+Force BPN Generation
+ 
+ This tool support a property that you can use to force the generation of the BPN
+ file, even if the net is not 1-safe. To do so, invoke it with the <<force.bpn.generation>> property
+ set to true, like so: 
+ 
+ <java -Dforce.bpn.generation=true ...>
+
+
+Disable Bounds Checking
+
+ It is also possible to disable bounds checking on the net. Bounds checking enables this tool
+ to determine if the input net is 1-safe or not. If disabled, BPN generation will be
+ faster since this step, that can take a long time, is skipped. You may set this tool into
+ that mode by invoking it with the <<bounds.checking>> property set to false, like so:
+ 
+ <java -Dbounds.checking=false ...>
 
