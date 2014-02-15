@@ -138,8 +138,9 @@ public final class MainPNML2BPN {
 		String boundsChecking = System.getProperty(BOUNDS_CHECKING);
 		if (boundsChecking != null && Boolean.valueOf(boundsChecking)) {
 			isBoundsChecking = true;
-		} else {
-			isBoundsChecking = false;
+			myLog.warn("Bounds checking enabled.");
+		} else if (boundsChecking == null) {
+			isBoundsChecking = true;
 			msg.append(
 					"Bounds checking not set. Default is true. If you want to disable bounds checking, then invoke this program with ")
 					.append(BOUNDS_CHECKING)
@@ -148,6 +149,9 @@ public final class MainPNML2BPN {
 					.append("=false [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
+		} else {
+			isBoundsChecking = false;
+			myLog.warn("Bounds checking disabled.");
 		}
 	}
 
