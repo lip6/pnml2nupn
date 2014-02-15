@@ -537,9 +537,10 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
 		String id;
 		List<Long> initPlaces = new ArrayList<>();
-		// TODO Check: do we need to clone the vn for using it in the loop?
+		// FIXME Check: do we need to clone the vn for using it in the loop?
 		// (Case of several initial places...)
 		while ((ap.evalXPath()) != -1) {
+			vn.push();
 			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			if (id != null) {
@@ -554,6 +555,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 				}
 			}
+			vn.pop();
 		}
 
 		ap.resetXPath();
