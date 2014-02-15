@@ -523,19 +523,19 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					"Error: there is no initial place in this net!");
 		}
 
-		// FIXME: No solution yet for the case where there are several initial
+		// FIXME: several initial are now accepted (since 1.1.10)
 		// places
 		if (nbMarkedPlaces > 1) {
-			log.error("Attention: there are several initial places and no solution yet for the correct encoding of the resulting BPN.");
-			throw new InvalidNetException(
-					"No solution yet to export into BPN the case of several initial places");
+			//log.error("Attention: there are several initial places and no solution yet for the correct encoding of the resulting BPN.");
+			//throw new InvalidNetException(
+			//		"No solution yet to export into BPN the case of several initial places");
+			log.warn("There are several initial places in this net.");
 		}
 
-		// select initial place
+		// select initial places
 		ap.resetXPath();
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
 		String id;
-		// @deprecated tsQueue.put(PLACE_MAPPING_MSG + NL);
 		List<Long> initPlaces = new ArrayList<>();
 		// TODO Check: do we need to clone the vn for using it in the loop?
 		// (Case of several initial places...)
@@ -566,7 +566,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		// Write Number of places
 		bpnsb.append(PLACES).append(WS).append(HK).append(nb).append(WS)
 				.append(ZERO).append(DOTS).append(nb - 1).append(NL);
-		// / TODO Handle case where there are several initial places
+		// Handle case where there are several initial places
 		if (initPlaces.size() > 1) {
 			bpnsb.append(INIT_PLACES).append(WS).append(HK)
 					.append(initPlaces.size());
@@ -586,7 +586,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					.append(ZERO).append(DOTS).append(nb - 1).append(NL);
 		}
 
-		// Root unit declaration - id is N. Check case there is just one place.
+		// Root unit declaration - id is N - 1. Check case there is just one place.
 		if (nb > 1) {
 			bpnsb.append(ROOT_UNIT).append(WS).append(nb).append(NL);
 		} else {
