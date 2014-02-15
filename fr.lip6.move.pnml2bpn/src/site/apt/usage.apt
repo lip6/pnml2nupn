@@ -47,11 +47,13 @@ Command-line invocation
 Invocation using a Shell script
 
   We provide a {{{./download/pnml2bpn.sh}Shell script}} to help you increase productivity in using PNML to BPN Converter.
-In particular, a set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
+In particular, the above set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
 
   For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
 PNML documents (a few hundreds KB), we advise you decrease it (current setting is 2 GB). If you use large documents,
 (a few hundreds MB to GB), then you should increase it in order to avoid out of memory errors.
+
+ The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable. See below.
 
 Debug information
 
