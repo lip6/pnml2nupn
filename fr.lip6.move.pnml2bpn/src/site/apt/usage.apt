@@ -35,7 +35,7 @@ Command-line invocation
 
   The basic command-line invocation is the following (update the name of the jar to the latest version of this tool):
   
- <java -jar fr.lip6.move.pnml2bpn-1.1.5.jar pathToFile [pathToFolder pathToAnotherFile ...]>
+ <java -jar fr.lip6.move.pnml2bpn-1.1.5.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]>
 
  Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9):
  
