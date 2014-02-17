@@ -55,16 +55,29 @@ PNML documents (a few hundreds KB), we advise you decrease it (current setting i
 
  The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable. See below.
 
+
+Output
+
+ Upon successful execution, this tool will output 3 files:
+ 
+  * A *.bpn file that contains the Basic Petri Net obtained from the PNML P/T translation;
+  
+  * A *.places file that contains the mapping between the places ids from PNML and their counterparts in BPN;
+  
+  * A *.trans file that contains the mapping between the transitions ids from PNML and their counterparts in BPN.
+
+  These files will be located near the input PNML one.
+
 Debug information
 
   In case of error, you may want the program to print the stack trace, to provide the tool author
-  with useful information for debugging. To enable this, set the PNML2BPN_DEBUG environment variable to true
+  with useful information for debugging. To enable debug information, set the PNML2BPN_DEBUG environment variable to true
   before invoking this tool.
    
 Force BPN Generation
  
- This tool support a property that you can use to force the generation of the BPN
- file, even if the net is not 1-safe. To do so, invoke it with the <<force.bpn.generation>> property
+ This tool supports a property that you can use to force the generation of the BPN
+ file, even if the net is not 1-safe. To trigger that behaviour, invoke it with the <<force.bpn.generation>> property
  set to true, like so: 
  
  <java -Dforce.bpn.generation=true ...>
