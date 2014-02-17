@@ -63,7 +63,7 @@ import fr.lip6.move.pnml2bpn.utils.SafePNChecker;
 public final class PNML2BPNExporter implements PNMLExporter {
 
 	private static final String TRANS_EXT = ".trans";
-	private static final String STATES_EXT = ".states";
+	private static final String STATES_EXT = ".places";
 	private static final String STOP = "STOP";
 	private static final String CANCEL = "CANCEL";
 	private static final String NL = "\n";
