@@ -45,8 +45,25 @@ public final class MainPNML2BPN {
 	private static final String PNML_EXT = ".pnml";
 	private static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";
 	private static final String CAMI_TMP_DELETE = "cami.tmp.delete";
+	/**
+	 * Force BPN Generation works by default for the case where bounds checking is disabled.
+	 */
 	private static final String FORCE_BPN_GENERATION = "force.bpn.generation";
+	/**
+	 * Bounds checking property.
+	 */
 	private static final String BOUNDS_CHECKING = "bounds.checking";
+	/**
+	 * Remove transitions of unsafe arcs (incoming or outgoing)
+	 */
+	private static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.trans.unsafe.arcs";
+	/**
+	 * Force generation of unsafe nets, where it is clearly checked that 
+	 * at least one initial has more than 1 token or the inscription of an arc
+	 * is valued to more than 1. 
+	 */
+	private static final String GENERATE_UNSAFE = "generate.unsafe";
+	
 	private static boolean isDebug;
 
 	private static List<String> pathDest;
@@ -56,6 +73,8 @@ public final class MainPNML2BPN {
 	private static boolean isCamiTmpDelete;
 	private static boolean isForceBPNGen;
 	private static boolean isBoundsChecking;
+	private static boolean isRemoveTransUnsafeArcs;
+	private static boolean isGenerateUnsafe;
 
 	private MainPNML2BPN() {
 		super();
@@ -80,6 +99,11 @@ public final class MainPNML2BPN {
 		checkForceBPNGenMode(myLog, msg);
 		// Bounds checking property
 		checkBoundsCheckingMode(myLog, msg);
+		// Generate structural.bpn (case of forced generation in case of unsafe initial
+		// places or arcs
+		checkGenerateUnsafeMode(myLog, msg);
+		// Remove unsafe arcs?
+		checkRemoveTransUnsafeArcsMode(myLog, msg);
 
 		try {
 			extractSrcDestPaths(args);
@@ -131,6 +155,52 @@ public final class MainPNML2BPN {
 		if (error) {
 			System.exit(-1);
 		}
+	}
+
+	private static void checkGenerateUnsafeMode(Logger myLog, StringBuilder msg) {
+		String genUnsafe = System.getProperty(GENERATE_UNSAFE);
+		if (genUnsafe != null && Boolean.valueOf(genUnsafe)) {
+			isGenerateUnsafe = true;
+			myLog.warn("Generation of unsafe BPN (structural only) enabled.");
+		} else if (genUnsafe == null) {
+			isGenerateUnsafe = false;
+			msg.append(
+					"Generation of unsafe BPN (structural only) not set. Default is false. If you want to "
+					+ "generate unsafe BPN (structural only), then invoke this program with ")
+					.append(GENERATE_UNSAFE)
+					.append(" property like so: java -D")
+					.append(GENERATE_UNSAFE)
+					.append("=true [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		} else {
+			isGenerateUnsafe = false;
+			myLog.warn("Generation of unsafe BPN (structural only) disabled.");
+		}
+	}
+
+	private static void checkRemoveTransUnsafeArcsMode(Logger myLog,
+			StringBuilder msg) {
+		String removeua = System.getProperty(REMOVE_TRANS_UNSAFE_ARCS);
+		if (removeua != null && Boolean.valueOf(removeua)) {
+			isRemoveTransUnsafeArcs = true;
+			myLog.warn("Remove transitions of unsafe arcs enabled.");
+		} else if (removeua == null) {
+			isRemoveTransUnsafeArcs = false;
+			msg.append(
+					"Remove transitions of unsafe arcs not set. Default is false. If you want to "
+					+ "remove transitions of unsafe arcs, then invoke this program with ")
+					.append(REMOVE_TRANS_UNSAFE_ARCS)
+					.append(" property like so: java -D")
+					.append(REMOVE_TRANS_UNSAFE_ARCS)
+					.append("=true [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		} else {
+			isBoundsChecking = false;
+			myLog.warn("Remove transitions of unsafe arcs disabled.");
+		}
+		
 	}
 
 	private static void checkBoundsCheckingMode(org.slf4j.Logger myLog,
@@ -324,6 +394,24 @@ public final class MainPNML2BPN {
 	 */
 	public static synchronized boolean isBoundsChecking() {
 		return isBoundsChecking;
+	}
+	
+	/**
+	 * Returns true if user has asked for the removal of transitions
+	 * of unsafe arcs (incoming or outgoing).
+	 * @return
+	 */
+	public static synchronized boolean iRemoveTransUnsafeArcs() {
+		return isRemoveTransUnsafeArcs;
+	}
+	
+	/**
+	 * Returns true if user has asked for the generation of unsafe 
+	 * BPN (structural.bpn) in the case of unsafe initial place(s) or arc(s). 
+	 * @return
+	 */
+	public static synchronized boolean isGenerateUnsafe() {
+		return isGenerateUnsafe;
 	}
 
 	/**
