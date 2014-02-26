@@ -46,15 +46,19 @@ public final class PNMLPaths {
 	
 	public static final String MARKED_PLACES = PLACES_PATH + "/initialMarking[text > 0]";
 	
+	public static final String UNSAFE_MARKED_PLACES = PLACES_PATH + "/initialMarking[text > 1]";
+	
+	
 	public static final String COUNT_MARKED_PLACES = "count(" + MARKED_PLACES + ")";
 	
 	public static final String PLACES_PATH_EXCEPT_MKG = PAGES_PATH + "/child::place[not(child::initialMarking)]" 
 			+ " | " + PAGES_PATH  + "/child::place[child::initialMarking[text <= 0]]";
 	
-	
 	public static final String TRANSITIONS_PATH = PAGES_PATH + "/transition";
 	
 	public static final String ARCS_PATH = PAGES_PATH + "/arc";
+	
+	public static final String UNSAFE_ARCS = ARCS_PATH + "/inscription[text > 1]";
 
 	public static final String COUNT_PLACES_PATH = "count(" + PLACES_PATH + ")";
 
