@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.LongCollection;
 import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +65,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	private static final String TRANS_EXT = ".trans";
 	private static final String STATES_EXT = ".places";
+	private static final String STRUCTURAL_EXT = ".structural";
 	private static final String STOP = "STOP";
 	private static final String CANCEL = "CANCEL";
 	private static final String NL = "\n";
@@ -80,6 +82,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private static final String ZERO = "0";
 	private static final String ONE = "1";
 	private static final String DOTS = "...";
+	private static final String COMMA = ",";
+	private static final String COMMAWS = COMMA + WS;
 
 	private Logger log = null;
 
@@ -88,6 +92,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private Object2LongOpenHashMap<String> trId2bpnMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap = null;
+	private Object2ObjectOpenHashMap<String, String[]> unsafeArcsMap = null;
 	private File currentInputFile = null;
 	private SafePNChecker spnc = null;
 
@@ -194,7 +199,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 						journal.warn("Continuing BPN generation.");
 					} else {
 						throw new InvalidSafeNetException(
-								"The net(s) in the submitted document is not 1-safe: "
+								"The net(s) in the submitted document is not 1-safe (using the Bounds tool): "
 										+ this.currentInputFile
 												.getCanonicalPath());
 					}
@@ -202,7 +207,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					log.info("Net appears to be 1-Safe.");
 				}
 			} else {
-				log.info("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
+				log.warn("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
 			}
 			// Open BPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
@@ -224,6 +229,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 			// Init data type for places id and export places
 			initPlacesMap();
+			initArcsMap();
 			log.info("Exporting places.");
 			exportPlacesIntoUnits(ap, vn, bpnQueue, psQueue);
 
@@ -298,14 +304,18 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * @param outPSFile
 	 */
 	private void deleteOutputFiles(File outFile, File outTSFile, File outPSFile) {
-		if (outFile != null && outFile.exists()) {
-			outFile.delete();
-		}
-		if (outPSFile != null && outPSFile.exists()) {
-			outPSFile.delete();
-		}
-		if (outTSFile != null && outTSFile.exists()) {
-			outTSFile.delete();
+		deleteOutputFile(outFile);
+		deleteOutputFile(outTSFile);
+		deleteOutputFile(outPSFile);
+	}
+	
+	/**
+	 * Deletes an output file.
+	 * @param oFile
+	 */
+	private void deleteOutputFile(File oFile) {
+		if (oFile != null && oFile.exists()) {
+			oFile.delete();
 		}
 	}
 
@@ -319,9 +329,18 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 */
 	private void closeChannels(OutChannelBean ocbBpn, OutChannelBean ocbTs,
 			OutChannelBean ocbPs) throws IOException {
-		PNML2BPNUtils.closeOutChannel(ocbBpn);
-		PNML2BPNUtils.closeOutChannel(ocbTs);
-		PNML2BPNUtils.closeOutChannel(ocbPs);
+		closeChannel(ocbBpn);
+		closeChannel(ocbTs);
+		closeChannel(ocbPs);
+	}
+	
+	/**
+	 * Closes an output channel.
+	 * @param cb
+	 * @throws IOException
+	 */
+	private void closeChannel(OutChannelBean cb) throws IOException {
+		PNML2BPNUtils.closeOutChannel(cb);
 	}
 
 	/**
@@ -335,14 +354,19 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private void cancelWriters(BlockingQueue<String> bpnQueue,
 			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
 			throws InterruptedException {
-		if (bpnQueue != null) {
-			bpnQueue.put(CANCEL);
-		}
-		if (tsQueue != null) {
-			tsQueue.put(CANCEL);
-		}
-		if (psQueue != null) {
-			psQueue.put(CANCEL);
+		cancelWriter(bpnQueue);
+		cancelWriter(tsQueue);
+		cancelWriter(psQueue);
+	}
+	
+	/**
+	 * Cancel a writer by sending a cancellation message to it.
+	 * @param queue
+	 * @throws InterruptedException 
+	 */
+	private void cancelWriter(BlockingQueue<String> queue) throws InterruptedException {
+		if (queue != null) {
+			queue.put(CANCEL);
 		}
 	}
 
@@ -357,9 +381,18 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private void stopWriters(BlockingQueue<String> bpnQueue,
 			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
 			throws InterruptedException {
-		bpnQueue.put(STOP);
-		tsQueue.put(STOP);
-		psQueue.put(STOP);
+		stopWriter(bpnQueue);
+		stopWriter(tsQueue);
+		stopWriter(psQueue);
+	}
+	
+	/**
+	 * Normal stop of a writer.
+	 * @param queue
+	 * @throws InterruptedException
+	 */
+	private void stopWriter(BlockingQueue<String> queue) throws InterruptedException {
+		queue.put(STOP);
 	}
 
 	/**
@@ -370,10 +403,11 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		trId2bpnMap.clear();
 		tr2InPlacesMap.clear();
 		tr2OutPlacesMap.clear();
+		unsafeArcsMap.clear();
 	}
 
 	/**
-	 * Initialize internal data structures for transitions.
+	 * Initializes internal data structures for transitions.
 	 */
 	private void initTransitionsMaps() {
 		if (trId2bpnMap == null) {
@@ -391,7 +425,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	}
 
 	/**
-	 * Initialize internal data structures for places.
+	 * Initializes internal data structures for places.
 	 */
 	private void initPlacesMap() {
 		if (placesId2bpnMap == null) {
@@ -400,6 +434,28 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 	}
 
+	/**
+	 * Initializes internal data structures for arcs.
+	 */
+	private void initArcsMap() {
+		if (unsafeArcsMap == null) {
+			unsafeArcsMap = new Object2ObjectOpenHashMap<>();
+			unsafeArcsMap.defaultReturnValue(null);
+		}
+	}
+
+	/**
+	 * Export transitions into BPN.
+	 * 
+	 * @param ap
+	 * @param vn
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @throws XPathParseExceptionHuge
+	 * @throws NavExceptionHuge
+	 * @throws InterruptedException
+	 * @throws XPathEvalExceptionHuge
+	 */
 	private void exportTransitions(AutoPilotHuge ap, VTDNavHuge vn,
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
 			throws XPathParseExceptionHuge, NavExceptionHuge,
@@ -511,9 +567,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
 			throws XPathParseExceptionHuge, XPathEvalExceptionHuge,
 			NavExceptionHuge, InvalidSafeNetException, InternalException,
-			InterruptedException, InvalidNetException {
+			InterruptedException, InvalidNetException, IOException {
 		long iDCount = 0L;
 		long nbMarkedPlaces = 0L;
+		boolean unsafePlaces = false;
+		boolean unsafeArcs = false;
+		String id;
 		ap.selectXPath(PNMLPaths.COUNT_MARKED_PLACES);
 		nbMarkedPlaces = (long) ap.evalXPathToNumber();
 
@@ -523,22 +582,85 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					"Error: there is no initial place in this net!");
 		}
 
-		// FIXME: several initial are now accepted (since 1.1.10)
-		// places
-		if (nbMarkedPlaces > 1) {
-			//log.error("Attention: there are several initial places and no solution yet for the correct encoding of the resulting BPN.");
-			//throw new InvalidNetException(
-			//		"No solution yet to export into BPN the case of several initial places");
-			log.warn("There are several initial places in this net.");
+		// FIXME: Check initial markings > 1. Exit point if generate unsafe
+		// property not set.
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
+		ap.selectXPath(PNMLPaths.UNSAFE_MARKED_PLACES);
+		StringBuilder unsafePlacesId = new StringBuilder();
+		long nbUnsafePlaces = 0L;
+		while ((ap.evalXPath()) != -1) {
+			vn.push();
+			vn.toElement(VTDNavHuge.PARENT);
+			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+			if (id != null) {
+				unsafePlacesId.append(id + COMMAWS);
+				nbUnsafePlaces++;
+			}
+			vn.pop();
 		}
+		if (nbUnsafePlaces > 0) {
+			unsafePlaces = true;
+			log.warn("There are unsafe initial places in this net.");
+			unsafePlacesId.delete(unsafePlacesId.length() - 3,
+					unsafePlacesId.length());
+			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
+		}
+
+		// FIXME: Check inscriptions > 1 and retain inbound or outbound
+		// transitions.
+		// Exit point if generate unsafe property not set
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
+		ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
+		StringBuilder unsafeArcsId = new StringBuilder();
+		String src, trg;
+		String[] arcNodes;
+		long nbUnsafeArcs = 0L;
+		while ((ap.evalXPath()) != -1) {
+			vn.push();
+			vn.toElement(VTDNavHuge.PARENT);
+			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
+			trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
+
+			if (id != null) {
+				arcNodes = new String[] { src, trg };
+				unsafeArcsMap.put(id, arcNodes);
+				unsafeArcsId.append(id + COMMAWS);
+				nbUnsafeArcs++;
+			}
+			vn.pop();
+		}
+		if (nbUnsafeArcs > 0) {
+			unsafeArcs = true;
+			log.warn("There are unsafe arcs in this net.");
+			unsafeArcsId.delete(unsafeArcsId.length() - 3,
+					unsafeArcsId.length());
+			log.warn("Unsafe arcs: {}", unsafeArcsId.toString());
+		}
+
+		// Check generate unsafe property value
+		if (!MainPNML2BPN.isGenerateUnsafe() && (unsafePlaces || unsafeArcs)) {
+			throw new InvalidSafeNetException(
+					"The net in the submitted document is not 1-safe due to unsafe places or arcs (please check above warnings): "
+							+ this.currentInputFile.getCanonicalPath());
+		}
+		if (MainPNML2BPN.isGenerateUnsafe() && (unsafePlaces || unsafeArcs)) {
+			log.warn("Generation of BPN for this net was requested despite unsafe places or arcs.");
+			if (unsafePlaces) {
+				MainPNML2BPN.appendMesgLineToSignature("decreased to one the marking of " + nbUnsafePlaces + " initial places");
+			}
+		} 
 
 		// select initial places
 		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
-		String id;
 		List<Long> initPlaces = new ArrayList<>();
 		// FIXME Check: do we need to clone the vn for using it in the loop?
 		// (Case of several initial places...)
+		StringBuilder initPlacesId = new StringBuilder();
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
 			vn.toElement(VTDNavHuge.PARENT);
@@ -549,19 +671,25 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					placesId2bpnMap.put(id, iDCount);
 					initPlaces.add(iDCount);
 					iDCount++;
+					initPlacesId.append(id + COMMAWS);
 				} catch (InterruptedException e) {
 					log.error(e.getMessage());
 					throw new InternalException(e.getMessage());
-
 				}
 			}
 			vn.pop();
 		}
-
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
+		// Several initial are now accepted (since 1.1.10)
+		if (nbMarkedPlaces > 1) {
+			log.warn("There are several initial places in this net.");
+		}
+		// Remove trailing comma and space, then display initial places
+		initPlacesId.delete(initPlacesId.length() - 3, initPlacesId.length());
+		log.info("Initial place(s): {}", initPlacesId.toString());
 
 		// count all places
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.COUNT_PLACES_PATH);
 		long nb = (long) ap.evalXPathToNumber();
 		StringBuilder bpnsb = new StringBuilder();
@@ -588,7 +716,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					.append(ZERO).append(DOTS).append(nb - 1).append(NL);
 		}
 
-		// Root unit declaration - id is N - 1. Check case there is just one place.
+		// Root unit declaration - id is N - 1. Check case there is just one
+		// place.
 		if (nb > 1) {
 			bpnsb.append(ROOT_UNIT).append(WS).append(nb).append(NL);
 		} else {
@@ -640,12 +769,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			}
 		} else if (nb == 1) {
 			// DO NOTHING, already handled above.
-			log.warn("We encountered the case where there is just one place in the net.");
+			log.warn("I encountered the case where there is just one place in the net.");
 		} else { // FIXME This case should not happen.
 			bpnsb.append(U).append(nb).append(WS).append(HK).append(ZERO)
 					.append(WS).append(ONE).append(DOTS).append(ZERO)
 					.append(WS).append(HK).append(ZERO);
-			log.error("We encountered the case where there is no place at all in the net.");
+			log.error("I encountered the case where there is no place at all in the net.");
 			log.error("This violates the rules stating that root unit must have at least 2 sub-units, if it does not contain any place.");
 			throw new InvalidNetException(
 					"No place in the net! See error messages above.");
