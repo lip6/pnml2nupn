@@ -448,7 +448,7 @@ public final class MainPNML2BPN {
 	 * of unsafe arcs (incoming or outgoing).
 	 * @return
 	 */
-	public static synchronized boolean iRemoveTransUnsafeArcs() {
+	public static synchronized boolean isRemoveTransUnsafeArcs() {
 		return isRemoveTransUnsafeArcs;
 	}
 	
