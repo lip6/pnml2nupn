@@ -26,19 +26,29 @@ Changelog
 
 * What's new in version ${project.version}?
 
+  * <<New feature>>: upon request, BPN can be generated even in case of unsafe initial places (marking > 1) or
+  unsafe arcs (inscription > 1). See {{{./usage.html}Usage page}}.
+  
+  * <<New feature>>: transitions connected to unsafe arcs (incoming or outgoing) can be removed upon request.
+   See {{{./usage.html}Usage page}}.
+  
+  * Prints at the end of the logs tool signature and invocation parameters that were set.
+
+* What's new in version 1.1.11?
+
   * Places id mapping file is now *.places instead of *.states
   
   * Improved documentation
 
 * What's new in version 1.1.10?
 
-  * Property to disable bounds checking
+  * Property to disable bounds checking (should be combined with forced BPN generation).
   
   * Handles the case of several initial places 
 
 * What's new in version 1.1.9?
 
-  * Force BPN generation even if the net is not 1-safe.
+  * Force BPN generation even if the net is not 1-safe (checked by the Bounds tool).
 
 * What's new in version 1.1.8?
 
