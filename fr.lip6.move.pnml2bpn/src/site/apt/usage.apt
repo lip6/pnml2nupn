@@ -66,12 +66,12 @@ Output
   
   * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in BPN.
   
-  * A <<*.unsafe.arcs>> file contains the list of removed arcs and the valuation of their respective inscriptions,
-  in the form <sourceNodeId arcId targetNodeId #valuation>. The ids come from the PNML file.
-  This fourth file will be created only if options <<generate.unsafe>> AND <<remove.unsafe.trans>> are activated (see below),
-  and at least an unsafe arc was removed.
+  * A <<*.unsafe.arcs>> file is optionally generated, that contains the list of removed arcs (one per line) and their respective inscriptions,
+  in the form: <sourceNodeId arcId targetNodeId #inscription>. The ids come from the PNML file.
+  This file will be created only if options <<generate.unsafe>> AND <<remove.unsafe.trans>> are activated (see below),
+  and at least an unsafe transition was removed.
 
-  These files will be located near the input PNML one.
+ These files will be located near the input PNML one.
 
 Debug information
 
@@ -106,16 +106,16 @@ Force Generation of Unsafe Nets
  a valuation greater than 1, the translation is cancelled.  If you want it to happen despite this fact,
  invoke PNML to BPN Converter with the <<generate.unsafe>> property like so:
  
-  <java -Dgenerate.unsafe"=true ...> 
+  <java -Dgenerate.unsafe=true ...> 
 
   The default value for this option is <false>.
   
-  This option does not work in pair with the <Force BPN Generation> option above. Setting the latter does not
+  This option does not work in pair with the <<force.bpn.generation>> option above. Setting the latter does not
   have any effect on this one. If bounds checking is enabled, setting this one will remain ineffective.
  
 Remove Transitions Connected to Unsafe Arcs
 
- when the inscriptions of some arcs have a valuation greater than 1, you may want to remove the transitions
+ When the inscriptions of some arcs have a valuation greater than 1, you may want to remove the transitions
  that are connected to them, and those arcs by the same opportunity. In this case, use the <<remove.unsafe.trans>> property, like so:
  
  <java -Dremove.unsafe.trans=true ...>
