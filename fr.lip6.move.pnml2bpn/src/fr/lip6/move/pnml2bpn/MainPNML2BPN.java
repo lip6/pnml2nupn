@@ -42,31 +42,33 @@ import fr.lip6.move.pnml2bpn.export.PNMLExporter;
 public final class MainPNML2BPN {
 
 	public static final String NL = "\n";
+	public static final String EQ = "=";
 	public static final String COLWS = ": ";
 	public static final String WSDASH = " -";
 	public static final String VERSION = "1.2.0";
-	private static final String BPN_EXT = ".bpn";
-	private static final String PNML_EXT = ".pnml";
-	private static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";
-	private static final String CAMI_TMP_KEEP = "cami.tmp.keep";
+	public static final String BPN_EXT = ".bpn";
+	public static final String PNML_EXT = ".pnml";
+	public static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";
+	public static final String CAMI_TMP_KEEP = "cami.tmp.keep";
 	/**
 	 * Force BPN Generation works by default for the case where bounds checking is disabled.
 	 */
-	private static final String FORCE_BPN_GENERATION = "force.bpn.generation";
+	public static final String FORCE_BPN_GENERATION = "force.bpn.generation";
 	/**
 	 * Bounds checking property.
 	 */
-	private static final String BOUNDS_CHECKING = "bounds.checking";
+	public static final String BOUNDS_CHECKING = "bounds.checking";
 	/**
 	 * Remove transitions of unsafe arcs (incoming or outgoing)
 	 */
-	private static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.unsafe.trans";
+	public static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.unsafe.trans";
 	/**
 	 * Force generation of unsafe nets, where it is clearly checked that 
 	 * at least one initial has more than 1 token or the inscription of an arc
 	 * is valued to more than 1. 
 	 */
-	private static final String GENERATE_UNSAFE = "generate.unsafe";
+	public static final String GENERATE_UNSAFE = "generate.unsafe";
+	
 	
 	private static StringBuilder signatureMesg;
 	
@@ -175,19 +177,19 @@ public final class MainPNML2BPN {
 		if (isOption) {
 			signatureMesg.append(" with options ");
 			if (isForceBPNGen) {
-				signatureMesg.append(WSDASH).append(FORCE_BPN_GENERATION);
+				signatureMesg.append(WSDASH).append(FORCE_BPN_GENERATION).append(EQ).append(isForceBPNGen);
 			}
 			if (!isBoundsChecking) {
-				signatureMesg.append(WSDASH).append(BOUNDS_CHECKING);
+				signatureMesg.append(WSDASH).append(BOUNDS_CHECKING).append(EQ).append(isBoundsChecking);
 			}
 			if (isGenerateUnsafe) {
-				signatureMesg.append(WSDASH).append(GENERATE_UNSAFE);
+				signatureMesg.append(WSDASH).append(GENERATE_UNSAFE).append(EQ).append(isGenerateUnsafe);
 			}
 			if (isRemoveTransUnsafeArcs) {
-				signatureMesg.append(WSDASH).append(REMOVE_TRANS_UNSAFE_ARCS);
+				signatureMesg.append(WSDASH).append(REMOVE_TRANS_UNSAFE_ARCS).append(EQ).append(isRemoveTransUnsafeArcs);
 			}
 			if (!isCamiTmpDelete) {
-				signatureMesg.append(WSDASH).append(CAMI_TMP_KEEP);
+				signatureMesg.append(WSDASH).append(CAMI_TMP_KEEP).append(EQ).append(isCamiTmpDelete);
 			}
 			
 		} else {
