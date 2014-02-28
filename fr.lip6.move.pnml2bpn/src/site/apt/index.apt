@@ -45,4 +45,9 @@ Supported Standard Petri Net Type
 
  This tool only supports Place/Transition (P/T) Nets, that are 1-Safe.
 
+Acknowledgement
+
+ The development of many features of this tool has benefited from the insightful advice of Hubert Garavel.
+ I would like to thank him for his many meaningful contributions.
+ 
   
