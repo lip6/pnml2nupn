@@ -380,16 +380,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
 			throws XPathParseExceptionHuge, NavExceptionHuge,
 			InterruptedException, XPathEvalExceptionHuge {
-		// count transitions
-		ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
-		long nb = (long) ap.evalXPathToNumber();
-		StringBuilder bpnsb = new StringBuilder();
-		bpnsb.append(TRANSITIONS).append(WS).append(HK).append(nb).append(WS)
-				.append(ZERO).append(DOTS).append(nb - 1).append(NL);
-		bpnQueue.put(bpnsb.toString());
-		bpnsb.delete(0, bpnsb.length());
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
 
 		// Handle transitions through arcs
 		String arc, src, trg;
@@ -475,6 +465,21 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
+		
+		// count transitions
+		ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
+		long nb = (long) ap.evalXPathToNumber();
+		if (nbUnsafeTrans > 0) {
+			nb = nb - nbUnsafeTrans;
+		}
+		StringBuilder bpnsb = new StringBuilder();
+		bpnsb.append(TRANSITIONS).append(WS).append(HK).append(nb).append(WS)
+				.append(ZERO).append(DOTS).append(nb - 1).append(NL);
+		bpnQueue.put(bpnsb.toString());
+		bpnsb.delete(0, bpnsb.length());
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
+
 		LongCollection allTr = new LongRBTreeSet(trId2bpnMap.values());
 
 		for (long trId : allTr) {
@@ -584,7 +589,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		if (nbUnsafePlaces > 0) {
 			unsafePlaces = true;
-			log.warn("There are {} unsafe initial places in this net.", nbUnsafePlaces);
+			log.warn("There are {} unsafe initial places in this net.",
+					nbUnsafePlaces);
 			unsafePlacesId.delete(unsafePlacesId.length() - 3,
 					unsafePlacesId.length());
 			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
@@ -626,7 +632,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			log.warn("There are {} unsafe arcs in this net.", nbUnsafeArcs);
 			unsafeArcsId.delete(unsafeArcsId.length() - 3,
 					unsafeArcsId.length());
-			//FIXME: removed the following. log.warn("Unsafe arcs: {}", unsafeArcsId.toString());
+			// FIXME: removed the following. log.warn("Unsafe arcs: {}",
+			// unsafeArcsId.toString());
 		}
 
 		// Check generate unsafe property value
