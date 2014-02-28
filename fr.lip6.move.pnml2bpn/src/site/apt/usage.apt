@@ -60,11 +60,14 @@ Output
 
  Upon successful execution, this tool will output 3 files:
  
-  * A *.bpn file that contains the Basic Petri Net obtained from the PNML P/T translation;
+  * A <<*.bpn>> file that contains the Basic Petri Net obtained from the PNML P/T translation;
   
-  * A *.places file that contains the mapping between the places ids from PNML and their counterparts in BPN;
+  * A <<*.places>> file that contains the mapping between the places ids from PNML and their counterparts in BPN;
   
-  * A *.trans file that contains the mapping between the transitions ids from PNML and their counterparts in BPN.
+  * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in BPN.
+  
+  * A <<*.unsafe.arcs>> file contains the list of removed arcs and the valuation of their respective inscriptions,
+  in the form <sourceNodeId arcId targetNodeId #valuation>. The ids come from the PNML file.
 
   These files will be located near the input PNML one.
 
@@ -77,12 +80,13 @@ Debug information
 Force BPN Generation
  
  This tool supports a property that you can use to force the generation of the BPN
- file, even if the net is not 1-safe. To trigger that behaviour, invoke it with the <<force.bpn.generation>> property
- set to true, like so: 
+ file, even if the net is not 1-safe (as checked by the Bounds tool).
+ To trigger that behaviour, invoke it with the <<force.bpn.generation>> property set to true, like so: 
  
  <java -Dforce.bpn.generation=true ...>
 
-
+ The default value for this option is <false>. It works in pair with bounds checking (see next section).
+ 
 Disable Bounds Checking
 
  It is also possible to disable bounds checking on the net. Bounds checking enables this tool
@@ -92,3 +96,31 @@ Disable Bounds Checking
  
  <java -Dbounds.checking=false ...>
 
+ The default value for this option is <true>. If not unset, it has precedence over all the other options.
+
+Force Generation of Unsafe Nets
+
+ When it is known that the marking of some initial places or the inscription of some arcs have
+ a valuation greater than 1, the translation is cancelled.  If you want it to happen despite this fact,
+ invoke PNML to BPN Converter with the <<generate.unsafe>> property like so:
+ 
+  <java -Dgenerate.unsafe"=true ...> 
+
+  The default value for this option is <false>.
+  
+  This option does not work in pair with the <Force BPN Generation> option above. Setting the latter does not
+  have any effect on this one. If bounds checking is enabled, setting this one will remain ineffective.
+ 
+Remove Transitions Connected to Unsafe Arcs
+
+ when the inscriptions of some arcs have a valuation greater than 1, you may want to remove the transitions
+ that are connected to them, and those arcs by the same opportunity. In this case, use the <<remove.unsafe.trans>> property, like so:
+ 
+ <java -Dremove.unsafe.trans=true ...>
+ 
+ The default value for this option is false.
+ 
+ <<Note>> that if this operation eventually yields dead places, they not yet removed. This feature will be
+ implemented in a future major release of this tool.
+ 
+  
