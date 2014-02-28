@@ -133,6 +133,8 @@ public final class MainPNML2BPN {
 			try {
 				pe.exportPNML(new File(pathSrc.get(i)),
 						new File(pathDest.get(i)), jr);
+				myLog.info(signatureMesg.toString());
+				signatureMesg.delete(0, signatureMesg.length());
 			} catch (PNMLImportExportException | InterruptedException
 					| IOException e) {
 				myLog.error(e.getMessage());
@@ -140,8 +142,7 @@ public final class MainPNML2BPN {
 				error |= true;
 			}
 		}
-		long endTime = System.nanoTime();
-
+		
 		if (!error) {
 			msg.append("Finished successfully.");
 			myLog.info(msg.toString());
@@ -154,11 +155,9 @@ public final class MainPNML2BPN {
 			}
 			myLog.error(msg.toString());
 		}
-
-		msg = null;
+		long endTime = System.nanoTime();
 		myLog.info("PNML to BPN took {} seconds.",
 				(endTime - startTime) / 1.0e9);
-		myLog.info(signatureMesg.toString());
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory
 				.getILoggerFactory();
 		loggerContext.stop();
