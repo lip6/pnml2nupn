@@ -380,7 +380,11 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
 			throws XPathParseExceptionHuge, NavExceptionHuge,
 			InterruptedException, XPathEvalExceptionHuge {
-
+		// count transitions FIXME: remove when everything is debugged about this issue
+		//ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
+		//long nbTrans = (long) ap.evalXPathToNumber();
+		//ap.resetXPath();
+		//vn.toElement(VTDNavHuge.ROOT);
 		// Handle transitions through arcs
 		String arc, src, trg;
 		long count = 0L;
@@ -466,19 +470,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		
-		// count transitions
-		ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
-		long nb = (long) ap.evalXPathToNumber();
-		if (nbUnsafeTrans > 0) {
-			nb = nb - nbUnsafeTrans;
-		}
+		long nb = trId2bpnMap.size();
 		StringBuilder bpnsb = new StringBuilder();
 		bpnsb.append(TRANSITIONS).append(WS).append(HK).append(nb).append(WS)
-				.append(ZERO).append(DOTS).append(nb - 1).append(NL);
+				.append(ZERO).append(DOTS).append(nb - 1L).append(NL);
 		bpnQueue.put(bpnsb.toString());
 		bpnsb.delete(0, bpnsb.length());
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
 
 		LongCollection allTr = new LongRBTreeSet(trId2bpnMap.values());
 
@@ -517,11 +514,11 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		warnMsg = null;
 		// Write number removals in signature message
-		if (nbUnsafeArcs > 0) {
+		if (nbUnsafeArcs > 0L) {
 			MainPNML2BPN.appendMesgLineToSignature("removed " + nbUnsafeArcs
 					+ " unsafe arcs with inscriptions > 1");
 		}
-		if (nbUnsafeTrans > 0) {
+		if (nbUnsafeTrans > 0L) {
 			MainPNML2BPN.appendMesgLineToSignature("removed " + nbUnsafeTrans
 					+ " transitions connected to the unsafe arcs");
 		}
