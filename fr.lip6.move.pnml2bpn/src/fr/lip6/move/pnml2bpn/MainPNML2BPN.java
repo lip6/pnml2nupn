@@ -225,7 +225,7 @@ public final class MainPNML2BPN {
 		if (removeua != null && Boolean.valueOf(removeua)) {
 			isRemoveTransUnsafeArcs = true;
 			isOption = true;
-			myLog.warn("Removal of transitions connecte to unsafe arcs enabled.");
+			myLog.warn("Removal of transitions connected to unsafe arcs enabled.");
 		} else if (removeua == null) {
 			isRemoveTransUnsafeArcs = false;
 			msg.append(
