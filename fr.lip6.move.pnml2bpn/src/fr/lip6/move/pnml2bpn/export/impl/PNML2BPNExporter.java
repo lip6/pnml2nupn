@@ -333,9 +333,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			tr2OutUnsafeArcsMap = new Object2ObjectOpenHashMap<String, IntBigArrayBigList>();
 			tr2OutUnsafeArcsMap.defaultReturnValue(null);
 		}
-		if (unsafeNodes == null) {
-			unsafeNodes = new ObjectOpenHashSet<>();
-		}
+		
 	}
 
 	/**
@@ -355,6 +353,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		if (unsafeArcsMap == null) {
 			unsafeArcsMap = new Object2IntOpenHashMap<>();
 			unsafeArcsMap.defaultReturnValue(-1);
+		}
+		if (unsafeNodes == null) {
+			unsafeNodes = new ObjectOpenHashSet<>();
 		}
 	}
 
