@@ -60,7 +60,7 @@ public final class MainPNML2BPN {
 	/**
 	 * Remove transitions of unsafe arcs (incoming or outgoing)
 	 */
-	private static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.trans.unsafe.arcs";
+	private static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.unsafe.trans";
 	/**
 	 * Force generation of unsafe nets, where it is clearly checked that 
 	 * at least one initial has more than 1 token or the inscription of an arc
