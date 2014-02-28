@@ -17,12 +17,16 @@
  */
 package fr.lip6.move.pnml2bpn.export.impl;
 
+import it.unimi.dsi.fastutil.ints.IntBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.LongCollection;
 import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +69,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	private static final String TRANS_EXT = ".trans";
 	private static final String STATES_EXT = ".places";
-	private static final String STRUCTURAL_EXT = ".structural";
+	private static final String UNSAFE_ARC = ".unsafe.arcs";
 	private static final String STOP = "STOP";
 	private static final String CANCEL = "CANCEL";
 	private static final String NL = "\n";
@@ -92,9 +96,28 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private Object2LongOpenHashMap<String> trId2bpnMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap = null;
-	private Object2ObjectOpenHashMap<String, String[]> unsafeArcsMap = null;
+	private Object2ObjectOpenHashMap<String, IntBigArrayBigList> tr2InUnsafeArcsMap = null;
+	private Object2ObjectOpenHashMap<String, IntBigArrayBigList> tr2OutUnsafeArcsMap = null;
+	private ObjectSet<String> unsafeNodes = null;
+	private Object2IntOpenHashMap<String> unsafeArcsMap = null;
+	
 	private File currentInputFile = null;
 	private SafePNChecker spnc = null;
+	private long nbUnsafeArcs, nbUnsafePlaces, nbUnsafeTrans;
+	private boolean unsafePlaces, unsafeArcs;
+	
+	private BlockingQueue<String> bpnQueue = null;
+	private BlockingQueue<String> tsQueue = null;
+	private BlockingQueue<String> psQueue = null;
+	private BlockingQueue<String> uaQueue = null;
+	private OutChannelBean ocbBpn = null;
+	private OutChannelBean ocbTs = null;
+	private OutChannelBean ocbPs = null;
+	private OutChannelBean ocbUA = null;
+	private File outTSFile = null;
+	private File outPSFile = null;
+	private File outUAFile = null;
+	
 
 	public PNML2BPNExporter() {
 		spnc = new SafePNChecker();
@@ -118,13 +141,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			throws PNMLImportExportException, InterruptedException, IOException {
 		initLog(journal);
 		export(new File(inFile), new File(outFile), journal);
-	}
-
-	/**
-	 * @param journal
-	 */
-	private void initLog(Logger journal) {
-		this.log = journal;
 	}
 
 	private void export(File inFile, File outFile, Logger journal)
@@ -166,14 +182,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			PNMLImportExportException, IOException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
 		VTDGenHuge vg = new VTDGenHuge();
-		BlockingQueue<String> bpnQueue = null;
-		BlockingQueue<String> tsQueue = null;
-		BlockingQueue<String> psQueue = null;
-		OutChannelBean ocbBpn = null;
-		OutChannelBean ocbTs = null;
-		OutChannelBean ocbPs = null;
-		File outTSFile = null;
-		File outPSFile = null;
+		
 		try {
 			xb.readFile(inFile.getCanonicalPath());
 			vg.setDoc(xb);
@@ -209,201 +218,89 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			} else {
 				log.warn("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
 			}
+			// TODO : file to store the PNML id of removed transitions.
 			// Open BPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + TRANS_EXT);
 			outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + STATES_EXT);
+			outUAFile = new File(PNML2BPNUtils.extractBaseName(outFile
+					.getCanonicalPath()) + UNSAFE_ARC);
 			// Channels for BPN, transitions and places id mapping
 			ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
 			ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
 			ocbPs = PNML2BPNUtils.openOutChannel(outPSFile);
+			ocbUA = PNML2BPNUtils.openOutChannel(outUAFile);
 			// Queues for BPN, transitions and places id mapping
 			bpnQueue = initQueue();
 			tsQueue = initQueue();
 			psQueue = initQueue();
+			uaQueue = initQueue();
+			
 			// Start writers
 			Thread bpnWriter = startWriter(ocbBpn, bpnQueue);
 			Thread tsWriter = startWriter(ocbTs, tsQueue);
 			Thread psWriter = startWriter(ocbPs, psQueue);
+			Thread uaWriter = startWriter(ocbUA, uaQueue);
 
 			// Init data type for places id and export places
 			initPlacesMap();
-			initArcsMap();
+			initUnsafeArcsMap();
 			log.info("Exporting places.");
 			exportPlacesIntoUnits(ap, vn, bpnQueue, psQueue);
 
 			// Init data type for transitions id and export transitions
 			initTransitionsMaps();
+			initUnsafeTransMaps();
 			log.info("Exporting transitions.");
 			exportTransitions(ap, vn, bpnQueue, tsQueue);
 
 			// Stop Writers
 			stopWriters(bpnQueue, tsQueue, psQueue);
+			stopWriter(uaQueue);
 			bpnWriter.join();
 			tsWriter.join();
 			psWriter.join();
+			uaWriter.join();
 			// Close channels
 			closeChannels(ocbBpn, ocbTs, ocbPs);
+			closeChannel(ocbUA);
 			// clear maps
-			clearAllMaps();
+			clearAllCollections();
 			log.info("See BPN and mapping files: {}, {} and {}",
 					outFile.getCanonicalPath(), outTSFile.getCanonicalPath(),
 					outPSFile.getCanonicalPath());
+			if (unsafeArcs) {
+				log.info("See unsafe arcs files: {}",
+						outUAFile.getCanonicalPath());
+			} else {
+				outUAFile.delete();
+			}
 		} catch (NavExceptionHuge | XPathParseExceptionHuge
 				| XPathEvalExceptionHuge | ParseExceptionHuge
 				| InvalidSafeNetException | InternalException
 				| InvalidNetException e) {
-			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
-					ocbPs, outTSFile, outPSFile, journal);
+			emergencyStop(outFile);
 			throw new PNMLImportExportException(e);
 		} catch (InterruptedException e) {
-			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
-					ocbPs, outTSFile, outPSFile, journal);
+			emergencyStop(outFile);
 			throw e;
 		} catch (IOException e) {
-			emergencyStop(outFile, bpnQueue, tsQueue, psQueue, ocbBpn, ocbTs,
-					ocbPs, outTSFile, outPSFile, journal);
+			emergencyStop(outFile);
 			throw e;
 		}
 	}
 
 	/**
-	 * Emergency stop.
-	 * 
-	 * @param outFile
-	 * @param bpnQueue
-	 * @param tsQueue
-	 * @param psQueue
-	 * @param ocbBpn
-	 * @param ocbTs
-	 * @param ocbPs
-	 * @param outTSFile
-	 * @param outPSFile
 	 * @param journal
-	 * @throws InterruptedException
-	 * @throws IOException
 	 */
-	private void emergencyStop(File outFile, BlockingQueue<String> bpnQueue,
-			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue,
-			OutChannelBean ocbBpn, OutChannelBean ocbTs, OutChannelBean ocbPs,
-			File outTSFile, File outPSFile, Logger journal)
-			throws InterruptedException, IOException {
-
-		cancelWriters(bpnQueue, tsQueue, psQueue);
-		closeChannels(ocbBpn, ocbTs, ocbPs);
-		deleteOutputFiles(outFile, outTSFile, outPSFile);
-		journal.error("Emergency stop. Cancelled the translation and released opened resources.");
+	private void initLog(Logger journal) {
+		this.log = journal;
 	}
 
-	/**
-	 * Emergency stop actions.
-	 * 
-	 * @param outFile
-	 * @param outTSFile
-	 * @param outPSFile
-	 */
-	private void deleteOutputFiles(File outFile, File outTSFile, File outPSFile) {
-		deleteOutputFile(outFile);
-		deleteOutputFile(outTSFile);
-		deleteOutputFile(outPSFile);
-	}
-	
-	/**
-	 * Deletes an output file.
-	 * @param oFile
-	 */
-	private void deleteOutputFile(File oFile) {
-		if (oFile != null && oFile.exists()) {
-			oFile.delete();
-		}
-	}
-
-	/**
-	 * Close output channels.
-	 * 
-	 * @param ocbBpn
-	 * @param ocbTs
-	 * @param ocbPs
-	 * @throws IOException
-	 */
-	private void closeChannels(OutChannelBean ocbBpn, OutChannelBean ocbTs,
-			OutChannelBean ocbPs) throws IOException {
-		closeChannel(ocbBpn);
-		closeChannel(ocbTs);
-		closeChannel(ocbPs);
-	}
-	
-	/**
-	 * Closes an output channel.
-	 * @param cb
-	 * @throws IOException
-	 */
-	private void closeChannel(OutChannelBean cb) throws IOException {
-		PNML2BPNUtils.closeOutChannel(cb);
-	}
-
-	/**
-	 * Cancels writers in case of emergency stop.
-	 * 
-	 * @param bpnQueue
-	 * @param tsQueue
-	 * @param psQueue
-	 * @throws InterruptedException
-	 */
-	private void cancelWriters(BlockingQueue<String> bpnQueue,
-			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
-			throws InterruptedException {
-		cancelWriter(bpnQueue);
-		cancelWriter(tsQueue);
-		cancelWriter(psQueue);
-	}
-	
-	/**
-	 * Cancel a writer by sending a cancellation message to it.
-	 * @param queue
-	 * @throws InterruptedException 
-	 */
-	private void cancelWriter(BlockingQueue<String> queue) throws InterruptedException {
-		if (queue != null) {
-			queue.put(CANCEL);
-		}
-	}
-
-	/**
-	 * Normal stop.
-	 * 
-	 * @param bpnQueue
-	 * @param tsQueue
-	 * @param psQueue
-	 * @throws InterruptedException
-	 */
-	private void stopWriters(BlockingQueue<String> bpnQueue,
-			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
-			throws InterruptedException {
-		stopWriter(bpnQueue);
-		stopWriter(tsQueue);
-		stopWriter(psQueue);
-	}
-	
-	/**
-	 * Normal stop of a writer.
-	 * @param queue
-	 * @throws InterruptedException
-	 */
-	private void stopWriter(BlockingQueue<String> queue) throws InterruptedException {
-		queue.put(STOP);
-	}
-
-	/**
-	 * Clears all internal data structures for places and transitions.
-	 */
-	private void clearAllMaps() {
-		placesId2bpnMap.clear();
-		trId2bpnMap.clear();
-		tr2InPlacesMap.clear();
-		tr2OutPlacesMap.clear();
-		unsafeArcsMap.clear();
+	private BlockingQueue<String> initQueue() {
+		BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
+		return queue;
 	}
 
 	/**
@@ -425,6 +322,23 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	}
 
 	/**
+	 * Initialised the data structure for unsafe transitions.
+	 */
+	private void initUnsafeTransMaps() {
+		if (tr2InUnsafeArcsMap == null) {
+			tr2InUnsafeArcsMap = new Object2ObjectOpenHashMap<String, IntBigArrayBigList>();
+			tr2InUnsafeArcsMap.defaultReturnValue(null);
+		}
+		if (tr2OutUnsafeArcsMap == null) {
+			tr2OutUnsafeArcsMap = new Object2ObjectOpenHashMap<String, IntBigArrayBigList>();
+			tr2OutUnsafeArcsMap.defaultReturnValue(null);
+		}
+		if (unsafeNodes == null) {
+			unsafeNodes = new ObjectOpenHashSet<>();
+		}
+	}
+
+	/**
 	 * Initializes internal data structures for places.
 	 */
 	private void initPlacesMap() {
@@ -437,11 +351,17 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	/**
 	 * Initializes internal data structures for arcs.
 	 */
-	private void initArcsMap() {
+	private void initUnsafeArcsMap() {
 		if (unsafeArcsMap == null) {
-			unsafeArcsMap = new Object2ObjectOpenHashMap<>();
-			unsafeArcsMap.defaultReturnValue(null);
+			unsafeArcsMap = new Object2IntOpenHashMap<>();
+			unsafeArcsMap.defaultReturnValue(-1);
 		}
+	}
+
+	private Thread startWriter(OutChannelBean ocb, BlockingQueue<String> queue) {
+		Thread t = new Thread(new BPNWriter(ocb, queue));
+		t.start();
+		return t;
 	}
 
 	/**
@@ -472,14 +392,18 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		vn.toElement(VTDNavHuge.ROOT);
 
 		// Handle transitions through arcs
-		String src, trg;
+		String arc, src, trg;
 		long count = 0L;
 		long tId, pId;
+		int arcInsc = 0;
 		LongBigArrayBigList pls = null;
+		IntBigArrayBigList arcVals = null;
+		nbUnsafeTrans = 0L;
 		ap.selectXPath(PNMLPaths.ARCS_PATH);
 		// @deprecated tsQueue.put(TRANSITIONS_MAPPING_MSG + NL);
 		while ((ap.evalXPath()) != -1) {
 			pls = null;
+			arc = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
 			trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
 			pId = placesId2bpnMap.getLong(src);
@@ -488,13 +412,32 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				if (tId != -1L) {
 					pls = tr2InPlacesMap.get(tId);
 				} else {
-					tId = count++;
-					trId2bpnMap.put(trg, tId);
-					tsQueue.put(tId + WS + trg + NL);
-				}
-				if (pls == null) {
-					pls = new LongBigArrayBigList();
-					tr2InPlacesMap.put(tId, pls);
+					if (!MainPNML2BPN.isRemoveTransUnsafeArcs() || !unsafeArcs
+							|| !unsafeNodes.contains(trg)) {
+						tId = count++;
+						trId2bpnMap.put(trg, tId);
+						tsQueue.put(tId + WS + trg + NL);
+						if (pls == null) {
+							pls = new LongBigArrayBigList();
+							tr2InPlacesMap.put(tId, pls);
+						}
+						pls.add(pId);
+					} else {
+						// Candidate for removal? FIXME: following condition is
+						// useless.
+						if (unsafeNodes.contains(trg)) {
+							arcInsc = unsafeArcsMap.getInt(arc);
+							if (arcInsc != -1) {
+								arcVals = tr2InUnsafeArcsMap.get(trg);
+								if (arcVals == null) {
+									arcVals = new IntBigArrayBigList();
+									tr2InUnsafeArcsMap.put(trg, arcVals);
+								}
+								arcVals.add(arcInsc);
+								nbUnsafeTrans++;
+							}
+						}
+					}
 				}
 			} else {// transition is the source
 				pId = placesId2bpnMap.getLong(trg);
@@ -502,16 +445,33 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				if (tId != -1L) {
 					pls = tr2OutPlacesMap.get(tId);
 				} else {
-					tId = count++;
-					trId2bpnMap.put(src, tId);
-					tsQueue.put(tId + WS + src + NL);
+					if (!MainPNML2BPN.isRemoveTransUnsafeArcs() || !unsafeArcs
+							|| !unsafeNodes.contains(src)) {
+						tId = count++;
+						trId2bpnMap.put(src, tId);
+						tsQueue.put(tId + WS + src + NL);
+						if (pls == null) {
+							pls = new LongBigArrayBigList();
+							tr2OutPlacesMap.put(tId, pls);
+						}
+						pls.add(pId);
+					} else {
+						if (unsafeNodes.contains(src)) {
+							arcInsc = unsafeArcsMap.getInt(arc);
+							if (arcInsc != -1) {
+								arcVals = tr2OutUnsafeArcsMap.get(src);
+								if (arcVals == null) {
+									arcVals = new IntBigArrayBigList();
+									tr2OutUnsafeArcsMap.put(src, arcVals);
+								}
+								arcVals.add(arcInsc);
+								nbUnsafeTrans++;
+							}
+						}
+					}
 				}
-				if (pls == null) {
-					pls = new LongBigArrayBigList();
-					tr2OutPlacesMap.put(tId, pls);
-				}
+
 			}
-			pls.add(pId);
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
@@ -527,6 +487,35 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		bpnsb.delete(0, bpnsb.length());
 		bpnsb = null;
+
+		// Warn about removed transitions
+		StringBuilder warnMsg = new StringBuilder();
+		for (String s : tr2InUnsafeArcsMap.keySet()) {
+			arcVals = tr2InUnsafeArcsMap.get(s);
+			warnMsg.append("Removed transition ").append(s)
+					.append("because it has ").append(arcVals.size64())
+					.append(" incoming arc(s) with respective valuation(s) ")
+					.append(arcVals.toIntArray().toString());
+			arcVals = tr2OutUnsafeArcsMap.get(s);
+			if (arcVals != null) {
+				warnMsg.append(" and ")
+						.append(arcVals.size64())
+						.append(" outgoing arc(s) with respective valuation(s)")
+						.append(arcVals.toIntArray().toString());
+			}
+			log.warn(warnMsg.toString());
+			warnMsg.delete(0, warnMsg.length());
+		}
+		warnMsg = null;
+		// Write number removals in signature message
+		if (nbUnsafeArcs > 0) {
+			MainPNML2BPN.appendMesgLineToSignature("removed " + nbUnsafeArcs
+					+ " unsafe arcs with inscriptions > 1");
+		}
+		if (nbUnsafeTrans > 0) {
+			MainPNML2BPN.appendMesgLineToSignature("removed " + nbUnsafeTrans
+					+ " transitions connected to the unsafe arcs");
+		}
 	}
 
 	/**
@@ -552,17 +541,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 	}
 
-	private BlockingQueue<String> initQueue() {
-		BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
-		return queue;
-	}
-
-	private Thread startWriter(OutChannelBean ocb, BlockingQueue<String> queue) {
-		Thread t = new Thread(new BPNWriter(ocb, queue));
-		t.start();
-		return t;
-	}
-
 	private void exportPlacesIntoUnits(AutoPilotHuge ap, VTDNavHuge vn,
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
 			throws XPathParseExceptionHuge, XPathEvalExceptionHuge,
@@ -570,8 +548,10 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			InterruptedException, InvalidNetException, IOException {
 		long iDCount = 0L;
 		long nbMarkedPlaces = 0L;
-		boolean unsafePlaces = false;
-		boolean unsafeArcs = false;
+		unsafePlaces = false;
+		unsafeArcs = false;
+		nbUnsafePlaces = 0L;
+		nbUnsafeArcs = 0L;
 		String id;
 		ap.selectXPath(PNMLPaths.COUNT_MARKED_PLACES);
 		nbMarkedPlaces = (long) ap.evalXPathToNumber();
@@ -588,7 +568,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_MARKED_PLACES);
 		StringBuilder unsafePlacesId = new StringBuilder();
-		long nbUnsafePlaces = 0L;
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
 			vn.toElement(VTDNavHuge.PARENT);
@@ -614,19 +593,25 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
 		StringBuilder unsafeArcsId = new StringBuilder();
+		int val;
 		String src, trg;
-		String[] arcNodes;
-		long nbUnsafeArcs = 0L;
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
+			vn.toElement(VTDNavHuge.FIRST_CHILD);
+			while (!vn.matchElement("text")) {
+				vn.toElement(VTDNavHuge.NEXT_SIBLING);
+			}
+			val = Integer.parseInt(vn.toString(vn.getText()).trim());
+			vn.toElement(VTDNavHuge.PARENT);
 			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
-			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
-			trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
-
 			if (id != null) {
-				arcNodes = new String[] { src, trg };
-				unsafeArcsMap.put(id, arcNodes);
+				src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
+				unsafeNodes.add(src);
+				trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
+				unsafeNodes.add(trg);
+				uaQueue.put(src + WS + id + WS + trg + WS + HK + val + NL);
+				unsafeArcsMap.put(id, val);
 				unsafeArcsId.append(id + COMMAWS);
 				nbUnsafeArcs++;
 			}
@@ -649,9 +634,11 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		if (MainPNML2BPN.isGenerateUnsafe() && (unsafePlaces || unsafeArcs)) {
 			log.warn("Generation of BPN for this net was requested despite unsafe places or arcs.");
 			if (unsafePlaces) {
-				MainPNML2BPN.appendMesgLineToSignature("decreased to one the marking of " + nbUnsafePlaces + " initial places");
+				MainPNML2BPN
+						.appendMesgLineToSignature("decreased to one the marking of "
+								+ nbUnsafePlaces + " initial places");
 			}
-		} 
+		}
 
 		// select initial places
 		ap.resetXPath();
@@ -833,5 +820,152 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		spnc.setPnmlDocPath(this.currentInputFile.getCanonicalPath());
 		boolean res = spnc.isNet1Safe();
 		return res;
+	}
+
+	/**
+	 * Emergency stop.
+	 * 
+	 * @param outFile
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @param psQueue
+	 * @param ocbBpn
+	 * @param ocbTs
+	 * @param ocbPs
+	 * @param outTSFile
+	 * @param outPSFile
+	 * @param journal
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	private void emergencyStop(File outFile)
+			throws InterruptedException, IOException {
+
+		cancelWriters(bpnQueue, tsQueue, psQueue);
+		cancelWriter(uaQueue);
+		closeChannels(ocbBpn, ocbTs, ocbPs);
+		closeChannel(ocbUA);
+		deleteOutputFiles(outFile, outTSFile, outPSFile);
+		deleteOutputFile(outUAFile);
+		log.error("Emergency stop. Cancelled the translation and released opened resources.");
+	}
+
+	/**
+	 * Emergency stop actions.
+	 * 
+	 * @param outFile
+	 * @param outTSFile
+	 * @param outPSFile
+	 */
+	private void deleteOutputFiles(File outFile, File outTSFile, File outPSFile) {
+		deleteOutputFile(outFile);
+		deleteOutputFile(outTSFile);
+		deleteOutputFile(outPSFile);
+	}
+
+	/**
+	 * Deletes an output file.
+	 * 
+	 * @param oFile
+	 */
+	private void deleteOutputFile(File oFile) {
+		if (oFile != null && oFile.exists()) {
+			oFile.delete();
+		}
+	}
+
+	/**
+	 * Close output channels.
+	 * 
+	 * @param ocbBpn
+	 * @param ocbTs
+	 * @param ocbPs
+	 * @throws IOException
+	 */
+	private void closeChannels(OutChannelBean ocbBpn, OutChannelBean ocbTs,
+			OutChannelBean ocbPs) throws IOException {
+		closeChannel(ocbBpn);
+		closeChannel(ocbTs);
+		closeChannel(ocbPs);
+	}
+
+	/**
+	 * Closes an output channel.
+	 * 
+	 * @param cb
+	 * @throws IOException
+	 */
+	private void closeChannel(OutChannelBean cb) throws IOException {
+		PNML2BPNUtils.closeOutChannel(cb);
+	}
+
+	/**
+	 * Cancels writers in case of emergency stop.
+	 * 
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @param psQueue
+	 * @throws InterruptedException
+	 */
+	private void cancelWriters(BlockingQueue<String> bpnQueue,
+			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
+			throws InterruptedException {
+		cancelWriter(bpnQueue);
+		cancelWriter(tsQueue);
+		cancelWriter(psQueue);
+	}
+
+	/**
+	 * Cancel a writer by sending a cancellation message to it.
+	 * 
+	 * @param queue
+	 * @throws InterruptedException
+	 */
+	private void cancelWriter(BlockingQueue<String> queue)
+			throws InterruptedException {
+		if (queue != null) {
+			queue.put(CANCEL);
+		}
+	}
+
+	/**
+	 * Normal stop.
+	 * 
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @param psQueue
+	 * @throws InterruptedException
+	 */
+	private void stopWriters(BlockingQueue<String> bpnQueue,
+			BlockingQueue<String> tsQueue, BlockingQueue<String> psQueue)
+			throws InterruptedException {
+		stopWriter(bpnQueue);
+		stopWriter(tsQueue);
+		stopWriter(psQueue);
+	}
+
+	/**
+	 * Normal stop of a writer.
+	 * 
+	 * @param queue
+	 * @throws InterruptedException
+	 */
+	private void stopWriter(BlockingQueue<String> queue)
+			throws InterruptedException {
+		queue.put(STOP);
+	}
+
+	/**
+	 * Clears all internal data structures for places and transitions.
+	 */
+	private void clearAllCollections() {
+		placesId2bpnMap.clear();
+		trId2bpnMap.clear();
+		tr2InPlacesMap.clear();
+		tr2OutPlacesMap.clear();
+		unsafeArcsMap.clear();
+		tr2InUnsafeArcsMap.clear();
+		tr2OutUnsafeArcsMap.clear();
+		unsafeNodes.clear();
 	}
 }
