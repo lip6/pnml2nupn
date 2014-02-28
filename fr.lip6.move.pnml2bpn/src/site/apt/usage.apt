@@ -68,6 +68,8 @@ Output
   
   * A <<*.unsafe.arcs>> file contains the list of removed arcs and the valuation of their respective inscriptions,
   in the form <sourceNodeId arcId targetNodeId #valuation>. The ids come from the PNML file.
+  This fourth file will be created only if options <<generate.unsafe>> AND <<remove.unsafe.trans>> are activated (see below),
+  and at least an unsafe arc was removed.
 
   These files will be located near the input PNML one.
 
