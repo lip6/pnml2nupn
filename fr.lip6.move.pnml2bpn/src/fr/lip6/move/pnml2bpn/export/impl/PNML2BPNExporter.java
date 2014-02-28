@@ -405,16 +405,20 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				tId = trId2bpnMap.getLong(trg);
 				if (tId != -1L) {
 					pls = tr2InPlacesMap.get(tId);
+					// FIXME: non-optimal code
+					if (pls == null) {
+						pls = new LongBigArrayBigList();
+						tr2InPlacesMap.put(tId, pls);
+					}
+					pls.add(pId);
 				} else {
 					if (!MainPNML2BPN.isRemoveTransUnsafeArcs() || !unsafeArcs
 							|| !unsafeNodes.contains(trg)) {
 						tId = count++;
 						trId2bpnMap.put(trg, tId);
 						tsQueue.put(tId + WS + trg + NL);
-						if (pls == null) {
-							pls = new LongBigArrayBigList();
-							tr2InPlacesMap.put(tId, pls);
-						}
+						pls = new LongBigArrayBigList();
+						tr2InPlacesMap.put(tId, pls);
 						pls.add(pId);
 					} else {
 						// Candidate for removal? FIXME: following condition is
@@ -438,16 +442,19 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				tId = trId2bpnMap.getLong(src);
 				if (tId != -1L) {
 					pls = tr2OutPlacesMap.get(tId);
+					if (pls == null) {
+						pls = new LongBigArrayBigList();
+						tr2OutPlacesMap.put(tId, pls);
+					}
+					pls.add(pId);
 				} else {
 					if (!MainPNML2BPN.isRemoveTransUnsafeArcs() || !unsafeArcs
 							|| !unsafeNodes.contains(src)) {
 						tId = count++;
 						trId2bpnMap.put(src, tId);
 						tsQueue.put(tId + WS + src + NL);
-						if (pls == null) {
-							pls = new LongBigArrayBigList();
-							tr2OutPlacesMap.put(tId, pls);
-						}
+						pls = new LongBigArrayBigList();
+						tr2OutPlacesMap.put(tId, pls);
 						pls.add(pId);
 					} else {
 						if (unsafeNodes.contains(src)) {
@@ -464,7 +471,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 						}
 					}
 				}
-
 			}
 		}
 		ap.resetXPath();
