@@ -5,7 +5,7 @@
 
 	<groupId>fr.lip6.move.bpn</groupId>
 	<artifactId>fr.lip6.move.pnml2bpn</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 
 	<packaging>jar</packaging>
 
