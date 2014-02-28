@@ -100,12 +100,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private Object2ObjectOpenHashMap<String, IntBigArrayBigList> tr2OutUnsafeArcsMap = null;
 	private ObjectSet<String> unsafeNodes = null;
 	private Object2IntOpenHashMap<String> unsafeArcsMap = null;
-	
+
 	private File currentInputFile = null;
 	private SafePNChecker spnc = null;
 	private long nbUnsafeArcs, nbUnsafePlaces, nbUnsafeTrans;
 	private boolean unsafePlaces, unsafeArcs;
-	
+
 	private BlockingQueue<String> bpnQueue = null;
 	private BlockingQueue<String> tsQueue = null;
 	private BlockingQueue<String> psQueue = null;
@@ -117,7 +117,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private File outTSFile = null;
 	private File outPSFile = null;
 	private File outUAFile = null;
-	
 
 	public PNML2BPNExporter() {
 		spnc = new SafePNChecker();
@@ -182,7 +181,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			PNMLImportExportException, IOException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
 		VTDGenHuge vg = new VTDGenHuge();
-		
+
 		try {
 			xb.readFile(inFile.getCanonicalPath());
 			vg.setDoc(xb);
@@ -236,7 +235,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			tsQueue = initQueue();
 			psQueue = initQueue();
 			uaQueue = initQueue();
-			
+
 			// Start writers
 			Thread bpnWriter = startWriter(ocbBpn, bpnQueue);
 			Thread tsWriter = startWriter(ocbTs, tsQueue);
@@ -333,7 +332,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			tr2OutUnsafeArcsMap = new Object2ObjectOpenHashMap<String, IntBigArrayBigList>();
 			tr2OutUnsafeArcsMap.defaultReturnValue(null);
 		}
-		
+
 	}
 
 	/**
@@ -494,15 +493,19 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		for (String s : tr2InUnsafeArcsMap.keySet()) {
 			arcVals = tr2InUnsafeArcsMap.get(s);
 			warnMsg.append("Removed transition ").append(s)
-					.append("because it has ").append(arcVals.size64())
-					.append(" incoming arc(s) with respective valuation(s) ")
-					.append(arcVals.toIntArray().toString());
+					.append(" because it has ").append(arcVals.size64())
+					.append(" incoming arc(s) with respective valuation(s):");
+			for (int v : arcVals) {
+				warnMsg.append(WS).append(v);
+			}
 			arcVals = tr2OutUnsafeArcsMap.get(s);
 			if (arcVals != null) {
-				warnMsg.append(" and ")
+				warnMsg.append(", and ")
 						.append(arcVals.size64())
-						.append(" outgoing arc(s) with respective valuation(s)")
-						.append(arcVals.toIntArray().toString());
+						.append(" outgoing arc(s) with respective valuation(s):");
+				for (int v : arcVals) {
+					warnMsg.append(WS).append(v);
+				}
 			}
 			log.warn(warnMsg.toString());
 			warnMsg.delete(0, warnMsg.length());
@@ -581,7 +584,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		if (nbUnsafePlaces > 0) {
 			unsafePlaces = true;
-			log.warn("There are unsafe initial places in this net.");
+			log.warn("There are {} unsafe initial places in this net.", nbUnsafePlaces);
 			unsafePlacesId.delete(unsafePlacesId.length() - 3,
 					unsafePlacesId.length());
 			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
@@ -620,10 +623,10 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		if (nbUnsafeArcs > 0) {
 			unsafeArcs = true;
-			log.warn("There are unsafe arcs in this net.");
+			log.warn("There are {} unsafe arcs in this net.", nbUnsafeArcs);
 			unsafeArcsId.delete(unsafeArcsId.length() - 3,
 					unsafeArcsId.length());
-			log.warn("Unsafe arcs: {}", unsafeArcsId.toString());
+			//FIXME: removed the following. log.warn("Unsafe arcs: {}", unsafeArcsId.toString());
 		}
 
 		// Check generate unsafe property value
@@ -669,7 +672,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		// Several initial are now accepted (since 1.1.10)
 		if (nbMarkedPlaces > 1) {
-			log.warn("There are several initial places in this net.");
+			log.warn("There are {} initial places in this net.", nbMarkedPlaces);
 		}
 		// Remove trailing comma and space, then display initial places
 		initPlacesId.delete(initPlacesId.length() - 3, initPlacesId.length());
@@ -839,8 +842,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	private void emergencyStop(File outFile)
-			throws InterruptedException, IOException {
+	private void emergencyStop(File outFile) throws InterruptedException,
+			IOException {
 
 		cancelWriters(bpnQueue, tsQueue, psQueue);
 		cancelWriter(uaQueue);
