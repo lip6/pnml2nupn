@@ -32,6 +32,8 @@ Changelog
   * <<New feature>>: transitions connected to unsafe arcs (incoming or outgoing) can be removed upon request.
    See {{{./usage.html}Usage page}}.
   
+  * Outputs a <<*.unsafe.arcs>> file that documents removed arcs (when removal of transitions is requested).
+  
   * Prints at the end of the logs tool signature and invocation parameters that were set.
 
 * What's new in version 1.1.11?
