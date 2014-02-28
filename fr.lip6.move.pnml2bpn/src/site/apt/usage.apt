@@ -120,7 +120,7 @@ Remove Transitions Connected to Unsafe Arcs
  
  The default value for this option is false.
  
- <<Note>> that if this operation eventually yields dead places, they not yet removed. This feature will be
+ <<Note>> that if this operation eventually yields dead places, they are not yet removed. This feature will be
  implemented in a future major release of this tool.
  
   
