@@ -33,6 +33,10 @@ Download PNML to BPN Converter ${project.version}
 
   Usage information is available on the {{{./usage.html}dedicated page}}.
 
+Previous stable versions
+
+ * Download {{{./download/${project.artifactId}-1.1.11.jar}version 1.1.11}}
+
 Requirements
 
   * Runs on Java 1.7

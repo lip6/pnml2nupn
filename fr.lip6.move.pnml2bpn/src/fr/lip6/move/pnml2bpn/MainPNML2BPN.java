@@ -45,7 +45,7 @@ public final class MainPNML2BPN {
 	public static final String EQ = "=";
 	public static final String COLWS = ": ";
 	public static final String WSDASH = " -";
-	public static final String VERSION = "1.2.0";
+	public static final String VERSION = "1.2.1";
 	public static final String BPN_EXT = ".bpn";
 	public static final String PNML_EXT = ".pnml";
 	public static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";

@@ -26,6 +26,13 @@ Changelog
 
 * What's new in version ${project.version}?
 
+  * Bug fix: after having removed transitions connected to unsafe arcs,
+  remaining transitions have 0 input place or 0 output place.
+   
+  * Bug fix: count of the remaining transitions in the log.
+ 
+* What's new in version 1.2.0?
+
   * <<New feature>>: upon request, BPN can be generated even in case of unsafe initial places (marking > 1) or
   unsafe arcs (inscription > 1). See {{{./usage.html}Usage page}}.
   
