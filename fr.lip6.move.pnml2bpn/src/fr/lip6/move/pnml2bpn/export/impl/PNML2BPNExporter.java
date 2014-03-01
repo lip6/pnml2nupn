@@ -380,11 +380,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
 			throws XPathParseExceptionHuge, NavExceptionHuge,
 			InterruptedException, XPathEvalExceptionHuge {
-		// count transitions FIXME: remove when everything is debugged about this issue
-		//ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
-		//long nbTrans = (long) ap.evalXPathToNumber();
-		//ap.resetXPath();
-		//vn.toElement(VTDNavHuge.ROOT);
+		// count transitions FIXME: remove when everything is debugged about
+		// this issue
+		// ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
+		// long nbTrans = (long) ap.evalXPathToNumber();
+		// ap.resetXPath();
+		// vn.toElement(VTDNavHuge.ROOT);
 		// Handle transitions through arcs
 		String arc, src, trg;
 		long count = 0L;
@@ -430,9 +431,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 								if (arcVals == null) {
 									arcVals = new IntBigArrayBigList();
 									tr2InUnsafeArcsMap.put(trg, arcVals);
+									
 								}
 								arcVals.add(arcInsc);
-								nbUnsafeTrans++;
 							}
 						}
 					}
@@ -464,9 +465,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 								if (arcVals == null) {
 									arcVals = new IntBigArrayBigList();
 									tr2OutUnsafeArcsMap.put(src, arcVals);
+									
 								}
 								arcVals.add(arcInsc);
-								nbUnsafeTrans++;
 							}
 						}
 					}
@@ -475,7 +476,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
-		
+
 		long nb = trId2bpnMap.size();
 		StringBuilder bpnsb = new StringBuilder();
 		bpnsb.append(TRANSITIONS).append(WS).append(HK).append(nb).append(WS)
@@ -514,10 +515,26 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				for (int v : arcVals) {
 					warnMsg.append(WS).append(v);
 				}
+				tr2OutUnsafeArcsMap.remove(s);
 			}
+			nbUnsafeTrans++;
 			log.warn(warnMsg.toString());
 			warnMsg.delete(0, warnMsg.length());
 		}
+
+		for (String s : tr2OutUnsafeArcsMap.keySet()) {
+			arcVals = tr2OutUnsafeArcsMap.get(s);
+			warnMsg.append("Removed transition ").append(s)
+					.append(" because it has ").append(arcVals.size64())
+					.append(" outgoing arc(s) with respective valuation(s):");
+			for (int v : arcVals) {
+				warnMsg.append(WS).append(v);
+			}
+			nbUnsafeTrans++;
+			log.warn(warnMsg.toString());
+			warnMsg.delete(0, warnMsg.length());
+		}
+		
 		warnMsg = null;
 		// Write number removals in signature message
 		if (nbUnsafeArcs > 0L) {
