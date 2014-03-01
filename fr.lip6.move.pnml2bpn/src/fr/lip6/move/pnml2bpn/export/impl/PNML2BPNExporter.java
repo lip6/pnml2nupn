@@ -104,7 +104,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private File currentInputFile = null;
 	private SafePNChecker spnc = null;
 	private long nbUnsafeArcs, nbUnsafePlaces, nbUnsafeTrans;
-	private boolean unsafePlaces, unsafeArcs;
+	private boolean unsafePlaces, unsafeArcs, unsafeTrans;
 
 	private BlockingQueue<String> bpnQueue = null;
 	private BlockingQueue<String> tsQueue = null;
@@ -397,6 +397,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.selectXPath(PNMLPaths.ARCS_PATH);
 		// @deprecated tsQueue.put(TRANSITIONS_MAPPING_MSG + NL);
 		while ((ap.evalXPath()) != -1) {
+			vn.push();
 			pls = null;
 			arc = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
@@ -471,6 +472,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					}
 				}
 			}
+			vn.pop();
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
@@ -496,44 +498,48 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		bpnsb = null;
 
 		// Warn about removed transitions
-		StringBuilder warnMsg = new StringBuilder();
-		for (String s : tr2InUnsafeArcsMap.keySet()) {
-			arcVals = tr2InUnsafeArcsMap.get(s);
-			warnMsg.append("Removed transition ").append(s)
-					.append(" because it has ").append(arcVals.size64())
-					.append(" incoming arc(s) with respective valuation(s):");
-			for (int v : arcVals) {
-				warnMsg.append(WS).append(v);
+		if (unsafeTrans) {
+			StringBuilder warnMsg = new StringBuilder();
+			for (String s : tr2InUnsafeArcsMap.keySet()) {
+				arcVals = tr2InUnsafeArcsMap.get(s);
+				warnMsg.append("Removed transition ")
+						.append(s)
+						.append(" because it has ")
+						.append(arcVals.size64())
+						.append(" incoming arc(s) with respective valuation(s):");
+				for (int v : arcVals) {
+					warnMsg.append(WS).append(v);
+				}
+				arcVals = tr2OutUnsafeArcsMap.get(s);
+				if (arcVals != null) {
+					warnMsg.append(", and ")
+							.append(arcVals.size64())
+							.append(" outgoing arc(s) with respective valuation(s):");
+					for (int v : arcVals) {
+						warnMsg.append(WS).append(v);
+					}
+					tr2OutUnsafeArcsMap.remove(s);
+				}
+				nbUnsafeTrans++;
+				log.warn(warnMsg.toString());
+				warnMsg.delete(0, warnMsg.length());
 			}
-			arcVals = tr2OutUnsafeArcsMap.get(s);
-			if (arcVals != null) {
-				warnMsg.append(", and ")
+
+			for (String s : tr2OutUnsafeArcsMap.keySet()) {
+				arcVals = tr2OutUnsafeArcsMap.get(s);
+				warnMsg.append("Removed transition ")
+						.append(s)
+						.append(" because it has ")
 						.append(arcVals.size64())
 						.append(" outgoing arc(s) with respective valuation(s):");
 				for (int v : arcVals) {
 					warnMsg.append(WS).append(v);
 				}
-				tr2OutUnsafeArcsMap.remove(s);
+				nbUnsafeTrans++;
+				log.warn(warnMsg.toString());
+				warnMsg.delete(0, warnMsg.length());
 			}
-			nbUnsafeTrans++;
-			log.warn(warnMsg.toString());
-			warnMsg.delete(0, warnMsg.length());
 		}
-
-		for (String s : tr2OutUnsafeArcsMap.keySet()) {
-			arcVals = tr2OutUnsafeArcsMap.get(s);
-			warnMsg.append("Removed transition ").append(s)
-					.append(" because it has ").append(arcVals.size64())
-					.append(" outgoing arc(s) with respective valuation(s):");
-			for (int v : arcVals) {
-				warnMsg.append(WS).append(v);
-			}
-			nbUnsafeTrans++;
-			log.warn(warnMsg.toString());
-			warnMsg.delete(0, warnMsg.length());
-		}
-		
-		warnMsg = null;
 		// Write number removals in signature message
 		if (nbUnsafeArcs > 0L) {
 			MainPNML2BPN.appendMesgLineToSignature("removed " + nbUnsafeArcs
@@ -620,7 +626,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
-		StringBuilder unsafeArcsId = new StringBuilder();
+		//StringBuilder unsafeArcsId = new StringBuilder();
 		int val;
 		String src, trg;
 		while ((ap.evalXPath()) != -1) {
@@ -640,16 +646,16 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				unsafeNodes.add(trg);
 				uaQueue.put(src + WS + id + WS + trg + WS + HK + val + NL);
 				unsafeArcsMap.put(id, val);
-				unsafeArcsId.append(id + COMMAWS);
+				//unsafeArcsId.append(id + COMMAWS);
 				nbUnsafeArcs++;
 			}
 			vn.pop();
 		}
 		if (nbUnsafeArcs > 0) {
 			unsafeArcs = true;
+			unsafeTrans = true;
 			log.warn("There are {} unsafe arcs in this net.", nbUnsafeArcs);
-			unsafeArcsId.delete(unsafeArcsId.length() - 2,
-					unsafeArcsId.length());
+			//unsafeArcsId.delete(unsafeArcsId.length() - 2, unsafeArcsId.length());
 			// FIXME: removed the following. log.warn("Unsafe arcs: {}",
 			// unsafeArcsId.toString());
 		}
@@ -760,7 +766,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
 		StringBuilder tsmapping = new StringBuilder();
 		while ((ap.evalXPath()) != -1) {
-
+			// FIXME : PUSH
+			vn.push();
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			tsmapping.append(iDCount).append(WS).append(id).append(NL);
 			tsQueue.put(tsmapping.toString());
@@ -773,6 +780,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			tsmapping.delete(0, tsmapping.length());
 			count++;
 			iDCount++;
+			// FIXME: POP
+			vn.pop();
 		}
 		tsmapping = null;
 		// / Root Unit N and its subunits. Check case there is just one place.
@@ -809,12 +818,14 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		boolean result = true;
 		ap.selectXPath(PNMLPaths.NETS_PATH);
 		while ((ap.evalXPath()) != -1) {
+			vn.push();
 			String netType = vn.toString(vn.getAttrVal(PNMLPaths.TYPE_ATTR));
 			log.info("Discovered net type: {}", netType);
 			if (!netType.endsWith(PNMLPaths.PTNET_TYPE)) {
 				result = false;
 				break;
 			}
+			vn.pop();
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
@@ -830,12 +841,14 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		String mkg;
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
 		while ((ap.evalXPath()) != -1) {
+			vn.push();
 			mkg = vn.toString(vn.getText());
 			if (Integer.valueOf(mkg) == 1) {
 				count++;
 			} else {
 				break;
 			}
+			vn.pop();
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
