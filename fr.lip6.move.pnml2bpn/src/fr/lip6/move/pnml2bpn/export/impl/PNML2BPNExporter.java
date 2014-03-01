@@ -700,7 +700,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			log.warn("There are {} initial places in this net.", nbMarkedPlaces);
 		}
 		// Remove trailing comma and space, then display initial places
-		initPlacesId.delete(initPlacesId.length() - 3, initPlacesId.length());
+		initPlacesId.delete(initPlacesId.length() - 2, initPlacesId.length());
 		log.info("Initial place(s): {}", initPlacesId.toString());
 
 		// count all places
