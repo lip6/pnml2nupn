@@ -431,7 +431,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 								if (arcVals == null) {
 									arcVals = new IntBigArrayBigList();
 									tr2InUnsafeArcsMap.put(trg, arcVals);
-									
 								}
 								arcVals.add(arcInsc);
 							}
@@ -465,7 +464,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 								if (arcVals == null) {
 									arcVals = new IntBigArrayBigList();
 									tr2OutUnsafeArcsMap.put(src, arcVals);
-									
 								}
 								arcVals.add(arcInsc);
 							}
@@ -611,7 +609,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			unsafePlaces = true;
 			log.warn("There are {} unsafe initial places in this net.",
 					nbUnsafePlaces);
-			unsafePlacesId.delete(unsafePlacesId.length() - 3,
+			unsafePlacesId.delete(unsafePlacesId.length() - 2,
 					unsafePlacesId.length());
 			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
 		}
@@ -650,7 +648,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		if (nbUnsafeArcs > 0) {
 			unsafeArcs = true;
 			log.warn("There are {} unsafe arcs in this net.", nbUnsafeArcs);
-			unsafeArcsId.delete(unsafeArcsId.length() - 3,
+			unsafeArcsId.delete(unsafeArcsId.length() - 2,
 					unsafeArcsId.length());
 			// FIXME: removed the following. log.warn("Unsafe arcs: {}",
 			// unsafeArcsId.toString());
