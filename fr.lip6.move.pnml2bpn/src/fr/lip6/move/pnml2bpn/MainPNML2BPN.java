@@ -207,7 +207,7 @@ public final class MainPNML2BPN {
 		} else if (genUnsafe == null) {
 			isGenerateUnsafe = false;
 			msg.append(
-					"Generation of unsafe BPN (structural only) not set. Default is false. If you want to "
+					"Generation of unsafe BPN not set. Default is false. If you want to "
 					+ "generate unsafe (structural) BPN, then invoke this program with ")
 					.append(GENERATE_UNSAFE)
 					.append(" property like so: java -D")
