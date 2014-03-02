@@ -126,7 +126,7 @@ public final class MainPNML2BPN {
 		}
 		//long startTime = System.nanoTime();
 		initSignatureMessage();
-		PNMLExporter pe = new PNML2BPNFactory().createExporter();
+		PNMLExporter pe = PNML2BPNFactory.instance().createExporter();
 		org.slf4j.Logger jr = LoggerFactory.getLogger(pe.getClass()
 				.getCanonicalName());
 		// TODO : optimize with threads

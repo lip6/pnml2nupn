@@ -26,10 +26,32 @@ import fr.lip6.move.pnml2bpn.export.impl.PNML2BPNExporter;
  */
 public final class PNML2BPNFactory {
 
-	public PNML2BPNFactory() {
+	private static final class PNML2BPNFactoryHelper {
+		private static volatile PNML2BPNFactory INSTANCE;
+		static {
+			synchronized (PNML2BPNFactoryHelper.class) {
+				if (INSTANCE == null) {
+					synchronized (PNML2BPNFactoryHelper.class) {
+						INSTANCE = new PNML2BPNFactory();
+					}
+				}
+			}
+		}
+
+		private PNML2BPNFactoryHelper() {
+			super();
+		}
+	}
+
+	
+	private PNML2BPNFactory() {
 		super();
 	}
 
+	
+	public static PNML2BPNFactory instance() {
+		return PNML2BPNFactoryHelper.INSTANCE;
+	}
 
 	public PNMLExporter createExporter() {
 		return new PNML2BPNExporter();
