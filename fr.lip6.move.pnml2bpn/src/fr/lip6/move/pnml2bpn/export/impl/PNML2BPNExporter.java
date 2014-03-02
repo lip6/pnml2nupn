@@ -142,6 +142,91 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		export(new File(inFile), new File(outFile), journal);
 	}
 
+	@Override
+	public void hasUnsafeArcs(String inFile, String outFile, Logger journal)
+			throws InvalidPNMLTypeException, IOException, PNMLImportExportException {
+		checkHasUnsafeArcs(new File(inFile), new File(outFile), journal);
+
+	}
+
+	private void checkHasUnsafeArcs(File inFile, File outFile, Logger journal)
+			throws InvalidPNMLTypeException, IOException, PNMLImportExportException {
+		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
+		VTDGenHuge vg = new VTDGenHuge();
+		long nbUnsArcs = 0L;
+		initLog(journal);
+		try {
+			xb.readFile(inFile.getCanonicalPath());
+			vg.setDoc(xb);
+			vg.parse(true);
+			VTDNavHuge vn = vg.getNav();
+			AutoPilotHuge ap = new AutoPilotHuge(vn);
+			log.info("Checking it is a PT Net.");
+			if (!isPTNet(ap, vn)) {
+				throw new InvalidPNMLTypeException(
+						"The contained Petri net(s) in the following file is not a P/T Net. Only P/T Nets are supported: "
+								+ inFile.getCanonicalPath());
+			}
+			outUAFile = new File(PNML2BPNUtils.extractBaseName(outFile
+					.getCanonicalPath()) + UNSAFE_ARC);
+			ocbUA = PNML2BPNUtils.openOutChannel(outUAFile);
+			uaQueue = initQueue();
+			Thread uaWriter = startWriter(ocbUA, uaQueue);
+
+			// Check inscriptions > 1 
+			ap.resetXPath();
+			vn.toElement(VTDNavHuge.ROOT);
+			ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
+			StringBuilder unsafeArcsId = new StringBuilder();
+			int val;
+			String id, src, trg;
+			while ((ap.evalXPath()) != -1) {
+				vn.push();
+				vn.toElement(VTDNavHuge.FIRST_CHILD);
+				while (!vn.matchElement("text")) {
+					vn.toElement(VTDNavHuge.NEXT_SIBLING);
+				}
+				val = Integer.parseInt(vn.toString(vn.getText()).trim());
+				vn.toElement(VTDNavHuge.PARENT);
+				vn.toElement(VTDNavHuge.PARENT);
+				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+				if (id != null) {
+					src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
+					trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
+					unsafeArcsId.append(src + WS + id + WS + trg + WS + HK + val + NL);
+					uaQueue.put(unsafeArcsId.toString());
+					nbUnsArcs++;
+				}
+				vn.pop();
+				unsafeArcsId.delete(0, unsafeArcsId.length());
+			}
+			if (nbUnsArcs > 0) {
+				journal.warn("There are {} unsafe arcs in this net.", nbUnsArcs);
+			} else {
+				log.info("There are no unsafe arcs in this net.");
+			}
+			stopWriter(uaQueue);
+			uaWriter.join();
+			closeChannel(ocbUA);
+			// clear maps
+			//clearAllCollections();
+			if (nbUnsArcs > 0) {
+				log.info("See unsafe arcs files: {}",
+						outUAFile.getCanonicalPath());
+			} else {
+				outUAFile.delete();
+			}
+		} catch (ParseExceptionHuge | XPathParseExceptionHuge
+				| XPathEvalExceptionHuge | NavExceptionHuge | InterruptedException e) {
+			try {
+				emergencyStop(outFile);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			throw new PNMLImportExportException(e);
+		}
+	}
+
 	private void export(File inFile, File outFile, Logger journal)
 			throws PNMLImportExportException, InterruptedException, IOException {
 		initLog(journal);
@@ -151,24 +236,11 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					inFile.getCanonicalPath());
 			PNML2BPNUtils.checkIsPnmlFile(inFile);
 			log.info("Exporting into BPN: {}", inFile.getCanonicalPath());
-			/*
-			 * String sessionId = "pnml2bpn" + Thread.currentThread().getId();
-			 * PNMLUtils.createWorkspace(sessionId); HLAPIRootClass rootClass =
-			 * PNMLUtils.importPnmlDocument(inFile, false); if
-			 * (!PNType.PTNET.equals(PNMLUtils.determineNetType(rootClass))) {
-			 * String message =
-			 * "This translation tool only support P/T Nets. The PNML you provided does not have a P/T Net root."
-			 * ; journal.error(message); throw new
-			 * PNMLImportExportException(message); }
-			 */
 			translateIntoBPN(inFile, outFile, journal);
-
 		} catch (ValidationException
 				| fr.lip6.move.pnml2bpn.exceptions.InvalidFileTypeException
 				| fr.lip6.move.pnml2bpn.exceptions.InvalidFileException
 				| InternalException | InvalidPNMLTypeException e) {
-			// journal.error(e.getMessage());
-			// MainPNML2BPN.printStackTrace(e);
 			throw new PNMLImportExportException(e);
 		} catch (IOException e) {
 			throw e;
@@ -626,7 +698,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
-		//StringBuilder unsafeArcsId = new StringBuilder();
+		// StringBuilder unsafeArcsId = new StringBuilder();
 		int val;
 		String src, trg;
 		while ((ap.evalXPath()) != -1) {
@@ -646,7 +718,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				unsafeNodes.add(trg);
 				uaQueue.put(src + WS + id + WS + trg + WS + HK + val + NL);
 				unsafeArcsMap.put(id, val);
-				//unsafeArcsId.append(id + COMMAWS);
+				// unsafeArcsId.append(id + COMMAWS);
 				nbUnsafeArcs++;
 			}
 			vn.pop();
@@ -655,7 +727,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			unsafeArcs = true;
 			unsafeTrans = true;
 			log.warn("There are {} unsafe arcs in this net.", nbUnsafeArcs);
-			//unsafeArcsId.delete(unsafeArcsId.length() - 2, unsafeArcsId.length());
+			// unsafeArcsId.delete(unsafeArcsId.length() - 2,
+			// unsafeArcsId.length());
 			// FIXME: removed the following. log.warn("Unsafe arcs: {}",
 			// unsafeArcsId.toString());
 		}
