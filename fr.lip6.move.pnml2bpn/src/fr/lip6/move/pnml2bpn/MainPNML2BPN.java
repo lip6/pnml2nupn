@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
+import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
 import fr.lip6.move.pnml2bpn.export.PNML2BPNFactory;
 import fr.lip6.move.pnml2bpn.export.PNMLExporter;
@@ -45,7 +46,7 @@ public final class MainPNML2BPN {
 	public static final String EQ = "=";
 	public static final String COLWS = ": ";
 	public static final String WSDASH = " -";
-	public static final String VERSION = "1.2.1";
+	public static final String VERSION = "1.2.2";
 	public static final String BPN_EXT = ".bpn";
 	public static final String PNML_EXT = ".pnml";
 	public static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";
@@ -69,6 +70,8 @@ public final class MainPNML2BPN {
 	 */
 	public static final String GENERATE_UNSAFE = "generate.unsafe";
 	
+	public static final String HAS_UNSAFE_ARCS = "has.unsafe.arcs";
+	
 	
 	private static StringBuilder signatureMesg;
 	
@@ -84,6 +87,7 @@ public final class MainPNML2BPN {
 	private static boolean isBoundsChecking;
 	private static boolean isRemoveTransUnsafeArcs;
 	private static boolean isGenerateUnsafe;
+	private static boolean isHasUnsafeArcs;
 
 	private MainPNML2BPN() {
 		super();
@@ -114,6 +118,8 @@ public final class MainPNML2BPN {
 		checkGenerateUnsafeMode(myLog, msg);
 		// Remove unsafe arcs?
 		checkRemoveTransUnsafeArcsMode(myLog, msg);
+		
+		checkHashUnsafeArcsMode(myLog, msg);
 
 		try {
 			extractSrcDestPaths(args);
@@ -133,12 +139,17 @@ public final class MainPNML2BPN {
 		boolean error = false;
 		for (int i = 0; i < pathSrc.size(); i++) {
 			try {
-				pe.exportPNML(new File(pathSrc.get(i)),
+				// Option exclusive of the others
+				if (isHasUnsafeArcs) {
+					pe.hasUnsafeArcs(pathSrc.get(i), pathDest.get(i), jr);
+				} else {
+					pe.exportPNML(new File(pathSrc.get(i)),
 						new File(pathDest.get(i)), jr);
+				}
 				myLog.info(signatureMesg.toString());
 				signatureMesg.delete(0, signatureMesg.length());
 			} catch (PNMLImportExportException | InterruptedException
-					| IOException e) {
+					| IOException | InvalidPNMLTypeException e) {
 				myLog.error(e.getMessage());
 				MainPNML2BPN.printStackTrace(e);
 				error |= true;
@@ -168,6 +179,8 @@ public final class MainPNML2BPN {
 		}
 	}
 
+	
+
 	/**
 	 * Initialises signature message.
 	 */
@@ -191,13 +204,40 @@ public final class MainPNML2BPN {
 			if (!isCamiTmpDelete) {
 				signatureMesg.append(WSDASH).append(CAMI_TMP_KEEP).append(EQ).append(isCamiTmpDelete);
 			}
+			if (isHasUnsafeArcs) {
+				signatureMesg.append(WSDASH).append(HAS_UNSAFE_ARCS).append(EQ).append(isHasUnsafeArcs);
+			}
+			
 			
 		} else {
 			signatureMesg.append(" with default values for options");
 		}
-		
 	}
 
+	private static void checkHashUnsafeArcsMode(Logger myLog, StringBuilder msg) {
+		String unsafeArcs = System.getProperty(HAS_UNSAFE_ARCS);
+		if (unsafeArcs != null && Boolean.valueOf(unsafeArcs)) {
+			isHasUnsafeArcs = true;
+			isOption = true;
+			myLog.warn("You have requested to find if there are unsafe arcs. This option is exclusive of all the others.");
+		} else if (unsafeArcs == null) {
+			isHasUnsafeArcs = false;
+			msg.append(
+					"Request to find unsafe arcs (exclusive option) not set. Default is false. If you want to "
+					+ "set this property (exclusive of the others, then invoke this program with ")
+					.append(HAS_UNSAFE_ARCS)
+					.append(" property like so: java -D")
+					.append(HAS_UNSAFE_ARCS)
+					.append("=true [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		} else {
+			isHasUnsafeArcs = false;
+			myLog.info("No request to find unsafe arcs (exclusive option).");
+		}	
+	}
+	
+	
 	private static void checkGenerateUnsafeMode(Logger myLog, StringBuilder msg) {
 		String genUnsafe = System.getProperty(GENERATE_UNSAFE);
 		if (genUnsafe != null && Boolean.valueOf(genUnsafe)) {
