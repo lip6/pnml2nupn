@@ -23,20 +23,32 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 
+import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
 
-
-
 /**
- * <p>Interface to implement for exporting PNML into other formats.</p>
- * <p>It is offered as a convenience. The Event Bus method could alternatively be used.</p>
+ * <p>
+ * Interface to implement for exporting PNML into other formats.
+ * </p>
+ * <p>
+ * It is offered as a convenience. The Event Bus method could alternatively be
+ * used.
+ * </p>
+ * 
  * @author lom
- *
+ * 
  */
 public interface PNMLExporter {
-	void exportPNML(URI inFile, URI outFile, Logger journal) throws PNMLImportExportException, InterruptedException, IOException;
+	void exportPNML(URI inFile, URI outFile, Logger journal)
+			throws PNMLImportExportException, InterruptedException, IOException;
 
-	void exportPNML(File inFile, File outFile, Logger journal) throws PNMLImportExportException, InterruptedException, IOException;
-	
-	void exportPNML(String inFile, String outFile, Logger journal) throws PNMLImportExportException, InterruptedException, IOException;
+	void exportPNML(File inFile, File outFile, Logger journal)
+			throws PNMLImportExportException, InterruptedException, IOException;
+
+	void exportPNML(String inFile, String outFile, Logger journal)
+			throws PNMLImportExportException, InterruptedException, IOException;
+
+	void hasUnsafeArcs(String inFile, String outFile, Logger journal)
+			throws InvalidPNMLTypeException, IOException,
+			PNMLImportExportException;
 }
