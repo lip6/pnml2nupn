@@ -26,7 +26,8 @@ Petri Nets PNML to BPN Converter
 PNML to Basic Petri Nets (BPN) Converter
 
   This tool converts 1-Safe Place/Transition Petri Nets from the {{{http://www.pnml.org}PNML}} standard format
-  into the {{{http://cadp.inria.fr/man/caesar.bdd.html#sect4}Basic Petri Net}} (BPN) format. 
+  into the {{{http://cadp.inria.fr/man/caesar.bdd.html#sect4}Basic Petri Net}} (BPN) format. Note that the
+  <<Caesar.bdd>> tool can translate Basic Petri Nets from the BPN format into PNML.
 
   Thanks to the Bounds tool by {{{http://www.lip6.fr/actualite/personnes-fiche.php?ident=P165}Emmanuel Paviot-Adet}},
 this tool first checks that the P/T Net model in PNML you want to translate into BPN is 1-Safe. If that condition is not satisfied, the translation does not happen.
