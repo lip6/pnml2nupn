@@ -130,7 +130,7 @@ Check for the Presence of Unsafe Arcs in the Net
 
  It is possible to check for the presence of unsafe arcs (i.e inscription > 1) of the input P/T net to this tool.
 This behaviour is triggered by the <<has.unsafe.arcs>> property, that is exclusive of all the others. Therefore,
-if you set this property to true, the tool will only checks for the presence of unsafe arcs, reports them in 
+if you set this property to true, the tool will only check for the presence of unsafe arcs, reports them in 
 a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values.
   
  To activate this behaviour, set the <<has.unsafe.arcs>> property like so:
