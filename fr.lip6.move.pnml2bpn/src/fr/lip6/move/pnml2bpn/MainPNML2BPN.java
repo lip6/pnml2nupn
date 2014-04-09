@@ -60,7 +60,7 @@ public final class MainPNML2BPN {
 	/**
 	 * Force BPN Generation works by default for the case where bounds checking is disabled.
 	 */
-	public static final String FORCE_BPN_GENERATION = "force.nupn.generation";
+	public static final String FORCE_NUPN_GENERATION = "force.nupn.generation";
 	/**
 	 * Bounds checking property.
 	 */
@@ -196,7 +196,7 @@ public final class MainPNML2BPN {
 		if (isOption) {
 			signatureMesg.append(" with options");
 			if (isForceBPNGen) {
-				signatureMesg.append(WSDASH).append(FORCE_BPN_GENERATION).append(EQ).append(isForceBPNGen);
+				signatureMesg.append(WSDASH).append(FORCE_NUPN_GENERATION).append(EQ).append(isForceBPNGen);
 			}
 			if (!isBoundsChecking) {
 				signatureMesg.append(WSDASH).append(BOUNDS_CHECKING).append(EQ).append(isBoundsChecking);
@@ -321,7 +321,7 @@ public final class MainPNML2BPN {
 	 */
 	private static void checkForceBPNGenMode(org.slf4j.Logger myLog,
 			StringBuilder msg) {
-		String forceBpnGen = System.getProperty(FORCE_BPN_GENERATION);
+		String forceBpnGen = System.getProperty(FORCE_NUPN_GENERATION);
 		if (forceBpnGen != null && Boolean.valueOf(forceBpnGen)) {
 			isForceBPNGen = true;
 			isOption = true;
@@ -330,9 +330,9 @@ public final class MainPNML2BPN {
 			isForceBPNGen = false;
 			msg.append(
 					"Forcing BPN generation not set. Default is false. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
-					.append(FORCE_BPN_GENERATION)
+					.append(FORCE_NUPN_GENERATION)
 					.append(" property like so: java -D")
-					.append(FORCE_BPN_GENERATION)
+					.append(FORCE_NUPN_GENERATION)
 					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
