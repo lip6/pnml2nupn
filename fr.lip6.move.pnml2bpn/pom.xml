@@ -4,16 +4,16 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.lip6.move.bpn</groupId>
-	<artifactId>fr.lip6.move.pnml2bpn</artifactId>
-	<version>1.2.2</version>
+	<artifactId>fr.lip6.move.pnml2nupn</artifactId>
+	<version>1.3.0</version>
 
 	<packaging>jar</packaging>
 
-	<name>PNML (1-Safe) P/T Nets to BPN Translation Tool</name>
+	<name>PNML (1-Safe) P/T Nets to NuPN Translation Tool</name>
 
 	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
 
-	<url>http://pnml.lip6.fr/pnml2bpn/index.html</url>
+	<url>http://pnml.lip6.fr/pnml2nupn/index.html</url>
 
 	<inceptionYear>2014</inceptionYear>
 
@@ -44,15 +44,15 @@
 	</developers>
 
 	<scm>
-		<url>scm:svn:https://github.com/lhillah/pnml2bpn.git</url>
+		<url>scm:svn:https://github.com/lhillah/pnml2nupn.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/lhillah/pnml2bpn/issues</url>
+		<url>https://github.com/lhillah/pnml2nupn/issues</url>
 	</issueManagement>
 	<licenses>
 		<license>
-			<name>PNML2BPN License</name>
+			<name>PNML2NuPN License</name>
 			<url>http://pnml.lip6.fr/resources/License</url>
 		</license>
 	</licenses>
@@ -123,7 +123,9 @@
 				<excludes>
 					<exclude>**/*.pnml</exclude>
 					<exclude>**/*.bpn</exclude>
+					<exclude>**/*.nupn</exclude>
 					<exclude>**/*.pnml2bpn</exclude>
+					<exclude>**/*.pnml2nupn</exclude>
 					<exclude>**/*.txt</exclude>
 					<exclude>**/*.states</exclude>
 					<exclude>**/*.trans</exclude>
