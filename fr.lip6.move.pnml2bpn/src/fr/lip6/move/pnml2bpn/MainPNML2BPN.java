@@ -44,12 +44,18 @@ public final class MainPNML2BPN {
 
 	public static final String NL = "\n";
 	public static final String EQ = "=";
-	public static final String COLWS = ": ";
+	public static final String WS = " ";
+	public static final String COLWS = ":" + WS;
 	public static final String WSDASH = " -";
-	public static final String VERSION = "1.2.2";
-	public static final String BPN_EXT = ".bpn";
+	public static final String XP = "!";
+	public static final String TOOL_NAME = "pnml2nupn";
+	public static final String VERSION = "1.3.0";
+	public static final String CREATOR = "creator";
+	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME  + WS + VERSION;
+	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
+	public static final String BPN_EXT = ".nupn";
 	public static final String PNML_EXT = ".pnml";
-	public static final String PNML2BPN_DEBUG = "PNML2BPN_DEBUG";
+	public static final String PNML2BPN_DEBUG = "PNML2NUPN_DEBUG";
 	public static final String CAMI_TMP_KEEP = "cami.tmp.keep";
 	/**
 	 * Force BPN Generation works by default for the case where bounds checking is disabled.
@@ -65,7 +71,7 @@ public final class MainPNML2BPN {
 	public static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.unsafe.trans";
 	/**
 	 * Force generation of unsafe nets, where it is clearly checked that 
-	 * at least one initial has more than 1 token or the inscription of an arc
+	 * at least one initial place has more than 1 token or the inscription of an arc
 	 * is valued to more than 1. 
 	 */
 	public static final String GENERATE_UNSAFE = "generate.unsafe";
