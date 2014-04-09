@@ -105,10 +105,13 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private SafePNChecker spnc = null;
 	private long nbUnsafeArcs, nbUnsafePlaces, nbUnsafeTrans;
 	private boolean unsafePlaces, unsafeArcs, unsafeTrans;
-
+	/* For the NuPN file */
 	private BlockingQueue<String> bpnQueue = null;
+	/* For Transitions mapping NuPN - PNML */
 	private BlockingQueue<String> tsQueue = null;
+	/* For Places mapping NuPN - PNML*/
 	private BlockingQueue<String> psQueue = null;
+	/* For unsafe arcs */
 	private BlockingQueue<String> uaQueue = null;
 	private OutChannelBean ocbBpn = null;
 	private OutChannelBean ocbTs = null;
@@ -274,7 +277,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				if (!isNet1Safe()) {
 					if (MainPNML2BPN.isForceBPNGen()) {
 						journal.warn(
-								"The net(s) in the submitted document is not 1-safe, but forced BPN generation is set: {}",
+								"The net(s) in the submitted document is not 1-safe, but forced NuPN generation is set: {}",
 								this.currentInputFile.getCanonicalPath());
 						journal.warn("Continuing BPN generation.");
 					} else {
@@ -297,7 +300,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					.getCanonicalPath()) + STATES_EXT);
 			outUAFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + UNSAFE_ARC);
-			// Channels for BPN, transitions and places id mapping
+			// Channels for NuPN, transitions and places id mapping
 			ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
 			ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
 			ocbPs = PNML2BPNUtils.openOutChannel(outPSFile);
@@ -314,6 +317,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			Thread psWriter = startWriter(ocbPs, psQueue);
 			Thread uaWriter = startWriter(ocbUA, uaQueue);
 
+			// Insert creator pragma (since 1.3.0)
+			insertCreatorPragma(bpnQueue);
+			
 			// Init data type for places id and export places
 			initPlacesMap();
 			initUnsafeArcsMap();
@@ -338,7 +344,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			closeChannel(ocbUA);
 			// clear maps
 			clearAllCollections();
-			log.info("See BPN and mapping files: {}, {} and {}",
+			log.info("See NuPN and mapping files: {}, {} and {}",
 					outFile.getCanonicalPath(), outTSFile.getCanonicalPath(),
 					outPSFile.getCanonicalPath());
 			if (unsafeArcs) {
@@ -360,6 +366,10 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			emergencyStop(outFile);
 			throw e;
 		}
+	}
+
+	private void insertCreatorPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
+		nupnQueue.put(MainPNML2BPN.PRAGMA_CREATOR + NL);
 	}
 
 	/**
