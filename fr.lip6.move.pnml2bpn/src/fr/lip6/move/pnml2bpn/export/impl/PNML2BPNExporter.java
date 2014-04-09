@@ -40,6 +40,7 @@ import javax.xml.bind.ValidationException;
 
 import org.slf4j.Logger;
 
+import com.thaiopensource.validate.mns.MnsSchemaReceiverFactory;
 import com.ximpleware.extended.AutoPilotHuge;
 import com.ximpleware.extended.NavExceptionHuge;
 import com.ximpleware.extended.ParseExceptionHuge;
@@ -67,6 +68,7 @@ import fr.lip6.move.pnml2bpn.utils.SafePNChecker;
  */
 public final class PNML2BPNExporter implements PNMLExporter {
 
+	private static final String TEXT = "text";
 	private static final String TRANS_EXT = ".trans";
 	private static final String STATES_EXT = ".places";
 	private static final String UNSAFE_ARC = ".unsafe.arcs";
@@ -109,7 +111,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private BlockingQueue<String> bpnQueue = null;
 	/* For Transitions mapping NuPN - PNML */
 	private BlockingQueue<String> tsQueue = null;
-	/* For Places mapping NuPN - PNML*/
+	/* For Places mapping NuPN - PNML */
 	private BlockingQueue<String> psQueue = null;
 	/* For unsafe arcs */
 	private BlockingQueue<String> uaQueue = null;
@@ -147,13 +149,15 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	@Override
 	public void hasUnsafeArcs(String inFile, String outFile, Logger journal)
-			throws InvalidPNMLTypeException, IOException, PNMLImportExportException {
+			throws InvalidPNMLTypeException, IOException,
+			PNMLImportExportException {
 		checkHasUnsafeArcs(new File(inFile), new File(outFile), journal);
 
 	}
 
 	private void checkHasUnsafeArcs(File inFile, File outFile, Logger journal)
-			throws InvalidPNMLTypeException, IOException, PNMLImportExportException {
+			throws InvalidPNMLTypeException, IOException,
+			PNMLImportExportException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
 		VTDGenHuge vg = new VTDGenHuge();
 		long nbUnsArcs = 0L;
@@ -176,7 +180,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			uaQueue = initQueue();
 			Thread uaWriter = startWriter(ocbUA, uaQueue);
 
-			// Check inscriptions > 1 
+			// Check inscriptions > 1
 			ap.resetXPath();
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
@@ -186,7 +190,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
 				vn.toElement(VTDNavHuge.FIRST_CHILD);
-				while (!vn.matchElement("text")) {
+				while (!vn.matchElement(TEXT)) {
 					vn.toElement(VTDNavHuge.NEXT_SIBLING);
 				}
 				val = Integer.parseInt(vn.toString(vn.getText()).trim());
@@ -196,7 +200,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				if (id != null) {
 					src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
 					trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
-					unsafeArcsId.append(src + WS + id + WS + trg + WS + HK + val + NL);
+					unsafeArcsId.append(src + WS + id + WS + trg + WS + HK
+							+ val + NL);
 					uaQueue.put(unsafeArcsId.toString());
 					nbUnsArcs++;
 				}
@@ -212,7 +217,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			uaWriter.join();
 			closeChannel(ocbUA);
 			// clear maps
-			//clearAllCollections();
+			// clearAllCollections();
 			if (nbUnsArcs > 0) {
 				log.info("See unsafe arcs files: {}",
 						outUAFile.getCanonicalPath());
@@ -220,7 +225,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				outUAFile.delete();
 			}
 		} catch (ParseExceptionHuge | XPathParseExceptionHuge
-				| XPathEvalExceptionHuge | NavExceptionHuge | InterruptedException e) {
+				| XPathEvalExceptionHuge | NavExceptionHuge
+				| InterruptedException e) {
 			try {
 				emergencyStop(outFile);
 			} catch (InterruptedException e1) {
@@ -319,7 +325,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 			// Insert creator pragma (since 1.3.0)
 			insertCreatorPragma(bpnQueue);
-			
+
 			// Init data type for places id and export places
 			initPlacesMap();
 			initUnsafeArcsMap();
@@ -368,7 +374,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 	}
 
-	private void insertCreatorPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
+	private void insertCreatorPragma(BlockingQueue<String> nupnQueue)
+			throws InterruptedException {
 		nupnQueue.put(MainPNML2BPN.PRAGMA_CREATOR + NL);
 	}
 
@@ -663,6 +670,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			InterruptedException, InvalidNetException, IOException {
 		long iDCount = 0L;
 		long nbMarkedPlaces = 0L;
+		int minMarking = 0, maxMarking = 0, mkg;
 		unsafePlaces = false;
 		unsafeArcs = false;
 		nbUnsafePlaces = 0L;
@@ -677,14 +685,28 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					"Error: there is no initial place in this net!");
 		}
 
-		// FIXME: Check initial markings > 1. Exit point if generate unsafe
-		// property not set.
+		// FIXME: Check initial markings > 1. No more exit point since 1.3.0
+		// (generate.unsafe property must be removed)
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_MARKED_PLACES);
 		StringBuilder unsafePlacesId = new StringBuilder();
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
+			vn.toElement(VTDNavHuge.FIRST_CHILD);
+			while (!vn.matchElement(TEXT)) {
+				vn.toElement(VTDNavHuge.NEXT_SIBLING);
+			}
+			mkg = Integer.parseInt(vn.toString(vn.getText()).trim());
+			if (mkg > maxMarking && mkg > minMarking && minMarking == 0) {
+				minMarking = mkg;
+				maxMarking = mkg;
+			} else if (mkg < minMarking) {
+				minMarking = mkg;
+			} else if (mkg > maxMarking) {
+				maxMarking = mkg;
+			}
+			vn.toElement(VTDNavHuge.PARENT);
 			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			if (id != null) {
@@ -701,6 +723,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					unsafePlacesId.length());
 			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
 		}
+		bpnQueue.put(MainPNML2BPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK
+				+ nbUnsafePlaces + WS + minMarking + DOTS + maxMarking + NL);
 
 		// FIXME: Check inscriptions > 1 and retain inbound or outbound
 		// transitions.
@@ -714,7 +738,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
 			vn.toElement(VTDNavHuge.FIRST_CHILD);
-			while (!vn.matchElement("text")) {
+			while (!vn.matchElement(TEXT)) {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
 			val = Integer.parseInt(vn.toString(vn.getText()).trim());
@@ -750,7 +774,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 							+ this.currentInputFile.getCanonicalPath());
 		}
 		if (MainPNML2BPN.isGenerateUnsafe() && (unsafePlaces || unsafeArcs)) {
-			log.warn("Generation of BPN for this net was requested despite unsafe places or arcs.");
+			log.warn("Generation of NuPN for this net was requested despite unsafe places or arcs.");
 			if (unsafePlaces) {
 				MainPNML2BPN
 						.appendMesgLineToSignature("decreased to one the marking of "
@@ -784,9 +808,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			}
 			vn.pop();
 		}
-		// Several initial are now accepted (since 1.1.10)
+		// Several initial places are now accepted (since 1.1.10)
 		if (nbMarkedPlaces > 1) {
-			log.warn("There are {} initial places in this net.", nbMarkedPlaces);
+			log.info("There are {} initial places in this net.", nbMarkedPlaces);
 		}
 		// Remove trailing comma and space, then display initial places
 		initPlacesId.delete(initPlacesId.length() - 2, initPlacesId.length());
