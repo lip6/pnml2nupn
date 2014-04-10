@@ -40,7 +40,6 @@ import javax.xml.bind.ValidationException;
 
 import org.slf4j.Logger;
 
-import com.thaiopensource.validate.mns.MnsSchemaReceiverFactory;
 import com.ximpleware.extended.AutoPilotHuge;
 import com.ximpleware.extended.NavExceptionHuge;
 import com.ximpleware.extended.ParseExceptionHuge;
@@ -298,7 +297,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			} else {
 				log.warn("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
 			}
-			// TODO : file to store the PNML id of removed transitions.
 			// Open BPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + TRANS_EXT);
@@ -452,196 +450,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		Thread t = new Thread(new BPNWriter(ocb, queue));
 		t.start();
 		return t;
-	}
-
-	/**
-	 * Export transitions into BPN.
-	 * 
-	 * @param ap
-	 * @param vn
-	 * @param bpnQueue
-	 * @param tsQueue
-	 * @throws XPathParseExceptionHuge
-	 * @throws NavExceptionHuge
-	 * @throws InterruptedException
-	 * @throws XPathEvalExceptionHuge
-	 * @deprecated use
-	 *             {@link #exportTransitions130(AutoPilotHuge, VTDNavHuge, BlockingQueue, BlockingQueue)}
-	 *             instead. FIXME: remove this method
-	 */
-	private void exportTransitions(AutoPilotHuge ap, VTDNavHuge vn,
-			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
-			throws XPathParseExceptionHuge, NavExceptionHuge,
-			InterruptedException, XPathEvalExceptionHuge {
-		// count transitions FIXME: remove when everything is debugged about
-		// this issue
-		// ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
-		// long nbTrans = (long) ap.evalXPathToNumber();
-		// ap.resetXPath();
-		// vn.toElement(VTDNavHuge.ROOT);
-		// Handle transitions through arcs
-		String arc, src, trg;
-		long count = 0L;
-		long tId, pId;
-		int arcInsc = 0;
-		LongBigArrayBigList pls = null;
-		IntBigArrayBigList arcVals = null;
-		nbUnsafeTrans = 0L;
-		ap.selectXPath(PNMLPaths.ARCS_PATH);
-		// @deprecated tsQueue.put(TRANSITIONS_MAPPING_MSG + NL);
-		while ((ap.evalXPath()) != -1) {
-			vn.push();
-			pls = null;
-			arc = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
-			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
-			trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
-			pId = placesId2bpnMap.getLong(src);
-			if (pId != -1L) { // transition is the target
-				tId = trId2bpnMap.getLong(trg);
-				if (tId != -1L) {
-					pls = tr2InPlacesMap.get(tId);
-					// FIXME: non-optimal code
-					if (pls == null) {
-						pls = new LongBigArrayBigList();
-						tr2InPlacesMap.put(tId, pls);
-					}
-					pls.add(pId);
-				} else {
-					if (!MainPNML2BPN.isRemoveTransUnsafeArcs() || !unsafeArcs
-							|| !unsafeNodes.contains(trg)) {
-						tId = count++;
-						trId2bpnMap.put(trg, tId);
-						tsQueue.put(tId + WS + trg + NL);
-						pls = new LongBigArrayBigList();
-						tr2InPlacesMap.put(tId, pls);
-						pls.add(pId);
-					} else {
-						// Candidate for removal? FIXME: following condition is
-						// useless.
-						if (unsafeNodes.contains(trg)) {
-							arcInsc = unsafeArcsMap.getInt(arc);
-							if (arcInsc != -1) {
-								arcVals = tr2InUnsafeArcsMap.get(trg);
-								if (arcVals == null) {
-									arcVals = new IntBigArrayBigList();
-									tr2InUnsafeArcsMap.put(trg, arcVals);
-								}
-								arcVals.add(arcInsc);
-							}
-						}
-					}
-				}
-			} else {// transition is the source
-				pId = placesId2bpnMap.getLong(trg);
-				tId = trId2bpnMap.getLong(src);
-				if (tId != -1L) {
-					pls = tr2OutPlacesMap.get(tId);
-					if (pls == null) {
-						pls = new LongBigArrayBigList();
-						tr2OutPlacesMap.put(tId, pls);
-					}
-					pls.add(pId);
-				} else {
-					if (!MainPNML2BPN.isRemoveTransUnsafeArcs() || !unsafeArcs
-							|| !unsafeNodes.contains(src)) {
-						tId = count++;
-						trId2bpnMap.put(src, tId);
-						tsQueue.put(tId + WS + src + NL);
-						pls = new LongBigArrayBigList();
-						tr2OutPlacesMap.put(tId, pls);
-						pls.add(pId);
-					} else {
-						if (unsafeNodes.contains(src)) {
-							arcInsc = unsafeArcsMap.getInt(arc);
-							if (arcInsc != -1) {
-								arcVals = tr2OutUnsafeArcsMap.get(src);
-								if (arcVals == null) {
-									arcVals = new IntBigArrayBigList();
-									tr2OutUnsafeArcsMap.put(src, arcVals);
-								}
-								arcVals.add(arcInsc);
-							}
-						}
-					}
-				}
-			}
-			vn.pop();
-		}
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
-
-		long nb = trId2bpnMap.size();
-		StringBuilder bpnsb = new StringBuilder();
-		bpnsb.append(TRANSITIONS).append(WS).append(HK).append(nb).append(WS)
-				.append(ZERO).append(DOTS).append(nb - 1L).append(NL);
-		bpnQueue.put(bpnsb.toString());
-		bpnsb.delete(0, bpnsb.length());
-
-		LongCollection allTr = new LongRBTreeSet(trId2bpnMap.values());
-
-		for (long trId : allTr) {
-			bpnsb.append(T).append(trId);
-			buildConnectedPlaces2Transition(bpnsb, trId, tr2InPlacesMap);
-			buildConnectedPlaces2Transition(bpnsb, trId, tr2OutPlacesMap);
-			bpnsb.append(NL);
-			bpnQueue.put(bpnsb.toString());
-			bpnsb.delete(0, bpnsb.length());
-		}
-		bpnsb.delete(0, bpnsb.length());
-		bpnsb = null;
-
-		// Warn about removed transitions
-		if (unsafeTrans) {
-			StringBuilder warnMsg = new StringBuilder();
-			for (String s : tr2InUnsafeArcsMap.keySet()) {
-				arcVals = tr2InUnsafeArcsMap.get(s);
-				warnMsg.append("Removed transition ")
-						.append(s)
-						.append(" because it has ")
-						.append(arcVals.size64())
-						.append(" incoming arc(s) with respective valuation(s):");
-				for (int v : arcVals) {
-					warnMsg.append(WS).append(v);
-				}
-				arcVals = tr2OutUnsafeArcsMap.get(s);
-				if (arcVals != null) {
-					warnMsg.append(", and ")
-							.append(arcVals.size64())
-							.append(" outgoing arc(s) with respective valuation(s):");
-					for (int v : arcVals) {
-						warnMsg.append(WS).append(v);
-					}
-					tr2OutUnsafeArcsMap.remove(s);
-				}
-				nbUnsafeTrans++;
-				log.warn(warnMsg.toString());
-				warnMsg.delete(0, warnMsg.length());
-			}
-
-			for (String s : tr2OutUnsafeArcsMap.keySet()) {
-				arcVals = tr2OutUnsafeArcsMap.get(s);
-				warnMsg.append("Removed transition ")
-						.append(s)
-						.append(" because it has ")
-						.append(arcVals.size64())
-						.append(" outgoing arc(s) with respective valuation(s):");
-				for (int v : arcVals) {
-					warnMsg.append(WS).append(v);
-				}
-				nbUnsafeTrans++;
-				log.warn(warnMsg.toString());
-				warnMsg.delete(0, warnMsg.length());
-			}
-		}
-		// Write number removals in signature message
-		if (nbUnsafeArcs > 0L) {
-			MainPNML2BPN.appendMesgLineToSignature("removed " + nbUnsafeArcs
-					+ " unsafe arcs with inscriptions > 1");
-		}
-		if (nbUnsafeTrans > 0L) {
-			MainPNML2BPN.appendMesgLineToSignature("removed " + nbUnsafeTrans
-					+ " transitions connected to the unsafe arcs");
-		}
 	}
 
 	/**
@@ -904,7 +712,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					maxDiff = diff;
 				}
 			}
-
 			// Write pragma
 			StringBuffer multArcsPrama = new StringBuffer();
 			multArcsPrama.append(MainPNML2BPN.PRAGMA_MULTIPLE_ARCS)
@@ -954,7 +761,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.selectXPath(PNMLPaths.COUNT_MARKED_PLACES);
 		nbMarkedPlaces = (long) ap.evalXPathToNumber();
 
-		// FIXME: exit point if there is no initial place in the net
+		// Exit point if there is no initial place in the net
 		if (nbMarkedPlaces == 0L) {
 			throw new InvalidNetException(
 					"Error: there is no initial place in this net!");
