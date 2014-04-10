@@ -810,7 +810,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 		// FIXME: Check inscriptions > 1 and retain inbound or outbound
 		// transitions.
-		// Exit point if generate unsafe property not set
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
