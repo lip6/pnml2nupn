@@ -20,10 +20,10 @@
 Usage
  -------
  -------
-2014-02
+2014-04
  -------
 
-Invocation
+Overview
 
   This tool expects a set of paths to PNML files or to directories as arguments, where to find the PNML files.
   It will recursively scan directories and their sub-directories, looking for PNML files.
@@ -31,11 +31,13 @@ Invocation
   You may provide a mix of paths to PNML files and directories containing them.
   
   
-Command-line invocation
+Basic command-line invocation
 
   The basic command-line invocation is the following (update the name of the jar to the latest version of this tool):
   
- <java -jar fr.lip6.move.pnml2bpn-1.1.5.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]>
+ <java -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]>
+
+Advanced command-line invocation
 
  Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9):
  
@@ -46,7 +48,7 @@ Command-line invocation
  
 Invocation using a Shell script
 
-  We provide a {{{./download/pnml2bpn.sh}Shell script}} to help you increase productivity in using PNML to BPN Converter.
+  We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using PNML to BPN Converter.
 In particular, the above set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
 
   For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
@@ -54,32 +56,53 @@ PNML documents (a few hundreds KB), we advise you decrease it (current setting i
 (a few hundreds MB to GB), then you should increase it in order to avoid out of memory errors.
 
  The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable. See below.
-
+ 
+ Until v1.2.2 of this tool, use the following {{{./download/pnml2bpn.sh}Shell script}} instead.
 
 Output
 
  Upon successful execution, this tool will output 3 files:
  
-  * A <<*.bpn>> file that contains the Basic Petri Net obtained from the PNML P/T translation;
+  * A <<*.nupn>> file that contains the Basic Petri Net obtained from the PNML P/T translation;
   
   * A <<*.places>> file that contains the mapping between the places ids from PNML and their counterparts in BPN;
   
   * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in BPN.
   
-  * A <<*.unsafe.arcs>> file is optionally generated, that contains the list of removed arcs (one per line) and their respective inscriptions,
-  in the form: <sourceNodeId arcId targetNodeId #inscription>. The ids come from the PNML file.
-  This file will be created only if options <<generate.unsafe>> AND <<remove.unsafe.trans>> are activated (see below),
-  and at least an unsafe transition was removed.
+  * A <<*.unsafe.arcs>> file is optionally generated, that contains the list of unsafe arcs (one per line) 
+  in the original Petri Net (from PNML) and their respective inscriptions, in the form:
+  
+   <sourceNodeId arcId targetNodeId #inscription>. 
+   
+  The ids come from the PNML file. This file will be created only if:
+  
+   * There are unsafe arcs in the original net (from PNML). If option <<has.unsafe.arcs>> is not activated the activated,
+   this file will be output in addition to the three others, i.e. <<*.nupn>>, <<*.places>> and <<*.trans>>;
+   
+   * Option <<has.unsafe.arcs>> is activated. In this case, <only> the <<*.unsafe.arcs>> file will be output;
+   
+   * options <<generate.unsafe>> AND <<remove.unsafe.trans>> are activated (see below)
+  and at least an unsafe transition was removed. This behaviour is supported until v1.2.2 of this tool.
 
- These files will be located near the input PNML one.
+ All the output files will be located near the input PNML one.
 
 Debug information
 
   In case of error, you may want the program to print the stack trace, to provide the tool author
-  with useful information for debugging. To enable debug information, set the PNML2BPN_DEBUG environment variable to true
+  with useful information for debugging. To enable debug information, set the PNML2NUPN_DEBUG environment variable to true
   before invoking this tool.
-   
-Force BPN Generation
+  
+* Supported in versions
+
+  Since v1.3.0.
+
+  Until v1.2.2 of this tool, use the PNML2BPN_DEBUG environment variable instead.
+
+Options
+
+ This tool supports some options that you might activate to change its behaviour.
+
+* Force NuPN Generation
  
  This tool supports a property that you can use to force the generation of the BPN
  file, even if the net is not 1-safe (as checked by the Bounds tool).
@@ -89,7 +112,11 @@ Force BPN Generation
 
  The default value for this option is <false>. It works in pair with bounds checking (see next section).
  
-Disable Bounds Checking
+** Supported in versions
+
+  Since v1.1.9.
+ 
+* Disable Bounds Checking
 
  It is also possible to disable bounds checking on the net. Bounds checking enables this tool
  to determine if the input net is 1-safe or not. If disabled, BPN generation will be
@@ -100,7 +127,11 @@ Disable Bounds Checking
 
  The default value for this option is <true>. If not unset, it has precedence over all the other options.
 
-Force Generation of Unsafe Nets
+** Supported in versions
+
+  Since v1.1.10.
+
+* Force Generation of Unsafe Nets
 
  When it is known that the marking of some initial places or the inscription of some arcs have
  a valuation greater than 1, the translation is cancelled.  If you want it to happen despite this fact,
@@ -113,7 +144,11 @@ Force Generation of Unsafe Nets
   This option does not work in pair with the <<force.bpn.generation>> option above. Setting the latter does not
   have any effect on this one. If bounds checking is enabled, setting this one will remain ineffective.
  
-Remove Transitions Connected to Unsafe Arcs
+** Supported in versions
+
+  From v1.2.0 to v1.2.2.
+ 
+* Remove Transitions Connected to Unsafe Arcs
 
  When the inscriptions of some arcs have a valuation greater than 1, you may want to remove the transitions
  that are connected to them, and those arcs by the same opportunity. In this case, use the <<remove.unsafe.trans>> property, like so:
@@ -125,8 +160,11 @@ Remove Transitions Connected to Unsafe Arcs
  <<Note>> that if this operation eventually yields dead places, they are not yet removed. This feature will be
  implemented in a future major release of this tool.
  
+** Supported in versions
+
+  From v1.2.0 to v1.2.2.
  
-Check for the Presence of Unsafe Arcs in the Net
+* Check for the Presence of Unsafe Arcs in the Net
 
  It is possible to check for the presence of unsafe arcs (i.e inscription > 1) of the input P/T net to this tool.
 This behaviour is triggered by the <<has.unsafe.arcs>> property, that is exclusive of all the others. Therefore,
@@ -138,4 +176,8 @@ a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values
    <java -Dhas.unsafe.arcs=true ...>
    
  The default value for this option is false.
+ 
+** Supported in versions
+
+  Since v1.2.2.
  
