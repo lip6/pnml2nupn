@@ -124,9 +124,9 @@ public final class MainPNML2BPN {
 		checkBoundsCheckingMode(myLog, msg);
 		// Generate structural.bpn (case of forced generation in case of unsafe initial
 		// places or arcs
-		checkGenerateUnsafeMode(myLog, msg);
+		//FIXME: remove checkGenerateUnsafeMode(myLog, msg);
 		// Remove unsafe arcs?
-		checkRemoveTransUnsafeArcsMode(myLog, msg);
+		// FIXME: remove checkRemoveTransUnsafeArcsMode(myLog, msg);
 		// Has unsafe arcs?
 		checkHashUnsafeArcsMode(myLog, msg);
 
@@ -245,7 +245,12 @@ public final class MainPNML2BPN {
 		}	
 	}
 	
-	
+	/**
+	 * 
+	 * @param myLog
+	 * @param msg
+	 * @deprecated
+	 */
 	private static void checkGenerateUnsafeMode(Logger myLog, StringBuilder msg) {
 		String genUnsafe = System.getProperty(GENERATE_UNSAFE);
 		if (genUnsafe != null && Boolean.valueOf(genUnsafe)) {
@@ -269,6 +274,12 @@ public final class MainPNML2BPN {
 		}
 	}
 
+	/**
+	 * 
+	 * @param myLog
+	 * @param msg
+	 * @deprecated
+	 */
 	private static void checkRemoveTransUnsafeArcsMode(Logger myLog,
 			StringBuilder msg) {
 		String removeua = System.getProperty(REMOVE_TRANS_UNSAFE_ARCS);
