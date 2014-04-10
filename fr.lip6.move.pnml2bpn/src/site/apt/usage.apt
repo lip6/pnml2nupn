@@ -32,7 +32,7 @@ Overview
   
   
 Basic command-line invocation
-
+  
   The basic command-line invocation is the following (update the name of the jar to the latest version of this tool):
   
  <java -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]>
@@ -69,6 +69,8 @@ Output
   
   * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in NuPN.
   
+* Optional Output
+  
   * A <<*.unsafe.arcs>> file is optionally generated, that contains the list of unsafe arcs (one per line) 
   in the original Petri Net (from PNML) and their respective inscriptions, in the form:
   
@@ -100,13 +102,12 @@ Debug information
 
 Options
 
- This tool supports some options that you might activate to change its behaviour.
+ This tool supports some options (technically speaking: properties) that you might activate to change its behaviour.
 
 * Force NuPN Generation
  
- This tool supports a property that you can use to force the generation of the NuPN
- file, even if the net is not 1-safe (as checked by the Bounds tool).
- To trigger that behaviour, invoke it with the <<force.nupn.generation>> property set to true, like so: 
+ You can force the generation of the NuPN file, even if the net is not 1-safe (as checked by the Bounds tool).
+ To trigger that behaviour, invoke the tool with the <<force.nupn.generation>> property set to true, like so: 
  
  <java -Dforce.nupn.generation=true ...>
 
@@ -132,6 +133,24 @@ Options
 ** Supported in versions
 
   Since v1.1.10.
+
+* Check for the Presence of Unsafe Arcs in the Net
+
+ It is possible to check for the presence of unsafe arcs (i.e inscription > 1) of the input P/T net to this tool.
+This behaviour is triggered by the <<has.unsafe.arcs>> property, that is exclusive of all the others. Therefore,
+if you set this property to true, the tool will only check for the presence of unsafe arcs, reports them in 
+a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values.
+  
+ To activate this behaviour, set the <<has.unsafe.arcs>> property like so:
+ 
+   <java -Dhas.unsafe.arcs=true ...>
+   
+ The default value for this option is false.
+ 
+** Supported in versions
+
+  Since v1.2.2.
+
 
 * Force Generation of Unsafe Nets
 
@@ -159,27 +178,16 @@ Options
  
  The default value for this option is false.
  
- <<Note>> that if this operation eventually yields dead places, they are not yet removed. This feature will be
- implemented in a future major release of this tool.
+ <<Note>> that if this operation eventually yields dead places, they are not removed. The implementation of removing dead places
+ is not planned in the near future. If you are interested, you may want to create a fork of this project to implement that feature
+ and then share it with all users. 
  
 ** Supported in versions
 
   From v1.2.0 to v1.2.2.
  
-* Check for the Presence of Unsafe Arcs in the Net
 
- It is possible to check for the presence of unsafe arcs (i.e inscription > 1) of the input P/T net to this tool.
-This behaviour is triggered by the <<has.unsafe.arcs>> property, that is exclusive of all the others. Therefore,
-if you set this property to true, the tool will only check for the presence of unsafe arcs, reports them in 
-a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values.
-  
- To activate this behaviour, set the <<has.unsafe.arcs>> property like so:
- 
-   <java -Dhas.unsafe.arcs=true ...>
-   
- The default value for this option is false.
- 
-** Supported in versions
+Table of Contents
+%{toc|section=0|fromDepth=2|toDepth=3}
 
-  Since v1.2.2.
  
