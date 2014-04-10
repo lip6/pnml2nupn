@@ -464,6 +464,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * @throws NavExceptionHuge
 	 * @throws InterruptedException
 	 * @throws XPathEvalExceptionHuge
+	 * @deprecated use
+	 *             {@link #exportTransitions130(AutoPilotHuge, VTDNavHuge, BlockingQueue, BlockingQueue)}
+	 *             instead.
 	 */
 	private void exportTransitions(AutoPilotHuge ap, VTDNavHuge vn,
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
@@ -641,6 +644,43 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	}
 
 	/**
+	 * Export transitions into BPN (since 1.3.0)
+	 * 
+	 * @param ap
+	 * @param vn
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @throws XPathParseExceptionHuge
+	 * @throws NavExceptionHuge
+	 * @throws InterruptedException
+	 * @throws XPathEvalExceptionHuge
+	 */
+	private void exportTransitions130(AutoPilotHuge ap, VTDNavHuge vn,
+			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
+			throws XPathParseExceptionHuge, NavExceptionHuge,
+			InterruptedException, XPathEvalExceptionHuge {
+		long nb = trId2bpnMap.size();
+		StringBuilder bpnsb = new StringBuilder();
+		bpnsb.append(TRANSITIONS).append(WS).append(HK).append(nb).append(WS)
+				.append(ZERO).append(DOTS).append(nb - 1L).append(NL);
+		bpnQueue.put(bpnsb.toString());
+		bpnsb.delete(0, bpnsb.length());
+
+		LongCollection allTr = new LongRBTreeSet(trId2bpnMap.values());
+
+		for (long trId : allTr) {
+			bpnsb.append(T).append(trId);
+			buildConnectedPlaces2Transition(bpnsb, trId, tr2InPlacesMap);
+			buildConnectedPlaces2Transition(bpnsb, trId, tr2OutPlacesMap);
+			bpnsb.append(NL);
+			bpnQueue.put(bpnsb.toString());
+			bpnsb.delete(0, bpnsb.length());
+		}
+		bpnsb.delete(0, bpnsb.length());
+		bpnsb = null;
+	}
+
+	/**
 	 * @param bpnsb
 	 * @param trId
 	 */
@@ -661,6 +701,234 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				bpnsb.append(WS).append(plId);
 			}
 		}
+	}
+
+	/**
+	 * Build transitions collections, collecting unsafe arcs and corresponding
+	 * transitions.
+	 * 
+	 * @param ap
+	 * @param vn
+	 */
+	private void buildTransitions(AutoPilotHuge ap, VTDNavHuge vn)
+			throws XPathParseExceptionHuge, NavExceptionHuge,
+			InterruptedException, XPathEvalExceptionHuge {
+		String arc, src, trg;
+		long count = 0L;
+		long tId, pId;
+		int arcInsc = 0;
+		LongBigArrayBigList pls = null;
+		IntBigArrayBigList arcVals = null;
+		nbUnsafeTrans = 0L;
+		ap.selectXPath(PNMLPaths.ARCS_PATH);
+		while ((ap.evalXPath()) != -1) {
+			vn.push();
+			pls = null;
+			arc = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
+			trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
+			pId = placesId2bpnMap.getLong(src);
+			if (pId != -1L) { // transition is the target
+				tId = trId2bpnMap.getLong(trg);
+				if (tId != -1L) {
+					pls = tr2InPlacesMap.get(tId);
+					// FIXME: non-optimal code
+					if (pls == null) {
+						pls = new LongBigArrayBigList();
+						tr2InPlacesMap.put(tId, pls);
+					}
+				} else {
+					tId = count++;
+					trId2bpnMap.put(trg, tId);
+					tsQueue.put(tId + WS + trg + NL);
+					pls = new LongBigArrayBigList();
+					tr2InPlacesMap.put(tId, pls);
+				}
+				pls.add(pId);
+				// Unsafe node ?
+				if (unsafeNodes.contains(trg)) {
+					arcInsc = unsafeArcsMap.getInt(arc);
+					if (arcInsc != -1) {
+						arcVals = tr2InUnsafeArcsMap.get(trg);
+						if (arcVals == null) {
+							arcVals = new IntBigArrayBigList();
+							tr2InUnsafeArcsMap.put(trg, arcVals);
+						}
+						arcVals.add(arcInsc);
+					}
+				}
+
+			} else {// transition is the source
+				pId = placesId2bpnMap.getLong(trg);
+				tId = trId2bpnMap.getLong(src);
+				if (tId != -1L) {
+					pls = tr2OutPlacesMap.get(tId);
+					if (pls == null) {
+						pls = new LongBigArrayBigList();
+						tr2OutPlacesMap.put(tId, pls);
+					}
+				} else {
+					tId = count++;
+					trId2bpnMap.put(src, tId);
+					tsQueue.put(tId + WS + src + NL);
+					pls = new LongBigArrayBigList();
+					tr2OutPlacesMap.put(tId, pls);
+
+				}
+				pls.add(pId);
+				if (unsafeNodes.contains(src)) {
+					arcInsc = unsafeArcsMap.getInt(arc);
+					if (arcInsc != -1) {
+						arcVals = tr2OutUnsafeArcsMap.get(src);
+						if (arcVals == null) {
+							arcVals = new IntBigArrayBigList();
+							tr2OutUnsafeArcsMap.put(src, arcVals);
+						}
+						arcVals.add(arcInsc);
+					}
+				}
+			}
+			vn.pop();
+		}
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
+	}
+
+	/**
+	 * Builds unsafe arcs pragma
+	 * 
+	 * @param nupnQueue
+	 * @throws InterruptedException 
+	 */
+	private void buildUnsafeArcsPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
+		IntBigArrayBigList arcVals = null;
+		long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
+		int minValIn = -1, minValOut = -1, maxValIn = -1, maxValOut = -1;
+		long minDiff = -1L, maxDiff = -1L, diff = 0L, inValT = 0L, outValT = 0L;
+
+		nbUnsafeTrans = 0L;
+		if (unsafeTrans) {
+			StringBuilder warnMsg = new StringBuilder();
+			for (String s : tr2InUnsafeArcsMap.keySet()) {
+				arcVals = tr2InUnsafeArcsMap.get(s);
+				warnMsg.append("Transition ")
+						.append(s)
+						.append(" is unsafe because it has ")
+						.append(arcVals.size64())
+						.append(" incoming arc(s) with respective valuation(s):");
+				inValT = 0L;
+				outValT = 0L;
+				for (int v : arcVals) {
+					warnMsg.append(WS).append(v);
+					if (minValIn == -1 && v > maxValIn && v > minValIn) {
+						minValIn = v;
+						maxValIn = v;
+					} else if (v < minValIn) {
+						minValIn = v;
+					} else if (v > maxValIn) {
+						maxValIn = v;
+					}
+					inValT += v;
+				}
+
+				arcVals = tr2OutUnsafeArcsMap.get(s);
+				if (arcVals != null) {
+					warnMsg.append(", and ")
+							.append(arcVals.size64())
+							.append(" outgoing arc(s) with respective valuation(s):");
+					nbTransInOut++;
+					for (int v : arcVals) {
+						warnMsg.append(WS).append(v);
+						if (minValOut == -1 && v > maxValOut && v > minValOut) {
+							minValOut = v;
+							maxValOut = v;
+						} else if (v < minValOut) {
+							minValOut = v;
+						} else if (v > maxValOut) {
+							maxValOut = v;
+						}
+						outValT += v;
+					}
+					tr2OutUnsafeArcsMap.remove(s);
+				} else {
+					nbTransIn++;
+				}
+				nbUnsafeTrans++;
+				log.warn(warnMsg.toString());
+				warnMsg.delete(0, warnMsg.length());
+				diff = outValT - inValT;
+				if (minDiff == -1L && diff > maxDiff && diff > minDiff) {
+					minDiff = diff;
+					maxDiff = diff;
+				} else if (diff < minDiff) {
+					minDiff = diff;
+				} else if (diff > maxDiff) {
+					maxDiff = diff;
+				}
+			}
+
+			for (String s : tr2OutUnsafeArcsMap.keySet()) {
+				arcVals = tr2OutUnsafeArcsMap.get(s);
+				warnMsg.append("Transition ")
+						.append(s)
+						.append(" is unsafe because it has ")
+						.append(arcVals.size64())
+						.append(" outgoing arc(s) with respective valuation(s):");
+				nbTransOut++;
+				inValT = 0L;
+				outValT = 0L;
+				for (int v : arcVals) {
+					warnMsg.append(WS).append(v);
+					if (minValOut == -1 && v > maxValOut && v > minValOut) {
+						minValOut = v;
+						maxValOut = v;
+					} else if (v < minValOut) {
+						minValOut = v;
+					} else if (v > maxValOut) {
+						maxValOut = v;
+					}
+					outValT += v;
+				}
+				nbUnsafeTrans++;
+				log.warn(warnMsg.toString());
+				warnMsg.delete(0, warnMsg.length());
+				diff = outValT - inValT;
+				if (minDiff == -1L && diff > maxDiff && diff > minDiff) {
+					minDiff = diff;
+					maxDiff = diff;
+				} else if (diff < minDiff) {
+					minDiff = diff;
+				} else if (diff > maxDiff) {
+					maxDiff = diff;
+				}
+			}
+			
+			// Write pragma
+			StringBuffer multArcsPrama = new StringBuffer();
+			multArcsPrama.append(MainPNML2BPN.PRAGMA_MULTIPLE_ARCS).append(HK + nbUnsafeArcs).append(WS)
+			.append(HK + nbTransIn).append(WS).append(HK + nbTransOut).append(WS).append(HK+nbTransInOut);
+			
+			if (nbTransIn == 0L && nbTransInOut == 0L) {
+				multArcsPrama.append(WS).append(ONE).append(DOTS).append(ZERO);
+			} else {
+				multArcsPrama.append(WS).append(minValIn).append(DOTS).append(maxValIn);
+			}
+			
+			if (nbTransOut == 0L && nbTransInOut == 0L) {
+				multArcsPrama.append(WS).append(ONE).append(DOTS).append(ZERO);
+			} else {
+				multArcsPrama.append(WS).append(minValOut).append(DOTS).append(maxValOut);
+			}
+			multArcsPrama.append(WS).append(minDiff).append(DOTS).append(maxDiff);
+			nupnQueue.put(multArcsPrama.toString());
+			
+			// Write unsafe arcs and transitions info in signature message
+			MainPNML2BPN.appendMesgLineToSignature("There are " + nbUnsafeArcs
+					+ " unsafe arcs with inscriptions > 1");
+			MainPNML2BPN.appendMesgLineToSignature("There are " + nbUnsafeTrans
+					+ " transitions connected to the unsafe arcs");
+		}
+
 	}
 
 	private void exportPlacesIntoUnits(AutoPilotHuge ap, VTDNavHuge vn,
@@ -698,7 +966,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
 			mkg = Integer.parseInt(vn.toString(vn.getText()).trim());
-			if (mkg > maxMarking && mkg > minMarking && minMarking == 0) {
+			if (minMarking == 0 && mkg > maxMarking && mkg > minMarking) {
 				minMarking = mkg;
 				maxMarking = mkg;
 			} else if (mkg < minMarking) {
@@ -761,11 +1029,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			unsafeArcs = true;
 			unsafeTrans = true;
 			log.warn("There are {} unsafe arcs in this net.", nbUnsafeArcs);
-			// unsafeArcsId.delete(unsafeArcsId.length() - 2,
-			// unsafeArcsId.length());
-			// FIXME: removed the following. log.warn("Unsafe arcs: {}",
-			// unsafeArcsId.toString());
 		}
+
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
+		buildTransitions(ap, vn);
+		buildUnsafeArcsPragma(bpnQueue);
 
 		// Check generate unsafe property value
 		if (!MainPNML2BPN.isGenerateUnsafe() && (unsafePlaces || unsafeArcs)) {
@@ -783,8 +1052,11 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 
 		// select initial places
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
+		/*
+		 * FIXME: remove the following after checks. ap.resetXPath();
+		 * vn.toElement(VTDNavHuge.ROOT);
+		 */
+
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
 		List<Long> initPlaces = new ArrayList<>();
 		// FIXME Check: do we need to clone the vn for using it in the loop?
