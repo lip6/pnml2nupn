@@ -96,7 +96,7 @@ Debug information
 
   Since v1.3.0.
 
-  Until v1.2.2 of this tool, use the PNML2BPN_DEBUG environment variable instead.
+  Until v1.2.2, use the PNML2BPN_DEBUG environment variable instead.
 
 Options
 
@@ -106,15 +106,17 @@ Options
  
  This tool supports a property that you can use to force the generation of the BPN
  file, even if the net is not 1-safe (as checked by the Bounds tool).
- To trigger that behaviour, invoke it with the <<force.bpn.generation>> property set to true, like so: 
+ To trigger that behaviour, invoke it with the <<force.nupn.generation>> property set to true, like so: 
  
- <java -Dforce.bpn.generation=true ...>
+ <java -Dforce.nupn.generation=true ...>
 
  The default value for this option is <false>. It works in pair with bounds checking (see next section).
  
 ** Supported in versions
 
   Since v1.1.9.
+  
+  Until v1.2.2, use the <<force.bpn.generation>> instead.
  
 * Disable Bounds Checking
 
