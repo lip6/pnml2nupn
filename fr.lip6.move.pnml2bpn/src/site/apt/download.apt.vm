@@ -35,11 +35,11 @@ Download PNML to NuPN Converter ${project.version}
 
 Previous stable versions
 
- * Download {{{./download/${project.artifactId}-1.2.2.jar}version 1.2.2}}
+ * Download {{{./download/fr.lip6.move.pnml2bpn-1.2.2.jar}version 1.2.2}}
 
- * Download {{{./download/${project.artifactId}-1.2.1.jar}version 1.2.1}}
+ * Download {{{./download/fr.lip6.move.pnml2bpn-1.2.1.jar}version 1.2.1}}
 
- * Download {{{./download/${project.artifactId}-1.1.11.jar}version 1.1.11}}
+ * Download {{{./download/fr.lip6.move.pnml2bpn-1.1.11.jar}version 1.1.11}}
 
 Requirements
 
