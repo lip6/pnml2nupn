@@ -16,7 +16,7 @@
 ~~
 
  ------
-Changelog of PNML to BPN Converter ${project.version}
+Changelog of PNML to NuPN Converter ${project.version}
  ------
  ------
 2014-04
@@ -25,6 +25,20 @@ Changelog of PNML to BPN Converter ${project.version}
 Changelog
 
 * What's new in version ${project.version}?
+
+  * Tool changes name: NuPN are produced, instead of BPN.
+  
+  * Produces the pragmas {{{http://cadp.inria.fr/man/caesar.bdd.html#sect9}!creator}}, {{{http://cadp.inria.fr/man/caesar.bdd.html#sect11}!multiple_initial_tokens}}
+   and {{{http://cadp.inria.fr/man/caesar.bdd.html#sect12}!multiple_arcs}}. Consequently some properties are no longer supported (see following items).
+   
+  * The <<generate.unsafe>> property is no longer supported (still correctly handled at invocation time, but not processed during the translation).
+  
+  * The <<remove.unsafe.trans>> property is no longer supported (idem as above).
+  
+  * New Shell script to handle batch runs of the tool (Previous version, comptible until v1.2.2, is still provided). 
+
+
+* What's new in version 1.2.2?
 
   * <<New feature>>: checks for the presence of unsafe arcs (inscription > 1) and reports them
   in a file <<*.unsafe.arcs>> if they are found. This behaviour is activated by an option and
