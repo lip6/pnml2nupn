@@ -1,33 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-     Copyright 2014 Universite Paris Ouest and Sorbonne Universites, Univ. Paris 06 - CNRS UMR 7606 (LIP6)
-
-     All rights reserved.   This program and the accompanying materials
-     are made available under the terms of the Eclipse Public License v1.0
-     which accompanies this distribution, and is available at
-     http://www.eclipse.org/legal/epl-v10.html
-
-     Project leader / Initial Contributor:
-       Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
-
-     Contributors:
-       ${ocontributors} - <$oemails}>
-
-     Mailing list:
-       lom-messan.hillah@lip6.fr
-
--->
-<!-- Copyright 2009-2014 University Pierre & Marie Curie - UMR CNRS 7606 
-	(LIP6/MoVe) All rights reserved. This program and the accompanying materials 
-	are made available under the terms of the Eclipse Public License v1.0 which 
-	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
-	Initial contributor: Lom Messan Hillah - <lom-messan.hillah@lip6.fr> Mailing 
-	list: lom-messan.hillah@lip6.fr -->
+<!-- Copyright 2014 Universite Paris Ouest and Sorbonne Universites, Univ. 
+	Paris 06 - CNRS UMR 7606 (LIP6) All rights reserved. This program and the 
+	accompanying materials are made available under the terms of the Eclipse 
+	Public License v1.0 which accompanies this distribution, and is available 
+	at http://www.eclipse.org/legal/epl-v10.html Project leader / Initial Contributor: 
+	Lom Messan Hillah - <lom-messan.hillah@lip6.fr> Contributors: ${ocontributors} 
+	- <$oemails}> Mailing list: lom-messan.hillah@lip6.fr -->
 <project xmlns="http://maven.apache.org/DECORATION/1.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
-	name="PNML to BPN Converter">
+	name="PNML to NuPN Converter">
 
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
@@ -38,37 +20,64 @@
 	<custom>
 		<fluidoSkin>
 			<topBarEnabled>true</topBarEnabled>
+			<topBarIcon>
+				<name>LIP6</name>
+				<alt>LIP6</alt>
+				<src>images/logo-Lip6-20.png</src>
+				<href>http://www.lip6.fr</href>
+			</topBarIcon>
 			<topBarContainerStyle>width: 90%;</topBarContainerStyle>
 			<navBarStyle>navbar-inverse</navBarStyle>
 			<sideBarEnabled>true</sideBarEnabled>
 			<googlePlusOne />
+			<profile>(production)</profile>
+			<gitHub>
+				<projectId>lhillah/pnml2nupn</projectId>
+				<ribbonOrientation>right</ribbonOrientation>
+				<ribbonColor>black</ribbonColor>
+			</gitHub>
 		</fluidoSkin>
 	</custom>
 
 	<publishDate position="right" />
 
 	<bannerLeft>
-		<name>PNML to Basic Petri Nets (BPN)</name>
+		<name>PNML to Nested-Unit Petri Nets (NuPN)</name>
 		<href>index.html</href>
 	</bannerLeft>
 
-	<bannerRight>
+	<!-- <bannerRight>
 		<name>LIP6</name>
 		<src>images/logo-Lip6.png</src>
 		<href>http://www.lip6.fr</href>
-	</bannerRight>
-
-
+	</bannerRight> -->
 
 	<body>
-		<links>
-			<item name="PNML.org" href="http://www.pnml.org" />
-			<item name="CADP" href="http://cadp.inria.fr" />
-			<item name="Basic Petri Nets" href="http://cadp.inria.fr/man/caesar.bdd.html" />
-		</links>
+		<head>
+			<script type="text/javascript">
+				var _gaq = _gaq || [];
+				_gaq.push(['_setAccount',
+				'UA-48245698-1']);
+				_gaq.push(['_trackPageview']);
+
+				(function() {
+				var ga
+				= document.createElement('script'); ga.type = 'text/javascript';
+				ga.async = true;
+				ga.src = ('https:' == document.location.protocol ?
+				'https://ssl' :
+				'http://www') + '.google-analytics.com/ga.js';
+				var s =
+				document.getElementsByTagName('script')[0];
+				s.parentNode.insertBefore(ga, s);
+				})();
+			</script>
+		</head>
+
 		<breadcrumbs>
+			<item name="PNML.org" href="http://www.pnml.org" />
 			<item name="PNML Framework" href="../index.html" />
-			<item name="Cami to PNML Converter" href="../camipnml/index.html" />
+			<item name="Nu Petri Nets" href="http://cadp.inria.fr/man/caesar.bdd.html" />
 		</breadcrumbs>
 
 		<menu name="Overview">
