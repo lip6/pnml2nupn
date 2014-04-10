@@ -53,6 +53,7 @@ public final class MainPNML2BPN {
 	public static final String CREATOR = "creator";
 	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME  + WS + VERSION;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
+	public static final String PRAGMA_MULTIPLE_ARCS = XP + "multiple_arcs" + WS;
 	public static final String BPN_EXT = ".nupn";
 	public static final String PNML_EXT = ".pnml";
 	public static final String PNML2NUPN_DEBUG = "PNML2NUPN_DEBUG";
