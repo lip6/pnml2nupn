@@ -336,7 +336,8 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			initTransitionsMaps();
 			initUnsafeTransMaps();
 			log.info("Exporting transitions.");
-			exportTransitions(ap, vn, bpnQueue, tsQueue);
+			//exportTransitions(ap, vn, bpnQueue, tsQueue);
+			exportTransitions130(ap, vn, bpnQueue, tsQueue);
 
 			// Stop Writers
 			stopWriters(bpnQueue, tsQueue, psQueue);
@@ -1145,7 +1146,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
 		StringBuilder tsmapping = new StringBuilder();
 		while ((ap.evalXPath()) != -1) {
-			// FIXME : PUSH
 			vn.push();
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			tsmapping.append(iDCount).append(WS).append(id).append(NL);
@@ -1159,7 +1159,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			tsmapping.delete(0, tsmapping.length());
 			count++;
 			iDCount++;
-			// FIXME: POP
 			vn.pop();
 		}
 		tsmapping = null;
