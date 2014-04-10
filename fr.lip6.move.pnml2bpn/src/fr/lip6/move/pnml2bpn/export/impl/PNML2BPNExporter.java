@@ -336,7 +336,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			initTransitionsMaps();
 			initUnsafeTransMaps();
 			log.info("Exporting transitions.");
-			//exportTransitions(ap, vn, bpnQueue, tsQueue);
+			// exportTransitions(ap, vn, bpnQueue, tsQueue);
 			exportTransitions130(ap, vn, bpnQueue, tsQueue);
 
 			// Stop Writers
@@ -467,7 +467,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * @throws XPathEvalExceptionHuge
 	 * @deprecated use
 	 *             {@link #exportTransitions130(AutoPilotHuge, VTDNavHuge, BlockingQueue, BlockingQueue)}
-	 *             instead.
+	 *             instead. FIXME: remove this method
 	 */
 	private void exportTransitions(AutoPilotHuge ap, VTDNavHuge vn,
 			BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue)
@@ -799,9 +799,10 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * Builds unsafe arcs pragma
 	 * 
 	 * @param nupnQueue
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
-	private void buildUnsafeArcsPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
+	private void buildUnsafeArcsPragma(BlockingQueue<String> nupnQueue)
+			throws InterruptedException {
 		IntBigArrayBigList arcVals = null;
 		long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
 		int minValIn = -1, minValOut = -1, maxValIn = -1, maxValOut = -1;
@@ -903,26 +904,31 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					maxDiff = diff;
 				}
 			}
-			
+
 			// Write pragma
 			StringBuffer multArcsPrama = new StringBuffer();
-			multArcsPrama.append(MainPNML2BPN.PRAGMA_MULTIPLE_ARCS).append(HK + nbUnsafeArcs).append(WS)
-			.append(HK + nbTransIn).append(WS).append(HK + nbTransOut).append(WS).append(HK+nbTransInOut);
-			
+			multArcsPrama.append(MainPNML2BPN.PRAGMA_MULTIPLE_ARCS)
+					.append(HK + nbUnsafeArcs).append(WS)
+					.append(HK + nbTransIn).append(WS).append(HK + nbTransOut)
+					.append(WS).append(HK + nbTransInOut);
+
 			if (nbTransIn == 0L && nbTransInOut == 0L) {
 				multArcsPrama.append(WS).append(ONE).append(DOTS).append(ZERO);
 			} else {
-				multArcsPrama.append(WS).append(minValIn).append(DOTS).append(maxValIn);
+				multArcsPrama.append(WS).append(minValIn).append(DOTS)
+						.append(maxValIn);
 			}
-			
+
 			if (nbTransOut == 0L && nbTransInOut == 0L) {
 				multArcsPrama.append(WS).append(ONE).append(DOTS).append(ZERO);
 			} else {
-				multArcsPrama.append(WS).append(minValOut).append(DOTS).append(maxValOut);
+				multArcsPrama.append(WS).append(minValOut).append(DOTS)
+						.append(maxValOut);
 			}
-			multArcsPrama.append(WS).append(minDiff).append(DOTS).append(maxDiff);
+			multArcsPrama.append(WS).append(minDiff).append(DOTS)
+					.append(maxDiff);
 			nupnQueue.put(multArcsPrama.toString());
-			
+
 			// Write unsafe arcs and transitions info in signature message
 			MainPNML2BPN.appendMesgLineToSignature("There are " + nbUnsafeArcs
 					+ " unsafe arcs with inscriptions > 1");
@@ -1037,19 +1043,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		buildTransitions(ap, vn);
 		buildUnsafeArcsPragma(bpnQueue);
 
-		// Check generate unsafe property value
-		if (!MainPNML2BPN.isGenerateUnsafe() && (unsafePlaces || unsafeArcs)) {
-			throw new InvalidSafeNetException(
-					"The net in the submitted document is not 1-safe due to unsafe places or arcs (please check above warnings): "
-							+ this.currentInputFile.getCanonicalPath());
-		}
-		if (MainPNML2BPN.isGenerateUnsafe() && (unsafePlaces || unsafeArcs)) {
-			log.warn("Generation of NuPN for this net was requested despite unsafe places or arcs.");
-			if (unsafePlaces) {
-				MainPNML2BPN
-						.appendMesgLineToSignature("decreased to one the marking of "
-								+ nbUnsafePlaces + " initial places");
-			}
+		//generate unsafe property is no longer used
+
+		if (unsafePlaces) {
+			MainPNML2BPN
+					.appendMesgLineToSignature("decreased to one the marking of "
+							+ nbUnsafePlaces + " initial places");
 		}
 
 		// select initial places
