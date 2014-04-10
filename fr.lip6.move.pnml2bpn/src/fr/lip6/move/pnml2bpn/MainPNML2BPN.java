@@ -127,7 +127,7 @@ public final class MainPNML2BPN {
 		checkGenerateUnsafeMode(myLog, msg);
 		// Remove unsafe arcs?
 		checkRemoveTransUnsafeArcsMode(myLog, msg);
-		
+		// Has unsafe arcs?
 		checkHashUnsafeArcsMode(myLog, msg);
 
 		try {
@@ -139,7 +139,6 @@ public final class MainPNML2BPN {
 				e1.printStackTrace();
 			}
 		}
-		//long startTime = System.nanoTime();
 		initSignatureMessage();
 		PNMLExporter pe = PNML2BPNFactory.instance().createExporter();
 		org.slf4j.Logger jr = LoggerFactory.getLogger(pe.getClass()
