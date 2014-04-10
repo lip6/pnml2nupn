@@ -57,7 +57,7 @@ PNML documents (a few hundreds KB), we advise you decrease it (current setting i
 
  The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable. See below.
  
- Until v1.2.2 of this tool, use the following {{{./download/pnml2bpn.sh}Shell script}} instead.
+ Up to v1.2.2 of this tool, use the following {{{./download/pnml2bpn.sh}Shell script}} instead.
 
 Output
 
@@ -78,15 +78,15 @@ Output
    
   The ids come from the PNML file. This file will be created only if:
   
-   * There are unsafe arcs in the original net (from PNML). If option <<has.unsafe.arcs>> is not activated the activated,
-   this file will be output in addition to the three others, i.e. <<*.nupn>>, <<*.places>> and <<*.trans>>;
+   * There are unsafe arcs in the original net (from PNML). If option <<has.unsafe.arcs>> is not activated,
+   this file will be output in addition to the three other files above, i.e. <<*.nupn>>, <<*.places>> and <<*.trans>>;
    
    * Option <<has.unsafe.arcs>> is activated. In this case, <only> the <<*.unsafe.arcs>> file will be output;
    
    * options <<generate.unsafe>> AND <<remove.unsafe.trans>> are activated (see below)
-  and at least an unsafe transition was removed. This behaviour is supported until v1.2.2 of this tool.
+  and at least an unsafe transition was removed. This behaviour is supported up to v1.2.2 of this tool.
 
- All the output files will be located near the input PNML one.
+ <<Note:>> All the output files will be located near the input PNML one.
 
 Debug information
 
@@ -98,7 +98,7 @@ Debug information
 
   Since v1.3.0.
 
-  Until v1.2.2, use the PNML2BPN_DEBUG environment variable instead.
+  Up to v1.2.2, use the PNML2BPN_DEBUG environment variable instead.
 
 Options
 
@@ -117,7 +117,7 @@ Options
 
   Since v1.1.9.
   
-  Until v1.2.2, use the <<force.bpn.generation>> instead.
+  Up to v1.2.2, use the <<force.bpn.generation>> instead.
  
 * Disable Bounds Checking
 
