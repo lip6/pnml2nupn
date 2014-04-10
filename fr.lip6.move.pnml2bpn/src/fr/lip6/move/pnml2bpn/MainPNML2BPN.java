@@ -68,12 +68,14 @@ public final class MainPNML2BPN {
 	public static final String BOUNDS_CHECKING = "bounds.checking";
 	/**
 	 * Remove transitions of unsafe arcs (incoming or outgoing)
+	 * @deprecated
 	 */
 	public static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.unsafe.trans";
 	/**
 	 * Force generation of unsafe nets, where it is clearly checked that 
 	 * at least one initial place has more than 1 token or the inscription of an arc
 	 * is valued to more than 1. 
+	 * @deprecated
 	 */
 	public static final String GENERATE_UNSAFE = "generate.unsafe";
 	
