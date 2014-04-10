@@ -41,14 +41,14 @@ Advanced command-line invocation
 
  Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9):
  
- <java -d64 -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -jar fr.lip6.move.pnml2bpn-1.1.5.jar pathToFile [pathToFolder pathToAnotherFile ...]>
+ <java -d64 -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToFile [pathToFolder pathToAnotherFile ...]>
  
  In particular, increase the value of <-Xmx> argument which allocates max memory to the heap,
  when you are dealing with very large input files. In the above invocation, it is set to 2 GB.
  
 Invocation using a Shell script
 
-  We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using PNML to BPN Converter.
+  We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using PNML to NuPN Converter.
 In particular, the above set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
 
   For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
@@ -65,9 +65,9 @@ Output
  
   * A <<*.nupn>> file that contains the Basic Petri Net obtained from the PNML P/T translation;
   
-  * A <<*.places>> file that contains the mapping between the places ids from PNML and their counterparts in BPN;
+  * A <<*.places>> file that contains the mapping between the places ids from PNML and their counterparts in NuPN;
   
-  * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in BPN.
+  * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in NuPN.
   
   * A <<*.unsafe.arcs>> file is optionally generated, that contains the list of unsafe arcs (one per line) 
   in the original Petri Net (from PNML) and their respective inscriptions, in the form:
@@ -104,7 +104,7 @@ Options
 
 * Force NuPN Generation
  
- This tool supports a property that you can use to force the generation of the BPN
+ This tool supports a property that you can use to force the generation of the NuPN
  file, even if the net is not 1-safe (as checked by the Bounds tool).
  To trigger that behaviour, invoke it with the <<force.nupn.generation>> property set to true, like so: 
  
@@ -121,7 +121,7 @@ Options
 * Disable Bounds Checking
 
  It is also possible to disable bounds checking on the net. Bounds checking enables this tool
- to determine if the input net is 1-safe or not. If disabled, BPN generation will be
+ to determine if the input net is 1-safe or not. If disabled, NuPN generation will be
  faster since this step, that can take a long time, is skipped. You may set this tool into
  that mode by invoking it with the <<bounds.checking>> property set to false, like so:
  
@@ -137,7 +137,7 @@ Options
 
  When it is known that the marking of some initial places or the inscription of some arcs have
  a valuation greater than 1, the translation is cancelled.  If you want it to happen despite this fact,
- invoke PNML to BPN Converter with the <<generate.unsafe>> property like so:
+ invoke PNML to NuPN Converter with the <<generate.unsafe>> property like so:
  
   <java -Dgenerate.unsafe=true ...> 
 
