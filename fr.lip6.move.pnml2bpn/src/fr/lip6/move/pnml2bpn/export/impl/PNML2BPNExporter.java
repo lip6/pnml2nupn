@@ -324,15 +324,17 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			// Insert creator pragma (since 1.3.0)
 			insertCreatorPragma(bpnQueue);
 
-			// Init data type for places id and export places
+			// Init data type for places id and transitions
 			initPlacesMap();
 			initUnsafeArcsMap();
+			initTransitionsMaps();
+			initUnsafeTransMaps();
+			
+			// export places
 			log.info("Exporting places.");
 			exportPlacesIntoUnits(ap, vn, bpnQueue, psQueue);
 
-			// Init data type for transitions id and export transitions
-			initTransitionsMaps();
-			initUnsafeTransMaps();
+			// export transitions
 			log.info("Exporting transitions.");
 			// exportTransitions(ap, vn, bpnQueue, tsQueue);
 			exportTransitions130(ap, vn, bpnQueue, tsQueue);
