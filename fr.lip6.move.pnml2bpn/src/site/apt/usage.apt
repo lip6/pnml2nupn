@@ -94,7 +94,7 @@ Debug information
   with useful information for debugging. To enable debug information, set the PNML2NUPN_DEBUG environment variable to true
   before invoking this tool.
   
-* Supported in versions
+* Supporting versions
 
   Since v1.3.0.
 
@@ -113,7 +113,7 @@ Options
 
  The default value for this option is <false>. It works in pair with bounds checking (see next section).
  
-** Supported in versions
+** Supporting versions
 
   Since v1.1.9.
   
@@ -130,7 +130,7 @@ Options
 
  The default value for this option is <true>. If not unset, it has precedence over all the other options.
 
-** Supported in versions
+** Supporting versions
 
   Since v1.1.10.
 
@@ -147,7 +147,7 @@ a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values
    
  The default value for this option is false.
  
-** Supported in versions
+** Supporting versions
 
   Since v1.2.2.
 
@@ -165,7 +165,7 @@ a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values
   This option does not work in pair with the <<force.bpn.generation>> option above. Setting the latter does not
   have any effect on this one. If bounds checking is enabled, setting this one will remain ineffective.
  
-** Supported in versions
+** Supporting versions
 
   From v1.2.0 to v1.2.2.
  
@@ -182,12 +182,13 @@ a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values
  is not planned in the near future. If you are interested, you may want to create a fork of this project to implement that feature
  and then share it with all users. 
  
-** Supported in versions
+** Supporting versions
 
   From v1.2.0 to v1.2.2.
  
 
 Table of Contents
-%{toc|section=0|fromDepth=2|toDepth=3}
+
+%{toc|section=0|fromDepth=1|toDepth=3}
 
  
