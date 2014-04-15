@@ -78,9 +78,6 @@ Output
    
   The ids come from the PNML file. This file will be created only if:
   
-   * There are unsafe arcs in the original net (from PNML). If option <<has.unsafe.arcs>> is not activated,
-   this file will be output in addition to the three other files above, i.e. <<*.nupn>>, <<*.places>> and <<*.trans>>;
-   
    * Option <<has.unsafe.arcs>> is activated. In this case, <only> the <<*.unsafe.arcs>> file will be output;
    
    * options <<generate.unsafe>> AND <<remove.unsafe.trans>> are activated (see below)
