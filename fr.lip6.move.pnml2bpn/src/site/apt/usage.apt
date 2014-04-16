@@ -65,9 +65,9 @@ Output
  
   * A <<*.nupn>> file that contains the Basic Petri Net obtained from the PNML P/T translation;
   
-  * A <<*.places>> file that contains the mapping between the places ids from PNML and their counterparts in NuPN;
+  * A <<*.places>> file that contains the mapping between the places ids from PNML and their counterparts in NUPN;
   
-  * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in NuPN.
+  * A <<*.trans>> file that contains the mapping between the transitions ids from PNML and their counterparts in NUPN.
   
 * Optional Output
   
@@ -101,7 +101,7 @@ Options
 
  This tool supports some options (technically speaking: properties) that you might activate to change its behaviour.
 
-* Force NuPN Generation
+* Force NUPN Generation
  
  You can force the generation of the NuPN file, even if the net is not 1-safe (as checked by the Bounds tool).
  To trigger that behaviour, invoke the tool with the <<force.nupn.generation>> property set to true, like so: 
@@ -119,7 +119,7 @@ Options
 * Disable Bounds Checking
 
  It is also possible to disable bounds checking on the net. Bounds checking enables this tool
- to determine if the input net is 1-safe or not. If disabled, NuPN generation will be
+ to determine if the input net is 1-safe or not. If disabled, NUPN generation will be
  faster since this step, that can take a long time, is skipped. You may set this tool into
  that mode by invoking it with the <<bounds.checking>> property set to false, like so:
  
@@ -153,7 +153,7 @@ a <<*.unsafe.arcs>> file, and ignore the other properties, whatever their values
 
  When it is known that the marking of some initial places or the inscription of some arcs have
  a valuation greater than 1, the translation is cancelled.  If you want it to happen despite this fact,
- invoke PNML to NuPN Converter with the <<generate.unsafe>> property like so:
+ invoke PNML to NUPN Converter with the <<generate.unsafe>> property like so:
  
   <java -Dgenerate.unsafe=true ...> 
 

@@ -16,13 +16,13 @@
 ~~
 
  ------
-Download PNML to NuPN Converter ${project.version}
+Download PNML to NUPN Converter ${project.version}
  ------
  ------
 2014-04
  ------
 
-Download PNML to NuPN Converter ${project.version}
+Download PNML to NUPN Converter ${project.version}
 
   This tools is distributed as a single jar, mainly to be used on the command line.
   However, you may also integrate it as a library in your application for whatever purpose.

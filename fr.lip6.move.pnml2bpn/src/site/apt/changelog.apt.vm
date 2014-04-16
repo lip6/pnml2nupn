@@ -16,7 +16,7 @@
 ~~
 
  ------
-Changelog of PNML to NuPN Converter ${project.version}
+Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
 2014-04
@@ -26,7 +26,7 @@ Changelog
 
 * What's new in version ${project.version}?
 
-  * Tool changes name: NuPN are produced, instead of BPN.
+  * Tool changes name: NUPN are produced, instead of BPN.
   
   * Produces the pragmas {{{http://cadp.inria.fr/man/caesar.bdd.html#sect9}!creator}}, {{{http://cadp.inria.fr/man/caesar.bdd.html#sect11}!multiple_initial_tokens}}
    and {{{http://cadp.inria.fr/man/caesar.bdd.html#sect12}!multiple_arcs}}. Consequently some properties are no longer supported (see following items).

@@ -23,11 +23,11 @@ Petri Nets PNML to NuPN Converter
 2014-04
  ------
 
-PNML to Nested-Unit Petri Nets (NuPN) Converter
+PNML to Nested-Unit Petri Nets (NUPN) Converter
 
   This tool converts 1-Safe Place/Transition Petri Nets from the {{{http://www.pnml.org}PNML}} standard format
-  into the {{{http://cadp.inria.fr/man/caesar.bdd.html#sect4}Nested-Unit Petri Net}} (NuPN) format. Note that the
-  <<Caesar.bdd>> tool can translate Nu Petri Nets from the NuPN format into PNML.
+  into the {{{http://cadp.inria.fr/man/caesar.bdd.html#sect4}Nested-Unit Petri Net}} (NUPN) format. Note that the
+  <<Caesar.bdd>> tool can translate NU Petri Nets from the NUPN format into PNML.
 
   Thanks to the Bounds tool by {{{http://www.lip6.fr/actualite/personnes-fiche.php?ident=P165}Emmanuel Paviot-Adet}},
 this tool first checks that the P/T Net model in PNML you want to translate into NuPN is 1-Safe. If that condition is not satisfied, the translation does not happen.
@@ -36,7 +36,7 @@ this tool first checks that the P/T Net model in PNML you want to translate into
 
 Execution
 
- PNML to NuPN Converter can simply be run on the command line. It is expecting either a set of paths to 
+ PNML to NUPN Converter can simply be run on the command line. It is expecting either a set of paths to 
  PNML files, or to folders containing them, or a mix of files and folders. It scans folders recursively,
  looking for PNML files.
  
