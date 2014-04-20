@@ -122,11 +122,6 @@ public final class MainPNML2BPN {
 		checkForceBPNGenMode(myLog, msg);
 		// Bounds checking property
 		checkBoundsCheckingMode(myLog, msg);
-		// Generate structural.bpn (case of forced generation in case of unsafe initial
-		// places or arcs
-		//FIXME: remove checkGenerateUnsafeMode(myLog, msg);
-		// Remove unsafe arcs?
-		// FIXME: remove checkRemoveTransUnsafeArcsMode(myLog, msg);
 		// Has unsafe arcs?
 		checkHashUnsafeArcsMode(myLog, msg);
 
@@ -177,7 +172,7 @@ public final class MainPNML2BPN {
 			myLog.error(msg.toString());
 		}
 		long endTime = System.nanoTime();
-		myLog.info("PNML to NuPN took {} seconds.",
+		myLog.info("PNML to NUPN took {} seconds.",
 				(endTime - startTime) / 1.0e9);
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory
 				.getILoggerFactory();
@@ -256,12 +251,12 @@ public final class MainPNML2BPN {
 		if (genUnsafe != null && Boolean.valueOf(genUnsafe)) {
 			isGenerateUnsafe = true;
 			isOption = true;
-			myLog.warn("Generation of unsafe (structural) NuPN enabled.");
+			myLog.warn("Generation of unsafe (structural) NUPN enabled.");
 		} else if (genUnsafe == null) {
 			isGenerateUnsafe = false;
 			msg.append(
-					"Generation of unsafe NuPN not set. Default is false. If you want to "
-					+ "generate unsafe (structural) NuPN, then invoke this program with ")
+					"Generation of unsafe NUPN not set. Default is false. If you want to "
+					+ "generate unsafe (structural) NUPN, then invoke this program with ")
 					.append(GENERATE_UNSAFE)
 					.append(" property like so: java -D")
 					.append(GENERATE_UNSAFE)
@@ -338,11 +333,11 @@ public final class MainPNML2BPN {
 		if (forceBpnGen != null && Boolean.valueOf(forceBpnGen)) {
 			isForceBPNGen = true;
 			isOption = true;
-			myLog.warn("Force BPN generation enabled.");
+			myLog.warn("Force NUPN generation enabled.");
 		} else {
 			isForceBPNGen = false;
 			msg.append(
-					"Forcing BPN generation not set. Default is false. If you want to force BPN generation for non 1-Safe nets, then invoke this program with ")
+					"Forcing NUPN generation not set. Default is false. If you want to force NUPN generation for non 1-Safe nets, then invoke this program with ")
 					.append(FORCE_NUPN_GENERATION)
 					.append(" property like so: java -D")
 					.append(FORCE_NUPN_GENERATION)
