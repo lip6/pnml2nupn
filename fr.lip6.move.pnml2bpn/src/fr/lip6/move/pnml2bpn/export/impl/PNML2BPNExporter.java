@@ -217,8 +217,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			stopWriter(uaQueue);
 			uaWriter.join();
 			closeChannel(ocbUA);
-			// clear maps
-			// clearAllCollections();
 			if (nbUnsArcs > 0) {
 				log.info("See unsafe arcs files: {}",
 						outUAFile.getCanonicalPath());
@@ -304,24 +302,19 @@ public final class PNML2BPNExporter implements PNMLExporter {
 					.getCanonicalPath()) + TRANS_EXT);
 			outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + STATES_EXT);
-			/*outUAFile = new File(PNML2BPNUtils.extractBaseName(outFile
-					.getCanonicalPath()) + UNSAFE_ARC);*/
 			// Channels for NuPN, transitions and places id mapping
 			ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
 			ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
 			ocbPs = PNML2BPNUtils.openOutChannel(outPSFile);
-			//ocbUA = PNML2BPNUtils.openOutChannel(outUAFile);
 			// Queues for BPN, transitions and places id mapping
 			bpnQueue = initQueue();
 			tsQueue = initQueue();
 			psQueue = initQueue();
-			//uaQueue = initQueue();
 
 			// Start writers
 			Thread bpnWriter = startWriter(ocbBpn, bpnQueue);
 			Thread tsWriter = startWriter(ocbTs, tsQueue);
 			Thread psWriter = startWriter(ocbPs, psQueue);
-			//Thread uaWriter = startWriter(ocbUA, uaQueue);
 
 			// Insert creator pragma (since 1.3.0)
 			insertCreatorPragma(bpnQueue);
@@ -347,21 +340,13 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			bpnWriter.join();
 			tsWriter.join();
 			psWriter.join();
-			//uaWriter.join();
 			// Close channels
 			closeChannels(ocbBpn, ocbTs, ocbPs);
-			//closeChannel(ocbUA);
 			// clear maps
 			clearAllCollections();
 			log.info("See NuPN and mapping files: {}, {} and {}",
 					outFile.getCanonicalPath(), outTSFile.getCanonicalPath(),
 					outPSFile.getCanonicalPath());
-			/*if (unsafeArcs) {
-				log.info("See unsafe arcs files: {}",
-						outUAFile.getCanonicalPath());
-			} else {
-				outUAFile.delete();
-			}*/
 		} catch (NavExceptionHuge | XPathParseExceptionHuge
 				| XPathEvalExceptionHuge | ParseExceptionHuge
 				| InvalidSafeNetException | InternalException
@@ -481,7 +466,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		bpnsb.delete(0, bpnsb.length());
 
 		LongCollection allTr = new LongRBTreeSet(trId2bpnMap.values());
-
+		
 		for (long trId : allTr) {
 			bpnsb.append(T).append(trId);
 			buildConnectedPlaces2Transition(bpnsb, trId, tr2InPlacesMap);
@@ -554,7 +539,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			arc = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
 			trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
-			//pId = placesId2bpnMap.getLong(src);
+
 			tId = trId2bpnMap.getLong(src);
 			if (tId == -1L) { // transition is the target
 				tId = trId2bpnMap.getLong(trg);
@@ -570,10 +555,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				}
 				//associate the input place
 				pId = placesId2bpnMap.getLong(src);
-				/*if (pId == -1L) {
-					pId = iDCount++;
-					placesId2bpnMap.put(src, pId);
-				}*/
 				pls.add(pId);
 				// Unsafe node ?
 				if (unsafeNodes.contains(trg)) {
@@ -589,26 +570,12 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				}
 
 			} else {// transition is the source
-				//pId = placesId2bpnMap.getLong(trg);
-				//tId = trId2bpnMap.getLong(src);
-				//if (tId != -1L) {
 					pls = tr2OutPlacesMap.get(tId);
 					if (pls == null) {
 						pls = new LongBigArrayBigList();
 						tr2OutPlacesMap.put(tId, pls);
 					}
-				/*} else {
-					tId = count++;
-					trId2bpnMap.put(src, tId);
-					tsQueue.put(tId + WS + src + NL);
-					pls = new LongBigArrayBigList();
-					tr2OutPlacesMap.put(tId, pls);
-				}*/
 				pId = placesId2bpnMap.getLong(trg);
-				/*if (pId == -1L) {
-					pId = iDCount++;
-					placesId2bpnMap.put(trg, pId);
-				}*/
 				pls.add(pId);
 				if (unsafeNodes.contains(src)) {
 					arcInsc = unsafeArcsMap.getInt(arc);
@@ -791,8 +758,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			throw new InvalidNetException(
 					"Error: there is no initial place in this net!");
 		}
-
-		// FIXME: Check initial markings > 1. No more exit point since 1.3.0
+		// Check initial markings > 1. No more exit point since 1.3.0
 		// (generate.unsafe property must be removed)
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
@@ -833,8 +799,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
 		}
 		
-		// FIXME: Check inscriptions > 1 and retain inbound or outbound
-		// transitions.
+		// Check inscriptions > 1
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
@@ -855,7 +820,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				unsafeNodes.add(src);
 				trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
 				unsafeNodes.add(trg);
-				//uaQueue.put(src + WS + id + WS + trg + WS + HK + val + NL);
 				log.warn("Unsafe arc: {}", src + WS + id + WS + trg + WS + HK + val);
 				unsafeArcsMap.put(id, val);
 				nbUnsafeArcs++;
@@ -892,12 +856,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			if (id != null) {
 				try {
-					/*pId = placesId2bpnMap.getLong(id);
-					if (pId == -1L) {
-						pId = iDCount++;
-						placesId2bpnMap.put(id, pId);
-						//iDCount++;
-					}*/
 					pId = iDCount++;
 					placesId2bpnMap.put(id, pId);
 					initPlaces.add(pId);
@@ -926,10 +884,6 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			vn.push();
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			pId = placesId2bpnMap.getLong(id);
-			/*if (pId == -1L) {
-				pId = iDCount++;
-				placesId2bpnMap.put(id, pId);
-			}*/
 			pId = iDCount++;
 			placesId2bpnMap.put(id, pId);
 			vn.pop();
