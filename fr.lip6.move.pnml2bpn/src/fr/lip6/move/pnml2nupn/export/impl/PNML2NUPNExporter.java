@@ -744,7 +744,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			InterruptedException, InvalidNetException, IOException {
 		//long iDCount = 0L;
 		long nbMarkedPlaces = 0L;
-		int minMarking = 0, maxMarking = 0, mkg;
+		int minMarking = 0, maxMarking = 0, mkg, totalMkg = 0;
 		unsafePlaces = false;
 		unsafeArcs = false;
 		nbUnsafePlaces = 0L;
@@ -788,16 +788,6 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			}
 			vn.pop();
 		}
-		if (nbUnsafePlaces > 0) {
-			unsafePlaces = true;
-			bpnQueue.put(MainPNML2NUPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK
-					+ nbUnsafePlaces + WS + minMarking + DOTS + maxMarking + NL);
-			log.warn("There are {} unsafe initial places in this net.",
-					nbUnsafePlaces);
-			unsafePlacesId.delete(unsafePlacesId.length() - 2,
-					unsafePlacesId.length());
-			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
-		}
 		
 		// Check inscriptions > 1
 		ap.resetXPath();
@@ -837,12 +827,6 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 		//generate unsafe property is no longer used
 
-		if (unsafePlaces) {
-			MainPNML2NUPN
-					.appendMesgLineToSignature("decreased to one the marking of "
-							+ nbUnsafePlaces + " initial places");
-		}
-
 		// select initial places, assign ids to them
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
 		List<Long> initPlaces = new ArrayList<>();
@@ -852,6 +836,12 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		StringBuilder initPlacesId = new StringBuilder();
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
+			vn.toElement(VTDNavHuge.FIRST_CHILD);
+			while (!vn.matchElement(TEXT)) {
+				vn.toElement(VTDNavHuge.NEXT_SIBLING);
+			}
+			totalMkg += Integer.parseInt(vn.toString(vn.getText()).trim());
+			vn.toElement(VTDNavHuge.PARENT);
 			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			if (id != null) {
@@ -868,6 +858,18 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			}
 			vn.pop();
 		}
+		
+		if (nbUnsafePlaces > 0) {
+			unsafePlaces = true;
+			bpnQueue.put(MainPNML2NUPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK + totalMkg + WS + HK
+					+ nbUnsafePlaces + WS + minMarking + DOTS + maxMarking + NL);
+			log.warn("There are {} unsafe initial places in this net.",
+					nbUnsafePlaces);
+			unsafePlacesId.delete(unsafePlacesId.length() - 2,
+					unsafePlacesId.length());
+			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
+		}
+		
 		// Several initial places are now accepted (since 1.1.10)
 		if (nbMarkedPlaces > 1) {
 			log.info("There are {} initial places in this net.", nbMarkedPlaces);
@@ -887,6 +889,12 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			pId = iDCount++;
 			placesId2bpnMap.put(id, pId);
 			vn.pop();
+		}
+		
+		if (unsafePlaces) {
+			MainPNML2NUPN
+					.appendMesgLineToSignature("decreased to one the marking of "
+							+ nbUnsafePlaces + " initial places");
 		}
 		
 		// build transitions, to be able to write unsafe arcs pragma
