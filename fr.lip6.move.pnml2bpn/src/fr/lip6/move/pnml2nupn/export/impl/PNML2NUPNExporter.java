@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.export.impl;
+package fr.lip6.move.pnml2nupn.export.impl;
 
 import it.unimi.dsi.fastutil.ints.IntBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -49,15 +49,15 @@ import com.ximpleware.extended.XMLMemMappedBuffer;
 import com.ximpleware.extended.XPathEvalExceptionHuge;
 import com.ximpleware.extended.XPathParseExceptionHuge;
 
-import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
-import fr.lip6.move.pnml2bpn.exceptions.InternalException;
-import fr.lip6.move.pnml2bpn.exceptions.InvalidNetException;
-import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
-import fr.lip6.move.pnml2bpn.exceptions.InvalidSafeNetException;
-import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
-import fr.lip6.move.pnml2bpn.export.PNMLExporter;
-import fr.lip6.move.pnml2bpn.utils.PNML2NUPNUtils;
-import fr.lip6.move.pnml2bpn.utils.SafePNChecker;
+import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
+import fr.lip6.move.pnml2nupn.exceptions.InternalException;
+import fr.lip6.move.pnml2nupn.exceptions.InvalidNetException;
+import fr.lip6.move.pnml2nupn.exceptions.InvalidPNMLTypeException;
+import fr.lip6.move.pnml2nupn.exceptions.InvalidSafeNetException;
+import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
+import fr.lip6.move.pnml2nupn.export.PNMLExporter;
+import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
+import fr.lip6.move.pnml2nupn.utils.SafePNChecker;
 
 /**
  * Actual PNML 2 BPN exporter.
@@ -246,8 +246,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			log.info("Exporting into BPN: {}", inFile.getCanonicalPath());
 			translateIntoBPN(inFile, outFile, journal);
 		} catch (ValidationException
-				| fr.lip6.move.pnml2bpn.exceptions.InvalidFileTypeException
-				| fr.lip6.move.pnml2bpn.exceptions.InvalidFileException
+				| fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException
+				| fr.lip6.move.pnml2nupn.exceptions.InvalidFileException
 				| InternalException | InvalidPNMLTypeException e) {
 			throw new PNMLImportExportException(e);
 		} catch (IOException e) {

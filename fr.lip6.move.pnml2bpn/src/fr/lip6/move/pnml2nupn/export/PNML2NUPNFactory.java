@@ -15,9 +15,9 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.export;
+package fr.lip6.move.pnml2nupn.export;
 
-import fr.lip6.move.pnml2bpn.export.impl.PNML2NUPNExporter;
+import fr.lip6.move.pnml2nupn.export.impl.PNML2NUPNExporter;
 
 /**
  * Simple Exporter factory.

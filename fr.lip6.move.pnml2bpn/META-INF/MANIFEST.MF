@@ -7,10 +7,10 @@ Bundle-Version: 1.2.2.qualifier
 Require-Bundle: fr.lip6.move.pnml2bpn.3rdparty;bundle-version="1.0.0",
  fr.lip6.move.pnml.cpnami2.cami2pnml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: fr.lip6.move.pnml2bpn;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
- fr.lip6.move.pnml2bpn.exceptions,
- fr.lip6.move.pnml2bpn.export;uses:="org.slf4j",
- fr.lip6.move.pnml2bpn.export.impl;uses:="fr.lip6.move.pnml2bpn.export,org.slf4j",
- fr.lip6.move.pnml2bpn.utils
+Export-Package: fr.lip6.move.pnml2nupn;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
+ fr.lip6.move.pnml2nupn.exceptions,
+ fr.lip6.move.pnml2nupn.export;uses:="org.slf4j",
+ fr.lip6.move.pnml2nupn.export.impl;uses:="fr.lip6.move.pnml2bpn.export,org.slf4j",
+ fr.lip6.move.pnml2nupn.utils
 Bundle-Vendor: %providerName
 Bundle-ClassPath: .

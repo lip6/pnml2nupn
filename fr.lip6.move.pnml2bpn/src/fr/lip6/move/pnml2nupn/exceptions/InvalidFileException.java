@@ -15,26 +15,25 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.exceptions;
+package fr.lip6.move.pnml2nupn.exceptions;
 
 /**
- * Documents every exception related to the type of the file sent for
- * importing/exporting, typically, binary files and non-PNML files.
+ * Documents every IO exception: file not found, null pointer exception, etc.
  * 
- * @author lom
+ * @author lhillah
  * 
  */
-public class InvalidFileTypeException extends Exception {
+public class InvalidFileException extends Exception {
 
 	/**
-	 * Serial version UID.
+	 * Serialization stuff.
 	 */
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Default Constructor.
 	 */
-	public InvalidFileTypeException() {
+	public InvalidFileException() {
 		super();
 	}
 
@@ -44,7 +43,7 @@ public class InvalidFileTypeException extends Exception {
 	 * @param message
 	 *            the messages
 	 */
-	public InvalidFileTypeException(String message) {
+	public InvalidFileException(String message) {
 		super(message);
 	}
 
@@ -54,7 +53,7 @@ public class InvalidFileTypeException extends Exception {
 	 * @param cause
 	 *            the cause
 	 */
-	public InvalidFileTypeException(Throwable cause) {
+	public InvalidFileException(Throwable cause) {
 		super(cause);
 	}
 
@@ -66,7 +65,7 @@ public class InvalidFileTypeException extends Exception {
 	 * @param cause
 	 *            the cause
 	 */
-	public InvalidFileTypeException(String message, Throwable cause) {
+	public InvalidFileException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

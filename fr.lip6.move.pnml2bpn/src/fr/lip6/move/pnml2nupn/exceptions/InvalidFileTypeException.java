@@ -15,25 +15,47 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.exceptions;
+package fr.lip6.move.pnml2nupn.exceptions;
 
 /**
- * To document some internal exceptions : null, security, etc.
+ * Documents every exception related to the type of the file sent for
+ * importing/exporting, typically, binary files and non-PNML files.
  * 
  * @author lom
  * 
  */
-public class InternalException extends Exception {
+public class InvalidFileTypeException extends Exception {
+
 	/**
-	 * Serialization stuff.
+	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Default Constructor.
 	 */
-	public InternalException() {
+	public InvalidFileTypeException() {
 		super();
+	}
+
+	/**
+	 * With message.
+	 * 
+	 * @param message
+	 *            the messages
+	 */
+	public InvalidFileTypeException(String message) {
+		super(message);
+	}
+
+	/**
+	 * With cause.
+	 * 
+	 * @param cause
+	 *            the cause
+	 */
+	public InvalidFileTypeException(Throwable cause) {
+		super(cause);
 	}
 
 	/**
@@ -44,27 +66,8 @@ public class InternalException extends Exception {
 	 * @param cause
 	 *            the cause
 	 */
-	public InternalException(String message, Throwable cause) {
+	public InvalidFileTypeException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	/**
-	 * With message.
-	 * 
-	 * @param message
-	 *            the messages
-	 */
-	public InternalException(String message) {
-		super(message);
-	}
-
-	/**
-	 * With cause.
-	 * 
-	 * @param cause
-	 *            the cause
-	 */
-	public InternalException(Throwable cause) {
-		super(cause);
-	}
 }

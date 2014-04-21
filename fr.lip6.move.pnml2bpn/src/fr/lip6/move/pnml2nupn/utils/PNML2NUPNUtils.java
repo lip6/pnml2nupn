@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.utils;
+package fr.lip6.move.pnml2nupn.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -32,11 +32,11 @@ import java.util.List;
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.bind.ValidationException;
 
-import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
-import fr.lip6.move.pnml2bpn.exceptions.InternalException;
-import fr.lip6.move.pnml2bpn.exceptions.InvalidFileException;
-import fr.lip6.move.pnml2bpn.exceptions.InvalidFileTypeException;
-import fr.lip6.move.pnml2bpn.export.impl.OutChannelBean;
+import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
+import fr.lip6.move.pnml2nupn.exceptions.InternalException;
+import fr.lip6.move.pnml2nupn.exceptions.InvalidFileException;
+import fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException;
+import fr.lip6.move.pnml2nupn.export.impl.OutChannelBean;
 
 /**
  * Provides a set of utility methods, useful mainly for channel-related operations.

@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn;
+package fr.lip6.move.pnml2nupn;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -29,10 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
-import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
-import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
-import fr.lip6.move.pnml2bpn.export.PNML2NUPNFactory;
-import fr.lip6.move.pnml2bpn.export.PNMLExporter;
+import fr.lip6.move.pnml2nupn.exceptions.InvalidPNMLTypeException;
+import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
+import fr.lip6.move.pnml2nupn.export.PNML2NUPNFactory;
+import fr.lip6.move.pnml2nupn.export.PNMLExporter;
 
 /**
  * Main class for command-line invocation.

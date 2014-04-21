@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.export.impl;
+package fr.lip6.move.pnml2nupn.export.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,8 +26,8 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
-import fr.lip6.move.pnml2bpn.utils.PNML2NUPNUtils;
+import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
+import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
 
 /**
  * Thread task to write contents read from a queue int a channel.

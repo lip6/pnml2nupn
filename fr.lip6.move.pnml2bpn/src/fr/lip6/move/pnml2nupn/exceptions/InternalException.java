@@ -15,16 +15,15 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.exceptions;
+package fr.lip6.move.pnml2nupn.exceptions;
 
 /**
- * Documents every IO exception: file not found, null pointer exception, etc.
+ * To document some internal exceptions : null, security, etc.
  * 
- * @author lhillah
+ * @author lom
  * 
  */
-public class InvalidFileException extends Exception {
-
+public class InternalException extends Exception {
 	/**
 	 * Serialization stuff.
 	 */
@@ -33,28 +32,8 @@ public class InvalidFileException extends Exception {
 	/**
 	 * Default Constructor.
 	 */
-	public InvalidFileException() {
+	public InternalException() {
 		super();
-	}
-
-	/**
-	 * With message.
-	 * 
-	 * @param message
-	 *            the messages
-	 */
-	public InvalidFileException(String message) {
-		super(message);
-	}
-
-	/**
-	 * With cause.
-	 * 
-	 * @param cause
-	 *            the cause
-	 */
-	public InvalidFileException(Throwable cause) {
-		super(cause);
 	}
 
 	/**
@@ -65,8 +44,27 @@ public class InvalidFileException extends Exception {
 	 * @param cause
 	 *            the cause
 	 */
-	public InvalidFileException(String message, Throwable cause) {
+	public InternalException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
+	/**
+	 * With message.
+	 * 
+	 * @param message
+	 *            the messages
+	 */
+	public InternalException(String message) {
+		super(message);
+	}
+
+	/**
+	 * With cause.
+	 * 
+	 * @param cause
+	 *            the cause
+	 */
+	public InternalException(Throwable cause) {
+		super(cause);
+	}
 }

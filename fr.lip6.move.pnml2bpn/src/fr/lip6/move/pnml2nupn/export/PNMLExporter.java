@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.export;
+package fr.lip6.move.pnml2nupn.export;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +23,8 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 
-import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
-import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
+import fr.lip6.move.pnml2nupn.exceptions.InvalidPNMLTypeException;
+import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
 
 /**
  * <p>

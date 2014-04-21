@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.exceptions;
+package fr.lip6.move.pnml2nupn.exceptions;
 
 /**
  * General-purpose exception for the translation tool.

@@ -15,34 +15,33 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.exceptions;
+package fr.lip6.move.pnml2nupn.exceptions;
 
 /**
- * Documents every invalid net cause, except for not being 1-Safe.
+ * To document that the encountered Petri Net is not 1-Safe.
  * @author lom
  *
  */
-public class InvalidNetException extends Exception {
+public class InvalidSafeNetException extends Exception {
 
-	private static final long serialVersionUID = 7768156446274359970L;
+	private static final long serialVersionUID = 9008960891717196431L;
 
-	public InvalidNetException() {
-		super();
+	public InvalidSafeNetException() {
 	}
 
-	public InvalidNetException(String message) {
+	public InvalidSafeNetException(String message) {
 		super(message);
 	}
 
-	public InvalidNetException(Throwable cause) {
+	public InvalidSafeNetException(Throwable cause) {
 		super(cause);
 	}
 
-	public InvalidNetException(String message, Throwable cause) {
+	public InvalidSafeNetException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public InvalidNetException(String message, Throwable cause,
+	public InvalidSafeNetException(String message, Throwable cause,
 			boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}

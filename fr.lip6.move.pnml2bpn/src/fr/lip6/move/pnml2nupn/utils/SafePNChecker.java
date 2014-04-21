@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.utils;
+package fr.lip6.move.pnml2nupn.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -34,8 +34,8 @@ import java.util.regex.Pattern;
 import fr.lip6.move.pnml.cpnami.cami.CamiFactory;
 import fr.lip6.move.pnml.cpnami.cami.Runner;
 import fr.lip6.move.pnml.cpnami.exceptions.CamiException;
-import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
-import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
+import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
+import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
 
 public final class SafePNChecker {
 

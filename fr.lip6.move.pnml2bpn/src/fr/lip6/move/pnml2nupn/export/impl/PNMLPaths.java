@@ -15,7 +15,7 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.export.impl;
+package fr.lip6.move.pnml2nupn.export.impl;
 
 /**
  * A set of in-memory XPATH queries used to parsing PNML.

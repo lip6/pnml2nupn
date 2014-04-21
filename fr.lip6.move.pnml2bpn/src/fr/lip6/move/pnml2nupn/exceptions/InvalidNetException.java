@@ -15,34 +15,34 @@
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
-package fr.lip6.move.pnml2bpn.exceptions;
+package fr.lip6.move.pnml2nupn.exceptions;
 
 /**
- * To document unexpected Petri net types read from PNML Documents.
+ * Documents every invalid net cause, except for not being 1-Safe.
  * @author lom
  *
  */
-public class InvalidPNMLTypeException extends Exception {
+public class InvalidNetException extends Exception {
 
-	private static final long serialVersionUID = 4240100937495001696L;
+	private static final long serialVersionUID = 7768156446274359970L;
 
-	public InvalidPNMLTypeException() {
+	public InvalidNetException() {
+		super();
 	}
 
-	public InvalidPNMLTypeException(String message) {
+	public InvalidNetException(String message) {
 		super(message);
-
 	}
 
-	public InvalidPNMLTypeException(Throwable cause) {
+	public InvalidNetException(Throwable cause) {
 		super(cause);
 	}
 
-	public InvalidPNMLTypeException(String message, Throwable cause) {
+	public InvalidNetException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public InvalidPNMLTypeException(String message, Throwable cause,
+	public InvalidNetException(String message, Throwable cause,
 			boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
