@@ -32,7 +32,7 @@ import java.util.List;
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.bind.ValidationException;
 
-import fr.lip6.move.pnml2bpn.MainPNML2BPN;
+import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
 import fr.lip6.move.pnml2bpn.exceptions.InternalException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidFileException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidFileTypeException;
@@ -45,7 +45,7 @@ import fr.lip6.move.pnml2bpn.export.impl.OutChannelBean;
  * @author lom
  *
  */
-public final class PNML2BPNUtils {
+public final class PNML2NUPNUtils {
 
 	private static final int BUFFERSIZEKB = 8;
 	private static final int CONTENTSSIZEKB = 6;
@@ -53,7 +53,7 @@ public final class PNML2BPNUtils {
 	public static final int CONTENTSSIZE = CONTENTSSIZEKB * 1024;
 	public static final String FILE_ENCODING = "ISO-8859-1";
 
-	private PNML2BPNUtils() {
+	private PNML2NUPNUtils() {
 		super();
 	}
 
@@ -208,7 +208,7 @@ public final class PNML2BPNUtils {
 						message));
 			}
 		} catch (NullPointerException npe) {
-			MainPNML2BPN.printStackTrace(npe);
+			MainPNML2NUPN.printStackTrace(npe);
 			throw new InternalException("Null pointer exception",
 					new Throwable("Something went wrong. Please, re-submit."));
 		} catch (SecurityException se) {
@@ -228,7 +228,7 @@ public final class PNML2BPNUtils {
 	 */
 	public static final void extractFile(String fromPath, String toPath) throws IOException {
 		
-		InputStream input = PNML2BPNUtils.class.getClassLoader().getResourceAsStream(fromPath);
+		InputStream input = PNML2NUPNUtils.class.getClassLoader().getResourceAsStream(fromPath);
 		if (input == null) {
 			System.err.println("Could not found file to load.");
 			return;

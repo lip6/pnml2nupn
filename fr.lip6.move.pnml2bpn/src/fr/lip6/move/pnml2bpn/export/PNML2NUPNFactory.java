@@ -17,22 +17,22 @@
  */
 package fr.lip6.move.pnml2bpn.export;
 
-import fr.lip6.move.pnml2bpn.export.impl.PNML2BPNExporter;
+import fr.lip6.move.pnml2bpn.export.impl.PNML2NUPNExporter;
 
 /**
  * Simple Exporter factory.
  * @author lom
  *
  */
-public final class PNML2BPNFactory {
+public final class PNML2NUPNFactory {
 
 	private static final class PNML2BPNFactoryHelper {
-		private static volatile PNML2BPNFactory INSTANCE;
+		private static volatile PNML2NUPNFactory INSTANCE;
 		static {
 			synchronized (PNML2BPNFactoryHelper.class) {
 				if (INSTANCE == null) {
 					synchronized (PNML2BPNFactoryHelper.class) {
-						INSTANCE = new PNML2BPNFactory();
+						INSTANCE = new PNML2NUPNFactory();
 					}
 				}
 			}
@@ -44,17 +44,17 @@ public final class PNML2BPNFactory {
 	}
 
 	
-	private PNML2BPNFactory() {
+	private PNML2NUPNFactory() {
 		super();
 	}
 
 	
-	public static PNML2BPNFactory instance() {
+	public static PNML2NUPNFactory instance() {
 		return PNML2BPNFactoryHelper.INSTANCE;
 	}
 
 	public PNMLExporter createExporter() {
-		return new PNML2BPNExporter();
+		return new PNML2NUPNExporter();
 	}
 
 }

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.LoggerContext;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
-import fr.lip6.move.pnml2bpn.export.PNML2BPNFactory;
+import fr.lip6.move.pnml2bpn.export.PNML2NUPNFactory;
 import fr.lip6.move.pnml2bpn.export.PNMLExporter;
 
 /**
@@ -40,7 +40,7 @@ import fr.lip6.move.pnml2bpn.export.PNMLExporter;
  * @author lom
  * 
  */
-public final class MainPNML2BPN {
+public final class MainPNML2NUPN {
 
 	public static final String NL = "\n";
 	public static final String EQ = "=";
@@ -98,7 +98,7 @@ public final class MainPNML2BPN {
 	private static boolean isGenerateUnsafe;
 	private static boolean isHasUnsafeArcs;
 
-	private MainPNML2BPN() {
+	private MainPNML2NUPN() {
 		super();
 	}
 
@@ -107,7 +107,7 @@ public final class MainPNML2BPN {
 	 */
 	public static void main(String[] args) {
 		long startTime = System.nanoTime();
-		org.slf4j.Logger myLog = LoggerFactory.getLogger(MainPNML2BPN.class
+		org.slf4j.Logger myLog = LoggerFactory.getLogger(MainPNML2NUPN.class
 				.getCanonicalName());
 		StringBuilder msg = new StringBuilder();
 		if (args.length < 1) {
@@ -130,12 +130,12 @@ public final class MainPNML2BPN {
 		} catch (IOException e1) {
 			myLog.error("Could not successfully extract all source files paths. See log.");
 			myLog.error(e1.getMessage());
-			if (MainPNML2BPN.isDebug) {
+			if (MainPNML2NUPN.isDebug) {
 				e1.printStackTrace();
 			}
 		}
 		initSignatureMessage();
-		PNMLExporter pe = PNML2BPNFactory.instance().createExporter();
+		PNMLExporter pe = PNML2NUPNFactory.instance().createExporter();
 		org.slf4j.Logger jr = LoggerFactory.getLogger(pe.getClass()
 				.getCanonicalName());
 		// TODO : optimize with threads
@@ -154,7 +154,7 @@ public final class MainPNML2BPN {
 			} catch (PNMLImportExportException | InterruptedException
 					| IOException | InvalidPNMLTypeException e) {
 				myLog.error(e.getMessage());
-				MainPNML2BPN.printStackTrace(e);
+				MainPNML2NUPN.printStackTrace(e);
 				error |= true;
 			}
 		}
@@ -164,7 +164,7 @@ public final class MainPNML2BPN {
 			myLog.info(msg.toString());
 		} else {
 			msg.append("Finished in error.");
-			if (!MainPNML2BPN.isDebug) {
+			if (!MainPNML2NUPN.isDebug) {
 				msg.append(
 						" Activate debug mode to print stacktraces, like so: export ")
 						.append(PNML2NUPN_DEBUG).append("=true");
@@ -468,7 +468,7 @@ public final class MainPNML2BPN {
 	 * @param isDebug
 	 */
 	public static synchronized void setDebug(boolean isDebug) {
-		MainPNML2BPN.isDebug = isDebug;
+		MainPNML2NUPN.isDebug = isDebug;
 	}
 
 	/**
@@ -526,7 +526,7 @@ public final class MainPNML2BPN {
 	 * @param e
 	 */
 	public static synchronized void printStackTrace(Exception e) {
-		if (MainPNML2BPN.isDebug) {
+		if (MainPNML2NUPN.isDebug) {
 			e.printStackTrace();
 		}
 	}

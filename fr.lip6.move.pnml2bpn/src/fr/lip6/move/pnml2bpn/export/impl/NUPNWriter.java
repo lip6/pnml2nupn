@@ -26,15 +26,15 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.lip6.move.pnml2bpn.MainPNML2BPN;
-import fr.lip6.move.pnml2bpn.utils.PNML2BPNUtils;
+import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
+import fr.lip6.move.pnml2bpn.utils.PNML2NUPNUtils;
 
 /**
  * Thread task to write contents read from a queue int a channel.
  * @author lom
  *
  */
-public final class BPNWriter implements Runnable {
+public final class NUPNWriter implements Runnable {
 
 	private static final String STOP = "STOP";
 	private static final String CANCEL = "CANCEL";
@@ -42,29 +42,29 @@ public final class BPNWriter implements Runnable {
 	private BlockingQueue<String> queue;
 	private Logger log;
 
-	public BPNWriter(OutChannelBean ocb, BlockingQueue<String> queue) {
+	public NUPNWriter(OutChannelBean ocb, BlockingQueue<String> queue) {
 		this.ocb = ocb;
 		this.queue = queue;
 	}
 
 	@Override
 	public void run() {
-		log = LoggerFactory.getLogger(BPNWriter.class
+		log = LoggerFactory.getLogger(NUPNWriter.class
 				.getCanonicalName() + "#" + Thread.currentThread().getId());
 		ByteBuffer bytebuf = ByteBuffer
-				.allocateDirect(PNML2BPNUtils.BUFFERSIZE);
+				.allocateDirect(PNML2NUPNUtils.BUFFERSIZE);
 		List<byte[]> contents = new ArrayList<byte[]>();
 		String msg;
 		try {
 			msg = queue.take();
 			while (!STOP.equalsIgnoreCase(msg) && !CANCEL.equalsIgnoreCase(msg)) {
-				PNML2BPNUtils.writeToChannel(ocb, msg, bytebuf, contents);
+				PNML2NUPNUtils.writeToChannel(ocb, msg, bytebuf, contents);
 				contents.clear();
 				msg = queue.take();
 			}
 		} catch (InterruptedException | IOException e) {
 			log.error(e.getMessage());
-			MainPNML2BPN.printStackTrace(e);
+			MainPNML2NUPN.printStackTrace(e);
 		} 
 	}
 

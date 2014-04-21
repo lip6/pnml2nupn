@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import fr.lip6.move.pnml.cpnami.cami.CamiFactory;
 import fr.lip6.move.pnml.cpnami.cami.Runner;
 import fr.lip6.move.pnml.cpnami.exceptions.CamiException;
-import fr.lip6.move.pnml2bpn.MainPNML2BPN;
+import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
 import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
 
 public final class SafePNChecker {
@@ -82,7 +82,7 @@ public final class SafePNChecker {
 			File camiFile = transformPnml2Cami();
 			File tmpBoundFile = createJavaTmpBoundsFile();
 			try {
-				PNML2BPNUtils.extractFile(BOUNDS_INPACKAGE,
+				PNML2NUPNUtils.extractFile(BOUNDS_INPACKAGE,
 						tmpBoundFile.getCanonicalPath());
 				tmpBoundFile.setExecutable(true);
 				res = checkNetIs1Safe(camiFile, tmpBoundFile);
@@ -101,7 +101,7 @@ public final class SafePNChecker {
 
 	private void deleteCamiFile(File camiFile) {
 
-		if (MainPNML2BPN.isCamiTmpDelete()) {
+		if (MainPNML2NUPN.isCamiTmpDelete()) {
 			camiFile.delete();
 		}
 	}

@@ -49,14 +49,14 @@ import com.ximpleware.extended.XMLMemMappedBuffer;
 import com.ximpleware.extended.XPathEvalExceptionHuge;
 import com.ximpleware.extended.XPathParseExceptionHuge;
 
-import fr.lip6.move.pnml2bpn.MainPNML2BPN;
+import fr.lip6.move.pnml2bpn.MainPNML2NUPN;
 import fr.lip6.move.pnml2bpn.exceptions.InternalException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidNetException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2bpn.exceptions.InvalidSafeNetException;
 import fr.lip6.move.pnml2bpn.exceptions.PNMLImportExportException;
 import fr.lip6.move.pnml2bpn.export.PNMLExporter;
-import fr.lip6.move.pnml2bpn.utils.PNML2BPNUtils;
+import fr.lip6.move.pnml2bpn.utils.PNML2NUPNUtils;
 import fr.lip6.move.pnml2bpn.utils.SafePNChecker;
 
 /**
@@ -65,7 +65,7 @@ import fr.lip6.move.pnml2bpn.utils.SafePNChecker;
  * @author lom
  * 
  */
-public final class PNML2BPNExporter implements PNMLExporter {
+public final class PNML2NUPNExporter implements PNMLExporter {
 
 	private static final String TEXT = "text";
 	private static final String TRANS_EXT = ".trans";
@@ -124,7 +124,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	private File outPSFile = null;
 	private File outUAFile = null;
 
-	public PNML2BPNExporter() {
+	public PNML2NUPNExporter() {
 		spnc = new SafePNChecker();
 	}
 
@@ -175,9 +175,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 						"The contained Petri net(s) in the following file is not a P/T Net. Only P/T Nets are supported: "
 								+ inFile.getCanonicalPath());
 			}
-			outUAFile = new File(PNML2BPNUtils.extractBaseName(outFile
+			outUAFile = new File(PNML2NUPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + UNSAFE_ARC);
-			ocbUA = PNML2BPNUtils.openOutChannel(outUAFile);
+			ocbUA = PNML2NUPNUtils.openOutChannel(outUAFile);
 			uaQueue = initQueue();
 			Thread uaWriter = startWriter(ocbUA, uaQueue);
 
@@ -242,7 +242,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			this.currentInputFile = inFile;
 			journal.info("Checking preconditions on input file format: {} ",
 					inFile.getCanonicalPath());
-			PNML2BPNUtils.checkIsPnmlFile(inFile);
+			PNML2NUPNUtils.checkIsPnmlFile(inFile);
 			log.info("Exporting into BPN: {}", inFile.getCanonicalPath());
 			translateIntoBPN(inFile, outFile, journal);
 		} catch (ValidationException
@@ -277,10 +277,10 @@ public final class PNML2BPNExporter implements PNMLExporter {
 								+ this.currentInputFile.getCanonicalPath());
 			}
 			// The net must be 1-safe, if bounds checking is enabled.
-			if (MainPNML2BPN.isBoundsChecking()) {
+			if (MainPNML2NUPN.isBoundsChecking()) {
 				log.info("Checking it is 1-Safe.");
 				if (!isNet1Safe()) {
-					if (MainPNML2BPN.isForceBPNGen()) {
+					if (MainPNML2NUPN.isForceBPNGen()) {
 						journal.warn(
 								"The net(s) in the submitted document is not 1-safe, but forced NuPN generation is set: {}",
 								this.currentInputFile.getCanonicalPath());
@@ -298,14 +298,14 @@ public final class PNML2BPNExporter implements PNMLExporter {
 				log.warn("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
 			}
 			// Open BPN and mapping files channels, and init write queues
-			outTSFile = new File(PNML2BPNUtils.extractBaseName(outFile
+			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + TRANS_EXT);
-			outPSFile = new File(PNML2BPNUtils.extractBaseName(outFile
+			outPSFile = new File(PNML2NUPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + STATES_EXT);
 			// Channels for NuPN, transitions and places id mapping
-			ocbBpn = PNML2BPNUtils.openOutChannel(outFile);
-			ocbTs = PNML2BPNUtils.openOutChannel(outTSFile);
-			ocbPs = PNML2BPNUtils.openOutChannel(outPSFile);
+			ocbBpn = PNML2NUPNUtils.openOutChannel(outFile);
+			ocbTs = PNML2NUPNUtils.openOutChannel(outTSFile);
+			ocbPs = PNML2NUPNUtils.openOutChannel(outPSFile);
 			// Queues for BPN, transitions and places id mapping
 			bpnQueue = initQueue();
 			tsQueue = initQueue();
@@ -364,7 +364,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 
 	private void insertCreatorPragma(BlockingQueue<String> nupnQueue)
 			throws InterruptedException {
-		nupnQueue.put(MainPNML2BPN.PRAGMA_CREATOR + NL);
+		nupnQueue.put(MainPNML2NUPN.PRAGMA_CREATOR + NL);
 	}
 
 	/**
@@ -437,7 +437,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	}
 
 	private Thread startWriter(OutChannelBean ocb, BlockingQueue<String> queue) {
-		Thread t = new Thread(new BPNWriter(ocb, queue));
+		Thread t = new Thread(new NUPNWriter(ocb, queue));
 		t.start();
 		return t;
 	}
@@ -706,7 +706,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			}
 			// Write pragma
 			StringBuffer multArcsPrama = new StringBuffer();
-			multArcsPrama.append(MainPNML2BPN.PRAGMA_MULTIPLE_ARCS)
+			multArcsPrama.append(MainPNML2NUPN.PRAGMA_MULTIPLE_ARCS)
 					//.append(HK + nbUnsafeArcs).append(WS)
 					.append(HK + nbTransIn).append(WS).append(HK + nbTransOut)
 					.append(WS).append(HK + nbTransInOut);
@@ -730,9 +730,9 @@ public final class PNML2BPNExporter implements PNMLExporter {
 			nupnQueue.put(multArcsPrama.toString());
 
 			// Write unsafe arcs and transitions info in signature message
-			MainPNML2BPN.appendMesgLineToSignature("There are " + nbUnsafeArcs
+			MainPNML2NUPN.appendMesgLineToSignature("There are " + nbUnsafeArcs
 					+ " unsafe arcs with inscriptions > 1");
-			MainPNML2BPN.appendMesgLineToSignature("There are " + nbUnsafeTrans
+			MainPNML2NUPN.appendMesgLineToSignature("There are " + nbUnsafeTrans
 					+ " transitions connected to the unsafe arcs");
 		}
 	}
@@ -790,7 +790,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		}
 		if (nbUnsafePlaces > 0) {
 			unsafePlaces = true;
-			bpnQueue.put(MainPNML2BPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK
+			bpnQueue.put(MainPNML2NUPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK
 					+ nbUnsafePlaces + WS + minMarking + DOTS + maxMarking + NL);
 			log.warn("There are {} unsafe initial places in this net.",
 					nbUnsafePlaces);
@@ -838,7 +838,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 		//generate unsafe property is no longer used
 
 		if (unsafePlaces) {
-			MainPNML2BPN
+			MainPNML2NUPN
 					.appendMesgLineToSignature("decreased to one the marking of "
 							+ nbUnsafePlaces + " initial places");
 		}
@@ -1126,7 +1126,7 @@ public final class PNML2BPNExporter implements PNMLExporter {
 	 * @throws IOException
 	 */
 	private void closeChannel(OutChannelBean cb) throws IOException {
-		PNML2BPNUtils.closeOutChannel(cb);
+		PNML2NUPNUtils.closeOutChannel(cb);
 	}
 
 	/**
