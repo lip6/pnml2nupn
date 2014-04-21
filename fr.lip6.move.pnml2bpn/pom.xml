@@ -9,7 +9,7 @@
 
 	<packaging>jar</packaging>
 
-	<name>PNML (1-Safe) P/T Nets to NuPN Translation Tool</name>
+	<name>PNML (1-Safe) P/T Nets to Nested-Unit Petri Nets Translation Tool</name>
 
 	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
 
@@ -52,7 +52,7 @@
 	</issueManagement>
 	<licenses>
 		<license>
-			<name>PNML2NuPN License</name>
+			<name>PNML2NUPN License</name>
 			<url>http://pnml.lip6.fr/resources/License</url>
 		</license>
 	</licenses>
@@ -70,7 +70,7 @@
 		</repository>
 		<snapshotRepository>
 			<id>deployment</id>
-			<name>Snaphots</name>
+			<name>Snapshots</name>
 			<url>http://miage11.u-paris10.fr:8081/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
