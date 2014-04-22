@@ -49,7 +49,7 @@ public final class MainPNML2NUPN {
 	public static final String WSDASH = " -";
 	public static final String XP = "!";
 	public static final String TOOL_NAME = "pnml2nupn";
-	public static final String VERSION = "1.3.0";
+	public static final String VERSION = "1.3.1";
 	public static final String CREATOR = "creator";
 	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME  + WS + VERSION;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
