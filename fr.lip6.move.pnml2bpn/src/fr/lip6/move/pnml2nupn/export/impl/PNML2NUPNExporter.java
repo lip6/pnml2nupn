@@ -243,7 +243,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			journal.info("Checking preconditions on input file format: {} ",
 					inFile.getCanonicalPath());
 			PNML2NUPNUtils.checkIsPnmlFile(inFile);
-			log.info("Exporting into BPN: {}", inFile.getCanonicalPath());
+			log.info("Exporting into NUPN: {}", inFile.getCanonicalPath());
 			translateIntoBPN(inFile, outFile, journal);
 		} catch (ValidationException
 				| fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException
@@ -282,9 +282,9 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				if (!isNet1Safe()) {
 					if (MainPNML2NUPN.isForceBPNGen()) {
 						journal.warn(
-								"The net(s) in the submitted document is not 1-safe, but forced NuPN generation is set: {}",
+								"The net(s) in the submitted document is not 1-safe, but forced NUPN generation is set: {}",
 								this.currentInputFile.getCanonicalPath());
-						journal.warn("Continuing BPN generation.");
+						journal.warn("Continuing NUPN generation.");
 					} else {
 						throw new InvalidSafeNetException(
 								"The net(s) in the submitted document is not 1-safe (using the Bounds tool): "
