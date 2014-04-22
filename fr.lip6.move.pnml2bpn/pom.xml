@@ -258,6 +258,8 @@
 					<target>
 						<copy file="target/${project.artifactId}-latest-version.jar"
 							tofile="src/site/resources/download/${project.artifactId}-latest-version.jar" />
+						<copy file="target/${project.artifactId}-latest-version.jar"
+							tofile="/Users/lom/Documents/Recherche/Projets/MCC/Repository/MCC/MODELS/__COMMON/${project.artifactId}-latest-version.jar" />
 					</target>
 				</configuration>
 				<executions>
