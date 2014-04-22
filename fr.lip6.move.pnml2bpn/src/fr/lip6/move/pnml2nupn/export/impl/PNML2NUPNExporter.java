@@ -344,7 +344,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			closeChannels(ocbBpn, ocbTs, ocbPs);
 			// clear maps
 			clearAllCollections();
-			log.info("See NuPN and mapping files: {}, {} and {}",
+			log.info("See NUPN and mapping files: {}, {} and {}",
 					outFile.getCanonicalPath(), outTSFile.getCanonicalPath(),
 					outPSFile.getCanonicalPath());
 		} catch (NavExceptionHuge | XPathParseExceptionHuge
@@ -880,6 +880,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		initPlacesId.delete(initPlacesId.length() - 2, initPlacesId.length());
 		log.info("Initial place(s): {}", initPlacesId.toString());
 
+		if (nbUnsafePlaces > 0) {
 		log.info(
 				"Checking invariant 'total nb of tokens > nb initial places': {}",
 				totalMkg > nbMarkedPlaces);
@@ -890,6 +891,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 		log.info("Checking invariant '(nb_init - nb_places) + (nb_places * min) <= nb_tokens <= (nb_init - nb_places) + (nb_places * max)': {}", 
 				(nbMarkedPlaces - nbUnsafePlaces) + (nbUnsafePlaces * minMarking) <= totalMkg && totalMkg <= (nbMarkedPlaces - nbUnsafePlaces) + (nbUnsafePlaces * maxMarking));
+		}
 
 		// Parse the rest of the places, to have ordered ids, before parsing the
 		// transitions
