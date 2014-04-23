@@ -42,7 +42,7 @@
 			<navBarStyle>navbar-inverse</navBarStyle>
 			<sideBarEnabled>true</sideBarEnabled>
 			<googlePlusOne />
-			<profile>pre-release</profile>
+			<profile>production</profile>
 			<gitHub>
 				<projectId>lhillah/pnml2nupn</projectId>
 				<ribbonOrientation>right</ribbonOrientation>
