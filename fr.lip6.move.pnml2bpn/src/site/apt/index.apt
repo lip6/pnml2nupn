@@ -17,7 +17,7 @@
 ~~
 
  ------
-Petri Nets PNML to NuPN Converter
+Petri Nets PNML to NUPN Converter
  ------
  ------
 2014-04
@@ -30,7 +30,7 @@ PNML to Nested-Unit Petri Nets (NUPN) Converter
   <<Caesar.bdd>> tool can translate NU Petri Nets from the NUPN format into PNML.
 
   Thanks to the Bounds tool by {{{http://www.lip6.fr/actualite/personnes-fiche.php?ident=P165}Emmanuel Paviot-Adet}},
-this tool first checks that the P/T Net model in PNML you want to translate into NuPN is 1-Safe. If that condition is not satisfied, the translation does not happen.
+this tool first checks that the P/T Net model in PNML you want to translate into NUPN is 1-Safe. If that condition is not satisfied, the translation does not happen.
   
   Download it from the {{{./download.html}dedicated page}}.   
 
