@@ -109,7 +109,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private long iDCount;
 	private boolean unsafePlaces, unsafeArcs, unsafeTrans;
 	/* For the NuPN file */
-	private BlockingQueue<String> bpnQueue = null;
+	private BlockingQueue<String> nupnQueue = null;
 	/* For Transitions mapping NuPN - PNML */
 	private BlockingQueue<String> tsQueue = null;
 	/* For Places mapping NuPN - PNML */
@@ -244,7 +244,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					inFile.getCanonicalPath());
 			PNML2NUPNUtils.checkIsPnmlFile(inFile);
 			log.info("Exporting into NUPN: {}", inFile.getCanonicalPath());
-			translateIntoBPN(inFile, outFile, journal);
+			translateIntoNUPN(inFile, outFile, journal);
 		} catch (ValidationException
 				| fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException
 				| fr.lip6.move.pnml2nupn.exceptions.InvalidFileException
@@ -256,7 +256,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 	}
 
-	private void translateIntoBPN(File inFile, File outFile, Logger journal)
+	private void translateIntoNUPN(File inFile, File outFile, Logger journal)
 			throws InvalidPNMLTypeException, InterruptedException,
 			PNMLImportExportException, IOException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
@@ -307,17 +307,17 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			ocbTs = PNML2NUPNUtils.openOutChannel(outTSFile);
 			ocbPs = PNML2NUPNUtils.openOutChannel(outPSFile);
 			// Queues for BPN, transitions and places id mapping
-			bpnQueue = initQueue();
+			nupnQueue = initQueue();
 			tsQueue = initQueue();
 			psQueue = initQueue();
 
 			// Start writers
-			Thread bpnWriter = startWriter(ocbBpn, bpnQueue);
+			Thread nupnWriter = startWriter(ocbBpn, nupnQueue);
 			Thread tsWriter = startWriter(ocbTs, tsQueue);
 			Thread psWriter = startWriter(ocbPs, psQueue);
 
 			// Insert creator pragma (since 1.3.0)
-			insertCreatorPragma(bpnQueue);
+			insertCreatorPragma(nupnQueue);
 
 			// Init data type for places id and transitions
 			initPlacesMap();
@@ -327,17 +327,17 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 			// export places
 			log.info("Exporting places.");
-			exportPlacesIntoUnits(ap, vn, bpnQueue, psQueue);
+			exportPlacesIntoUnits(ap, vn, nupnQueue, psQueue);
 
 			// export transitions
 			log.info("Exporting transitions.");
 			// exportTransitions(ap, vn, bpnQueue, tsQueue);
-			exportTransitions130(ap, vn, bpnQueue);
+			exportTransitions130(ap, vn, nupnQueue);
 
 			// Stop Writers
-			stopWriters(bpnQueue, tsQueue, psQueue);
+			stopWriters(nupnQueue, tsQueue, psQueue);
 			// stopWriter(uaQueue);
-			bpnWriter.join();
+			nupnWriter.join();
 			tsWriter.join();
 			psWriter.join();
 			// Close channels
@@ -1081,7 +1081,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	 * Emergency stop.
 	 * 
 	 * @param outFile
-	 * @param bpnQueue
+	 * @param nupnQueue
 	 * @param tsQueue
 	 * @param psQueue
 	 * @param ocbBpn
@@ -1096,7 +1096,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private void emergencyStop(File outFile) throws InterruptedException,
 			IOException {
 
-		cancelWriters(bpnQueue, tsQueue, psQueue);
+		cancelWriters(nupnQueue, tsQueue, psQueue);
 		cancelWriter(uaQueue);
 		closeChannels(ocbBpn, ocbTs, ocbPs);
 		closeChannel(ocbUA);
