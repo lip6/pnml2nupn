@@ -826,14 +826,22 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 
-		// generate unsafe property is no longer used
+		// Parse all the places, to have ordered ids according to order of appearance in the PNML file.
+		long pId;
+		ap.selectXPath(PNMLPaths.PLACES_PATH);
+		while ((ap.evalXPath()) != -1) {
+			vn.push();
+			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+			pId = iDCount++;
+			placesId2bpnMap.put(id, pId);
+			vn.pop();
+		}
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
 
 		// select initial places, assign ids to them
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
 		List<Long> initPlaces = new ArrayList<>();
-		// FIXME Check: do we need to clone the vn for using it in the loop?
-		// (Case of several initial places...)
-		long pId;
 		StringBuilder initPlacesId = new StringBuilder();
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
@@ -881,30 +889,20 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		log.info("Initial place(s): {}", initPlacesId.toString());
 
 		if (nbUnsafePlaces > 0) {
-		log.info(
-				"Checking invariant 'total nb of tokens > nb initial places': {}",
-				totalMkg > nbMarkedPlaces);
+			log.info(
+					"Checking invariant 'total nb of tokens > nb initial places': {}",
+					totalMkg > nbMarkedPlaces);
 
-		log.info(
-				"Checking invariant 'nb unsafe initial places <= nb initial places': {}",
-				nbUnsafePlaces <= nbMarkedPlaces);
+			log.info(
+					"Checking invariant 'nb unsafe initial places <= nb initial places': {}",
+					nbUnsafePlaces <= nbMarkedPlaces);
 
-		log.info("Checking invariant '(nb_init - nb_places) + (nb_places * min) <= nb_tokens <= (nb_init - nb_places) + (nb_places * max)': {}", 
-				(nbMarkedPlaces - nbUnsafePlaces) + (nbUnsafePlaces * minMarking) <= totalMkg && totalMkg <= (nbMarkedPlaces - nbUnsafePlaces) + (nbUnsafePlaces * maxMarking));
-		}
-
-		// Parse the rest of the places, to have ordered ids, before parsing the
-		// transitions
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
-		ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
-		while ((ap.evalXPath()) != -1) {
-			vn.push();
-			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
-			pId = placesId2bpnMap.getLong(id);
-			pId = iDCount++;
-			placesId2bpnMap.put(id, pId);
-			vn.pop();
+			log.info(
+					"Checking invariant '(nb_init - nb_places) + (nb_places * min) <= nb_tokens <= (nb_init - nb_places) + (nb_places * max)': {}",
+					(nbMarkedPlaces - nbUnsafePlaces)
+							+ (nbUnsafePlaces * minMarking) <= totalMkg
+							&& totalMkg <= (nbMarkedPlaces - nbUnsafePlaces)
+									+ (nbUnsafePlaces * maxMarking));
 		}
 
 		if (unsafePlaces) {
