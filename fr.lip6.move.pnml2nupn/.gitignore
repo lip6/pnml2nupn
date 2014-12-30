@@ -1,5 +1,4 @@
 .settings
-resources
 dependency-reduced-pom.xml
 makeJar-*.xml
 .DS_Store
