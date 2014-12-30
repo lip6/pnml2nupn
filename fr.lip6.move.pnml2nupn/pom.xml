@@ -9,7 +9,7 @@
 
 	<packaging>jar</packaging>
 
-	<name>PNML P/T Nets to Nested-Unit Petri Nets Converter</name>
+	<name>PNML to Nested-Unit Petri Nets Converter</name>
 
 	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
 
@@ -217,6 +217,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
+				<version>3.4</version>
 				<dependencies>
 					<dependency>
 						<groupId>lt.velykis.maven.skins</groupId>
