@@ -20,12 +20,12 @@
 Petri Nets PNML to NUPN Converter
  ------
  ------
-2014-04
+2015-01
  ------
 
 PNML to Nested-Unit Petri Nets (NUPN) Converter
 
-  This tool converts 1-Safe Place/Transition Petri Nets from the {{{http://www.pnml.org}PNML}} standard format
+  This free and open source tool converts 1-Safe Place/Transition Petri Nets from the {{{http://www.pnml.org}PNML}} standard format
   into the {{{http://cadp.inria.fr/man/caesar.bdd.html#sect4}Nested-Unit Petri Net}} (NUPN) format. Note that the
   <<Caesar.bdd>> tool can translate NU Petri Nets from the NUPN format into PNML.
 
@@ -33,6 +33,8 @@ PNML to Nested-Unit Petri Nets (NUPN) Converter
 this tool first checks that the P/T Net model in PNML you want to translate into NUPN is 1-Safe. If that condition is not satisfied, the translation does not happen.
   
   Download it from the {{{./download.html}dedicated page}}.   
+
+===
 
 Execution
 
@@ -42,9 +44,13 @@ Execution
  
  Usage information is available on {{{./usage.html}the dedicated page}}.
 
+===
+
 Supported Standard Petri Net Type
 
  This tool only supports Place/Transition (P/T) Nets, that are 1-Safe.
+
+==
 
 Acknowledgement
 

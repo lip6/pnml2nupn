@@ -17,10 +17,10 @@
 ~~
 
  -------
-Usage
+Usage Information
  -------
  -------
-2014-04
+2015-01
  -------
 
 Overview
@@ -30,12 +30,15 @@ Overview
   
   You may provide a mix of paths to PNML files and directories containing them.
   
-  
+===
+
 Basic command-line invocation
   
   The basic command-line invocation is the following (update the name of the jar to the latest version of this tool):
   
  <java -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]>
+
+===
 
 Advanced command-line invocation
 
@@ -45,6 +48,8 @@ Advanced command-line invocation
  
  In particular, increase the value of <-Xmx> argument which allocates max memory to the heap,
  when you are dealing with very large input files. In the above invocation, it is set to 2 GB.
+ 
+===
  
 Invocation using a Shell script
 
@@ -58,6 +63,8 @@ PNML documents (a few hundreds KB), we advise you decrease it (current setting i
  The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable. See below.
  
  Up to v1.2.2 of this tool, use the following {{{./download/pnml2bpn.sh}Shell script}} instead.
+
+===
 
 Output
 
@@ -85,6 +92,8 @@ Output
 
  <<Note:>> All the output files will be located near the input PNML one.
 
+===
+
 Debug information
 
   In case of error, you may want the program to print the stack trace, to provide the tool author
@@ -96,6 +105,8 @@ Debug information
   Since v1.3.0.
 
   Up to v1.2.2, use the PNML2BPN_DEBUG environment variable instead.
+  
+===
 
 Options
 

@@ -3,13 +3,13 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>fr.lip6.move.bpn</groupId>
+	<groupId>fr.lip6.nupn</groupId>
 	<artifactId>fr.lip6.move.pnml2nupn</artifactId>
-	<version>1.3.2</version>
+	<version>1.3.3</version>
 
 	<packaging>jar</packaging>
 
-	<name>PNML (1-Safe) P/T Nets to Nested-Unit Petri Nets Translation Tool</name>
+	<name>PNML P/T Nets to Nested-Unit Petri Nets Converter</name>
 
 	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
 
@@ -38,6 +38,18 @@
 			<roles>
 				<role>team-leader</role>
 				<role>developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>hgaravel</id>
+			<name>Hubert Garavel</name>
+			<email>Hubert.Garavel@inria.fr</email>
+			<url>http://convecs.inria.fr/people/Hubert.Garavel/</url>
+			<organization>INRIA Grenoble</organization>
+			<organizationUrl>http://convecs.inria.fr</organizationUrl>
+			<roles>
+				<role>NUPN creator</role>
 			</roles>
 			<timezone>+1</timezone>
 		</developer>
@@ -101,14 +113,19 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>fr.lip6.move.pnml</groupId>
-			<artifactId>fr.lip6.move.pnml2bpn.3rdparty</artifactId>
-			<version>1.0.0</version>
+			<groupId>fr.lip6.pnml.cpnami2</groupId>
+			<artifactId>fr.lip6.pnml.cpnami2.cami2pnml</artifactId>
+			<version>2.1.9</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.lip6.move.cpnami2</groupId>
-			<artifactId>cami2pnml</artifactId>
-			<version>2.1.8</version>
+			<groupId>com.ximpleware</groupId>
+			<artifactId>vtd-xml</artifactId>
+			<version>2.11</version>
+		</dependency>
+		<dependency>
+			<groupId>it.unimi.dsi</groupId>
+			<artifactId>fastutil</artifactId>
+			<version>6.5.16</version>
 		</dependency>
 	</dependencies>
 
@@ -143,16 +160,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.2</version>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>com.mycila.maven-license-plugin</groupId>
-				<artifactId>maven-license-plugin</artifactId>
-				<version>1.9.0</version>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>2.0</version>
 				<configuration>
 					<basedir>${basedir}</basedir>
 					<header>http://pnml.lip6.fr/resources/License</header>
@@ -171,9 +188,9 @@
 					<useDefaultExcludes>true</useDefaultExcludes>
 					<useDefaultMapping>true</useDefaultMapping>
 					<properties>
-						<year>${project.inceptionYear}</year>
+						<year>${project.inceptionYear}-2015</year>
 						<organisation>
-						Universite Paris Ouest and Sorbonne Universites, Univ. Paris 06 - CNRS UMR 7606 (LIP6)
+						Université Paris Ouest and Sorbonne Universités, Univ. Paris 06 - CNRS UMR 7606 (LIP6)
 						</organisation>
 						<maincontributor>Lom Messan Hillah</maincontributor>
 						<email>lom-messan.hillah@lip6.fr</email>
@@ -199,8 +216,25 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>lt.velykis.maven.skins</groupId>
+						<artifactId>reflow-velocity-tools</artifactId>
+						<version>1.1.1</version>
+					</dependency>
+					<!-- Reflow skin requires Velocity >= 1.7 -->
+					<dependency>
+						<groupId>org.apache.velocity</groupId>
+						<artifactId>velocity</artifactId>
+						<version>1.7</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
+				<version>2.5</version>
 				<configuration>
 					<archive>
 						<manifestFile>${manifestdir}/MANIFEST.MF</manifestFile>
@@ -210,7 +244,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.2</version>
+				<version>2.3</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -241,7 +275,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
+				<version>2.10.1</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -253,7 +287,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
+				<version>1.8</version>
 				<configuration>
 					<target>
 						<copy file="target/${project.artifactId}-latest-version.jar"
@@ -274,7 +308,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.3</version>
+				<version>3.4</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -296,13 +330,13 @@
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>
-											com.mycila.maven-license-plugin
+											com.mycila
 										</groupId>
 										<artifactId>
-											maven-license-plugin
+											license-maven-plugin
 										</artifactId>
 										<versionRange>
-											[1.9.0,)
+											[2.0,)
 										</versionRange>
 										<goals>
 											<goal>format</goal>
@@ -328,7 +362,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>2.2.1</version>
+						<version>2.4</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>

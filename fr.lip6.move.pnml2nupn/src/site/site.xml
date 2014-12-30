@@ -23,85 +23,140 @@
 	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
 	name="PNML to NUPN Converter">
 
+	<publishDate position="right" format="yyyy-MM-dd" />
+	<version position="right" />
+
 	<skin>
-		<groupId>org.apache.maven.skins</groupId>
-		<artifactId>maven-fluido-skin</artifactId>
-		<version>1.3.1</version>
+		<groupId>lt.velykis.maven.skins</groupId>
+		<artifactId>reflow-maven-skin</artifactId>
+		<version>1.1.1</version>
 	</skin>
 
-	<custom>
-		<fluidoSkin>
-			<topBarEnabled>true</topBarEnabled>
-			<topBarIcon>
-				<name>LIP6</name>
-				<alt>LIP6</alt>
-				<src>images/logo-Lip6-20.png</src>
-				<href>http://www.lip6.fr</href>
-			</topBarIcon>
-			<topBarContainerStyle>width: 90%;</topBarContainerStyle>
-			<navBarStyle>navbar-inverse</navBarStyle>
-			<sideBarEnabled>true</sideBarEnabled>
-			<googlePlusOne />
-			<profile>production</profile>
-			<gitHub>
-				<projectId>lhillah/pnml2nupn</projectId>
-				<ribbonOrientation>right</ribbonOrientation>
-				<ribbonColor>black</ribbonColor>
-			</gitHub>
-		</fluidoSkin>
-	</custom>
-
-	<publishDate position="right" />
-
-	<bannerLeft>
-		<name>PNML to Nested-Unit Petri Nets (NUPN)</name>
-		<href>index.html</href>
-	</bannerLeft>
-
-	<!-- <bannerRight>
+	<bannerRight>
 		<name>LIP6</name>
 		<src>images/logo-Lip6.png</src>
 		<href>http://www.lip6.fr</href>
-	</bannerRight> -->
+	</bannerRight>
+	
+	<custom>
+		<reflowSkin>
+			<smoothScroll>true</smoothScroll>
+			<!-- bootswatch-readable -->
+			<theme>bootswatch-cerulean</theme>
+			<highlightJs>true</highlightJs>
+			<highlightJsTheme>github</highlightJsTheme>
+			<brand>
+				<name>Cami to PNML Converver</name>
+				<href>http://pnml.lip6.fr/camipnml/index.html</href>
+			</brand>
+			<slogan>Free Tool to transform your PNML P/T Documents into Cami (Format of the CPN-AMI platform)</slogan>
+			<titleTemplate>%2$s | %1$s</titleTemplate>
+			<toc>top</toc>
+			<tocTopMax>6</tocTopMax>
+			<topNav>Download|Documentation</topNav>
+			<bottomNav maxSpan="9">
+				<column>Overview</column>
+				<column>Download|Documentation</column>
+				<column>Find out more</column>
+				<column>Contribute|reports|modules</column>
+			</bottomNav>
+			<bottomDescription>
+			<![CDATA[
+				 <span class="color-highlight">CAMI to PNML Converter</span> is a simple command-line tool to transform your <a href="http://www.pnml.org">Petri Net Markup Language</a> Documents into 
+				Cami, the internal format of the <a href="http://move.lip6.fr/software/CPNAMI/index.html">CPN-AMI platform</a>.
+				<script type="text/javascript">
+  					var _gaq = _gaq || [];
+  					_gaq.push(['_setAccount', 'UA-48245698-1']);
+  					_gaq.push(['_trackPageview']);
+
+  					(function() {
+    					var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    					ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  					})();
+  				</script> 
+			 ]]>
+			</bottomDescription>
+			<skinAttribution>false</skinAttribution>
+			<pages>
+				<index project="cpnami2-Releng">
+					<titleTemplate>Cami to PNML Converter</titleTemplate>
+					<shortTitle>Welcome</shortTitle>
+					<breadcrumbs>false</breadcrumbs>
+					<toc>false</toc>
+					<markPageHeader>false</markPageHeader>
+					<sections>
+						<body />
+						<body />
+						<columns>2</columns>
+						<body />
+					</sections>
+				</index>
+				<changelog project="cpnami2-Releng">
+					<breadcrumbs>false</breadcrumbs>
+					<toc>false</toc>
+				 	<sections>
+				 		<body />
+				 	</sections>
+				</changelog>
+				<source-repository>
+					<highlightJs>false</highlightJs>
+				</source-repository>
+				<issue-tracking>
+					<highlightJs>false</highlightJs>
+					<toc>false</toc>
+				</issue-tracking>
+				<license>
+					<highlightJs>false</highlightJs>
+					<toc>false</toc>
+				</license>
+				<project-info>
+					<toc>false</toc>
+				</project-info>
+				<github-report>
+					<toc>false</toc>
+				</github-report>
+				<dependencies>
+					<tocTopMax>4</tocTopMax>
+				</dependencies>
+				<developer-info>
+					<toc>sidebar</toc>
+				</developer-info>
+			</pages>
+		</reflowSkin>
+	</custom>
 
 	<body>
 		<head>
-			<script type="text/javascript">
-				var _gaq = _gaq || [];
-				_gaq.push(['_setAccount',
-				'UA-48245698-1']);
-				_gaq.push(['_trackPageview']);
-
-				(function() {
-				var ga
-				= document.createElement('script'); ga.type = 'text/javascript';
-				ga.async = true;
-				ga.src = ('https:' == document.location.protocol ?
-				'https://ssl' :
-				'http://www') + '.google-analytics.com/ga.js';
-				var s =
-				document.getElementsByTagName('script')[0];
-				s.parentNode.insertBefore(ga, s);
-				})();
-			</script>
+			<link rel="author" href="http://lip6.fr/Lom-Messan.Hillah" />
 		</head>
 
 		<breadcrumbs>
-			<item name="PNML.org" href="http://www.pnml.org" />
-			<item name="PNML Framework" href="../index.html" />
-			<item name="NU Petri Nets" href="http://cadp.inria.fr/man/caesar.bdd.html" />
+			<item name="Cami to PNML Converter" href="index.html" />
 		</breadcrumbs>
 
-		<menu name="Overview">
-			<item name="Introduction" href="index.html" />
-			<item name="Usage" href="usage.html" />
-		</menu>
-
-		<menu name="Download">
-			<item name="Download" href="download.html" />
+		<menu name="Overview" inherit="top">
+			<item name="Home" href="index.html" />
 			<item name="Changelog" href="changelog.html" />
 		</menu>
-		<menu ref="reports" />
-
+		<menu name="Download" inherit="top">
+			<item name="Download" href="download.html" />
+		</menu>
+		<menu name="Documentation" inherit="bottom">
+			<item name="Usage" href="usage.html" />
+		</menu>
+		<menu name="Find out more" inherit="bottom">
+			<item name="PNML Framework" href="http://pnml.lip6.fr" />
+			<item name="PNML.org" href="http://www.pnml.org" />
+			<item name="Project on GitHub" href="https://github.com/lhillah/camipnml/tree/master/cpnami2-Releng" />
+		</menu>
+		<menu name="Contribute" inherit="bottom">
+			<item name="Contribute" href="contribute.html" />
+			<item name="Issues"
+				href="https://github.com/lhillah/camipnml/issues" />
+			<item name="Fork on GitHub" href="https://github.com/lhillah/camipnml" />
+		</menu>
+		<menu name="Maven documentation" ref="reports" inherit="bottom" />
 	</body>
+
 </project>

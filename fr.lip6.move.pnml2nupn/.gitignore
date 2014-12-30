@@ -9,3 +9,4 @@ bin
 src/main/resources/bounds
 .classpath
 test
+/site-avant2015.xml
