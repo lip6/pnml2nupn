@@ -32,7 +32,8 @@ Download PNML to NUPN Converter ${project.version}
 
   Download {{{./download/${project.artifactId}-latest-version.jar}version ${project.version}}}.
 
-  Usage information is available on the {{{./usage.html}dedicated page}}.
+  Usage information is available on the {{{./usage.html}dedicated page}}. 
+  Check out release notes on the {{{./changelog.html}changelog page}}.
 
 ===
 

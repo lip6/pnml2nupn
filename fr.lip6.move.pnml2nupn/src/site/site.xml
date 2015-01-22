@@ -42,17 +42,17 @@
 		<reflowSkin>
 			<smoothScroll>true</smoothScroll>
 			<!-- bootswatch-readable -->
-			<theme>bootswatch-sandstone</theme>
+			<theme>bootswatch-cosmo</theme>
 			<highlightJs>true</highlightJs>
 			<highlightJsTheme>github</highlightJsTheme>
 			<brand>
-				<name>Cami to PNML Converver</name>
-				<href>http://pnml.lip6.fr/camipnml/index.html</href>
+				<name>PNML to NUPN Converter</name>
+				<href>http://pnml.lip6.fr/pnml2nupn/index.html</href>
 			</brand>
-			<slogan>Free Tool to transform your PNML P/T Documents into Cami (Format of the CPN-AMI platform)</slogan>
+			<slogan>Free Tool to transform your PNML P/T Documents into NUPN (Format of Caesar.bdd)</slogan>
 			<titleTemplate>%2$s | %1$s</titleTemplate>
 			<toc>top</toc>
-			<tocTopMax>6</tocTopMax>
+			<tocTopMax>7</tocTopMax>
 			<topNav>Download|Documentation</topNav>
 			<bottomNav maxSpan="9">
 				<column>Overview</column>
@@ -62,8 +62,8 @@
 			</bottomNav>
 			<bottomDescription>
 			<![CDATA[
-				 <span class="color-highlight">CAMI to PNML Converter</span> is a simple command-line tool to transform your <a href="http://www.pnml.org">Petri Net Markup Language</a> Documents into 
-				Cami, the internal format of the <a href="http://move.lip6.fr/software/CPNAMI/index.html">CPN-AMI platform</a>.
+				 <span class="color-highlight">PNML to NUPN Converter</span> is a free command-line tool to transform your <a href="http://www.pnml.org">Petri Net Markup Language</a> Documents into 
+				NUPN, the format of the <a href="http://cadp.inria.fr/man/caesar.bdd.html#sect4">Caesar.bdd tool</a>.
 				<script type="text/javascript">
   					var _gaq = _gaq || [];
   					_gaq.push(['_setAccount', 'UA-48245698-1']);
@@ -79,7 +79,7 @@
 			</bottomDescription>
 			<skinAttribution>false</skinAttribution>
 			<pages>
-				<index project="cpnami2-Releng">
+				<index project="fr.lip6.move.pnml2nupn">
 					<titleTemplate>Cami to PNML Converter</titleTemplate>
 					<shortTitle>Welcome</shortTitle>
 					<breadcrumbs>false</breadcrumbs>
@@ -92,7 +92,7 @@
 						<body />
 					</sections>
 				</index>
-				<changelog project="cpnami2-Releng">
+				<changelog project="fr.lip6.move.pnml2nupn">
 					<breadcrumbs>false</breadcrumbs>
 					<toc>false</toc>
 				 	<sections>
@@ -132,7 +132,7 @@
 		</head>
 
 		<breadcrumbs>
-			<item name="Cami to PNML Converter" href="index.html" />
+			<item name="PNML to NUPN Converter" href="index.html" />
 		</breadcrumbs>
 
 		<menu name="Overview" inherit="top">
@@ -146,15 +146,15 @@
 			<item name="Usage" href="usage.html" />
 		</menu>
 		<menu name="Find out more" inherit="bottom">
-			<item name="PNML Framework" href="http://pnml.lip6.fr" />
+			<item name="Caesar.bdd" href="http://cadp.inria.fr/man/caesar.bdd.html" />
 			<item name="PNML.org" href="http://www.pnml.org" />
-			<item name="Project on GitHub" href="https://github.com/lhillah/camipnml/tree/master/cpnami2-Releng" />
+			<item name="Project on GitHub" href="https://github.com/lhillah/pnml2nupn/tree/master/fr.lip6.move.pnml2nupn" />
 		</menu>
 		<menu name="Contribute" inherit="bottom">
 			<item name="Contribute" href="contribute.html" />
 			<item name="Issues"
-				href="https://github.com/lhillah/camipnml/issues" />
-			<item name="Fork on GitHub" href="https://github.com/lhillah/camipnml" />
+				href="https://github.com/lhillah/pnml2nupn/issues" />
+			<item name="Fork on GitHub" href="https://github.com/lhillah/pnml2nupn" />
 		</menu>
 		<menu name="Maven documentation" ref="reports" inherit="bottom" />
 	</body>

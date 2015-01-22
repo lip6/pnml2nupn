@@ -17,9 +17,12 @@
  *    lom-messan.hillah@lip6.fr
  */
 /* You can override this file with your own styles */
-a{color:#F5C03F;text-decoration:none}
+a{color:#d75400;text-decoration:none}
 .nav-list>.active>a, .nav-list>.active>a:hover {
     color: #ffffff;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
     background-color: #126DEB
+}
+li.active {
+	background-color: #e67e22
 }
