@@ -199,7 +199,8 @@
 					<properties>
 						<year>${project.inceptionYear}-2015</year>
 						<organisation>
-							Université Paris Ouest and Sorbonne Universités, Univ. Paris 06 - CNRS UMR
+							Université Paris Ouest and Sorbonne Universités,
+							Univ. Paris 06 - CNRS UMR
 							7606 (LIP6)
 						</organisation>
 						<maincontributor>Lom Messan Hillah</maincontributor>
@@ -283,30 +284,6 @@
 					<finalName>${project.artifactId}-latest-version</finalName>
 				</configuration>
 			</plugin>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-javadoc-plugin</artifactId> 
-				<version>2.10.1</version> <configuration> <failOnError>false</failOnError> 
-				</configuration> <executions> <execution> <id>attach-javadocs</id> <goals> 
-				<goal>jar</goal> </goals> </execution> </executions> </plugin> -->
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<configuration>
-					<target>
-						<copy file="target/${project.artifactId}-latest-version.jar"
-							tofile="src/site/resources/download/${project.artifactId}-latest-version.jar" />
-						<copy file="target/${project.artifactId}-latest-version.jar"
-							tofile="/Users/lom/Documents/Recherche/Projets/MCC/Repository/MCC/MODELS/__COMMON/${project.artifactId}-latest-version.jar" />
-					</target>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
@@ -365,6 +342,33 @@
 								<id>attach-sources</id>
 								<goals>
 									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>copy-to-mcc</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<configuration>
+							<target>
+								<copy file="target/${project.artifactId}-latest-version.jar"
+									tofile="src/site/resources/download/${project.artifactId}-latest-version.jar" />
+								<copy file="target/${project.artifactId}-latest-version.jar"
+									tofile="/Users/lom/Documents/Recherche/Projets/MCC/Repository/MCC/MODELS/__COMMON/${project.artifactId}-latest-version.jar" />
+							</target>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
 								</goals>
 							</execution>
 						</executions>
