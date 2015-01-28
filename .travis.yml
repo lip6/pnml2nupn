@@ -3,5 +3,5 @@ language: java
 branches:
   only:
     - master
-	
+
 script: "./build.sh"
