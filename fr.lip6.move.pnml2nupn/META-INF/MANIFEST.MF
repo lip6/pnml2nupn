@@ -3,7 +3,7 @@ Main-Class: fr.lip6.move.pnml2nupn.MainPNML2NUPN
 Bundle-ManifestVersion: 2
 Bundle-Name: PNML To Nested Petri Nets Translation Tool
 Bundle-SymbolicName: fr.lip6.move.pnml2nupn;singleton:=true
-Bundle-Version: 1.3.3
+Bundle-Version: 1.3.2
 Require-Bundle: fr.lip6.pnml.cpnami2.cami2pnml;bundle-version="2.1.9"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: fr.lip6.move.pnml2nupn;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",

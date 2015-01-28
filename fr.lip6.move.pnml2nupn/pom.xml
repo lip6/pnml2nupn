@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.lip6.nupn</groupId>
-	<artifactId>fr.lip6.move.pnml2nupn</artifactId>
-	<version>1.3.3</version>
+	<artifactId>pnml2nupn</artifactId>
+	<version>1.3.2</version>
 
 	<packaging>jar</packaging>
 
