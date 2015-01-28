@@ -10,3 +10,5 @@ src/main/resources/bounds
 .classpath
 test
 /site-avant2015.xml
+/cov-int/
+/pnml2nupn.tgz
