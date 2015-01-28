@@ -3,5 +3,8 @@ language: java
 branches:
   only:
     - master
-
+# jdk
+jdk:
+  - oraclejdk8
+# script to launch
 script: "./build.sh"
