@@ -32,8 +32,6 @@ Changelog
   
   * Multiple arcs between two same nodes in the PNML are now handled (add tokens).
 
-* What's new in version 1.3.2?
-
   * Places are numbered according to their order of appearance in the PNML file.
 
 * What's new in version 1.3.1?
