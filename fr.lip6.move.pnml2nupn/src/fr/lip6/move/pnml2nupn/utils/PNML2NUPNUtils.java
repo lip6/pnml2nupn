@@ -41,9 +41,11 @@ import fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException;
 import fr.lip6.move.pnml2nupn.export.impl.OutChannelBean;
 
 /**
- * Provides a set of utility methods, useful mainly for channel-related operations.
+ * Provides a set of utility methods, useful mainly for channel-related
+ * operations.
  * 
  * These operations are synchronized.
+ * 
  * @author lom
  *
  */
@@ -59,8 +61,7 @@ public final class PNML2NUPNUtils {
 		super();
 	}
 
-	public static OutChannelBean openOutChannel(File outFile)
-			throws FileNotFoundException {
+	public static OutChannelBean openOutChannel(File outFile) throws FileNotFoundException {
 		final FileOutputStream fos = new FileOutputStream(outFile);
 		final FileChannel fc = fos.getChannel();
 		OutChannelBean ocb = new OutChannelBean(fc, fos);
@@ -87,8 +88,7 @@ public final class PNML2NUPNUtils {
 	 * @throws IOException
 	 * @see {@link #chopString(String, int)}
 	 */
-	public static synchronized void writeToChannel(OutChannelBean ocb, String output)
-			throws IOException {
+	public static synchronized void writeToChannel(OutChannelBean ocb, String output) throws IOException {
 
 		ByteBuffer bytebuf;
 		bytebuf = ByteBuffer.allocateDirect(BUFFERSIZE);
@@ -101,13 +101,13 @@ public final class PNML2NUPNUtils {
 		}
 
 	}
-	
+
 	/**
 	 * @see #writeToChannel(OutChannelBean, String)
 	 */
-	public static synchronized void writeToChannel(OutChannelBean ocb, String output, ByteBuffer bytebuf, final List<byte[]> contents)
-			throws IOException {
-		
+	public static synchronized void writeToChannel(OutChannelBean ocb, String output, ByteBuffer bytebuf,
+			final List<byte[]> contents) throws IOException {
+
 		final List<byte[]> contents2 = chopString(output, CONTENTSSIZE, contents);
 		for (byte[] cont : contents2) {
 			bytebuf.put(cont);
@@ -129,12 +129,10 @@ public final class PNML2NUPNUtils {
 	public static synchronized List<byte[]> chopString(String src, int len) {
 		List<byte[]> res = new ArrayList<byte[]>();
 		if (src.length() > len) {
-			int iterations = (int) Math.ceil((double) src.length()
-					/ (double) len);
+			int iterations = (int) Math.ceil((double) src.length() / (double) len);
 
 			for (int i = 0; i < iterations; i++) {
-				res.add(src.substring(i * len,
-						Math.min(src.length(), (i + 1) * len)).getBytes(
+				res.add(src.substring(i * len, Math.min(src.length(), (i + 1) * len)).getBytes(
 						Charset.forName(FILE_ENCODING)));
 			}
 		} else {
@@ -142,7 +140,7 @@ public final class PNML2NUPNUtils {
 		}
 		return res;
 	}
-	
+
 	/**
 	 * @see #chopString(String, int)
 	 * @param src
@@ -152,12 +150,10 @@ public final class PNML2NUPNUtils {
 	 */
 	public static synchronized List<byte[]> chopString(String src, int len, final List<byte[]> contents) {
 		if (src.length() > len) {
-			int iterations = (int) Math.ceil((double) src.length()
-					/ (double) len);
+			int iterations = (int) Math.ceil((double) src.length() / (double) len);
 
 			for (int i = 0; i < iterations; i++) {
-				contents.add(src.substring(i * len,
-						Math.min(src.length(), (i + 1) * len)).getBytes(
+				contents.add(src.substring(i * len, Math.min(src.length(), (i + 1) * len)).getBytes(
 						Charset.forName(FILE_ENCODING)));
 			}
 		} else {
@@ -165,6 +161,7 @@ public final class PNML2NUPNUtils {
 		}
 		return contents;
 	}
+
 	/**
 	 * Checks the basic external expected characteristics of a PNML document.
 	 * 
@@ -180,12 +177,11 @@ public final class PNML2NUPNUtils {
 	 *            the file corresponding to the PNML document.
 	 * @return the validation message.
 	 */
-	public static final void checkIsPnmlFile(File pFile)
-			throws InvalidFileException, InvalidFileTypeException,
+	public static final void checkIsPnmlFile(File pFile) throws InvalidFileException, InvalidFileTypeException,
 			ValidationException, InternalException {
-		//boolean result = true;
+		// boolean result = true;
 		try {
-			
+
 			if (!pFile.exists()) {
 				String message = "File " + pFile.getName() + " does not exist.";
 				throw new InvalidFileException(message, new Throwable(message));
@@ -193,8 +189,7 @@ public final class PNML2NUPNUtils {
 			// check if regular file or directory
 			if (!pFile.isFile()) {
 				String message = pFile.getName() + " is not a regular file.";
-				throw new InvalidFileTypeException(message, new Throwable(
-						message));
+				throw new InvalidFileTypeException(message, new Throwable(message));
 			}
 			if (!pFile.canRead()) {
 				String message = "Cannot read file " + pFile.getName();
@@ -204,50 +199,50 @@ public final class PNML2NUPNUtils {
 			ftm.addMimeTypes("text/xml xml pnml XML PNML");
 			final String contentType = ftm.getContentType(pFile);
 			if (!contentType.contains("text/xml")) {
-				String message = pFile.getName() + " is not an XML file: "
-						+ contentType;
-				throw new InvalidFileTypeException(message, new Throwable(
-						message));
+				String message = pFile.getName() + " is not an XML file: " + contentType;
+				throw new InvalidFileTypeException(message, new Throwable(message));
 			}
 		} catch (NullPointerException npe) {
 			MainPNML2NUPN.printStackTrace(npe);
-			throw new InternalException("Null pointer exception",
-					new Throwable("Something went wrong. Please, re-submit."));
+			throw new InternalException("Null pointer exception", new Throwable(
+					"Something went wrong. Please, re-submit."));
 		} catch (SecurityException se) {
-			throw new InternalException(
-					se.getMessage(),
-					new Throwable(
-							"Access right problem while accessing the file system. Please, re-submit."));
+			throw new InternalException(se.getMessage(), new Throwable(
+					"Access right problem while accessing the file system. Please, re-submit."));
 		}
-		//return result;
+		// return result;
 	}
-	
+
 	/**
 	 * Extracts a file from a source path to a destination path.
+	 * 
 	 * @param fromPath
 	 * @param toPath
 	 * @throws IOException
 	 */
 	public static final void extractFile(String fromPath, String toPath) throws IOException {
-		
-		InputStream input = PNML2NUPNUtils.class.getClassLoader().getResourceAsStream(fromPath);
-		if (input == null) {
-			System.err.println("Could not found file to load.");
-			return;
+		try (InputStream input = PNML2NUPNUtils.class.getClassLoader().getResourceAsStream(fromPath);
+				BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(new File(toPath)))) {
+
+			if (input == null) {
+				System.err.println("Could not found file to load.");
+				return;
+			}
+			
+			byte[] buffer = new byte[CONTENTSSIZE];
+			int bytesRead = input.read(buffer);
+			while (bytesRead != -1) {
+				output.write(buffer, 0, bytesRead);
+				bytesRead = input.read(buffer);
+			}
+		} catch (IOException e) {
+			throw e;
 		}
-		BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(new File(toPath)));
-		
-		byte [] buffer = new byte[CONTENTSSIZE];
-		int bytesRead = input.read(buffer);
-		while (bytesRead != -1) {
-		    output.write(buffer, 0, bytesRead);
-		    bytesRead = input.read(buffer);
-		}
-		output.close();
-		input.close();
 	}
+
 	/**
 	 * Extracts the basename of a file path.
+	 * 
 	 * @param path
 	 * @return
 	 */
@@ -255,5 +250,5 @@ public final class PNML2NUPNUtils {
 		int dotPos = path.lastIndexOf('.');
 		return path.substring(0, dotPos);
 	}
-	
+
 }
