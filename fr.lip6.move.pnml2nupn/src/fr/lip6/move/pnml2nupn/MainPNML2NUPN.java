@@ -44,6 +44,7 @@ import fr.lip6.move.pnml2nupn.export.PNMLExporter;
  */
 public final class MainPNML2NUPN {
 
+	private static final String DOT = ".";
 	public static final String NL = "\n";
 	public static final String EQ = "=";
 	public static final String WS = " ";
@@ -56,8 +57,8 @@ public final class MainPNML2NUPN {
 	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME  + WS + VERSION;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
 	public static final String PRAGMA_MULTIPLE_ARCS = XP + "multiple_arcs" + WS;
-	public static final String BPN_EXT = ".nupn";
-	public static final String PNML_EXT = ".pnml";
+	public static final String NUPN = "nupn";
+	public static final String PNML_EXT = "pnml";
 	public static final String PNML2NUPN_DEBUG = "PNML2NUPN_DEBUG";
 	public static final String CAMI_TMP_KEEP = "cami.tmp.keep";
 	/**
@@ -405,19 +406,21 @@ public final class MainPNML2NUPN {
 		pathSrc = new ArrayList<String>();
 		File srcf;
 		File[] srcFiles;
+		String src, dest;
 		pff = new PNMLFilenameFilter();
 		dff = new DirFileFilter();
 		for (String s : args) {
 			srcf = new File(s);
 			if (srcf.isFile()) {
 				pathSrc.add(s);
-				pathDest.add(s.replaceAll(PNML_EXT, BPN_EXT));
+				pathDest.add(s.replaceAll(PNML_EXT, NUPN));
 			} else if (srcf.isDirectory()) {
 				srcFiles = extractSrcFiles(srcf, pff, dff);
 				for (File f : srcFiles) {
-					pathSrc.add(f.getCanonicalPath());
-					pathDest.add(f.getCanonicalPath().replaceAll(PNML_EXT,
-							BPN_EXT));
+					src = f.getCanonicalPath();
+					pathSrc.add(src);
+					dest = src.substring(0, src.lastIndexOf(DOT) + 1) + NUPN;
+					pathDest.add(dest);
 				}
 			}
 		}
