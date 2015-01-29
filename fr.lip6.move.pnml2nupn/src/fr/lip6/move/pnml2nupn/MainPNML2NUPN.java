@@ -54,7 +54,7 @@ public final class MainPNML2NUPN {
 	public static final String TOOL_NAME = "pnml2nupn";
 	public static final String VERSION = "1.3.2";
 	public static final String CREATOR = "creator";
-	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME  + WS + VERSION;
+	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME + WS + VERSION;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
 	public static final String PRAGMA_MULTIPLE_ARCS = XP + "multiple_arcs" + WS;
 	public static final String NUPN = "nupn";
@@ -62,7 +62,8 @@ public final class MainPNML2NUPN {
 	public static final String PNML2NUPN_DEBUG = "PNML2NUPN_DEBUG";
 	public static final String CAMI_TMP_KEEP = "cami.tmp.keep";
 	/**
-	 * Force BPN Generation works by default for the case where bounds checking is disabled.
+	 * Force BPN Generation works by default for the case where bounds checking
+	 * is disabled.
 	 */
 	public static final String FORCE_NUPN_GENERATION = "force.nupn.generation";
 	/**
@@ -71,22 +72,23 @@ public final class MainPNML2NUPN {
 	public static final String BOUNDS_CHECKING = "bounds.checking";
 	/**
 	 * Remove transitions of unsafe arcs (incoming or outgoing)
+	 * 
 	 * @deprecated
 	 */
 	public static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.unsafe.trans";
 	/**
-	 * Force generation of unsafe nets, where it is clearly checked that 
-	 * at least one initial place has more than 1 token or the inscription of an arc
-	 * is valued to more than 1. 
+	 * Force generation of unsafe nets, where it is clearly checked that at
+	 * least one initial place has more than 1 token or the inscription of an
+	 * arc is valued to more than 1.
+	 * 
 	 * @deprecated
 	 */
 	public static final String GENERATE_UNSAFE = "generate.unsafe";
-	
+
 	public static final String HAS_UNSAFE_ARCS = "has.unsafe.arcs";
-	
-	
+
 	private static StringBuilder signatureMesg;
-	
+
 	private static boolean isDebug;
 
 	private static List<String> pathDest;
@@ -110,8 +112,7 @@ public final class MainPNML2NUPN {
 	 */
 	public static void main(String[] args) {
 		long startTime = System.nanoTime();
-		org.slf4j.Logger myLog = LoggerFactory.getLogger(MainPNML2NUPN.class
-				.getCanonicalName());
+		org.slf4j.Logger myLog = LoggerFactory.getLogger(MainPNML2NUPN.class.getCanonicalName());
 		StringBuilder msg = new StringBuilder();
 		if (args.length < 1) {
 			myLog.error("At least the path to one PNML P/T file is expected. You may provide a file, a directory, or a mix of several of these.");
@@ -139,8 +140,7 @@ public final class MainPNML2NUPN {
 		}
 		initSignatureMessage();
 		PNMLExporter pe = PNML2NUPNFactory.instance().createExporter();
-		org.slf4j.Logger jr = LoggerFactory.getLogger(pe.getClass()
-				.getCanonicalName());
+		org.slf4j.Logger jr = LoggerFactory.getLogger(pe.getClass().getCanonicalName());
 		// TODO : optimize with threads
 		boolean error = false;
 		for (int i = 0; i < pathSrc.size(); i++) {
@@ -149,43 +149,36 @@ public final class MainPNML2NUPN {
 				if (isHasUnsafeArcs) {
 					pe.hasUnsafeArcs(pathSrc.get(i), pathDest.get(i), jr);
 				} else {
-					pe.exportPNML(new File(pathSrc.get(i)),
-						new File(pathDest.get(i)), jr);
+					pe.exportPNML(new File(pathSrc.get(i)), new File(pathDest.get(i)), jr);
 				}
 				myLog.info(signatureMesg.toString());
 				signatureMesg.delete(0, signatureMesg.length());
-			} catch (PNMLImportExportException | InterruptedException
-					| IOException | InvalidPNMLTypeException e) {
+			} catch (PNMLImportExportException | InterruptedException | IOException | InvalidPNMLTypeException e) {
 				myLog.error(e.getMessage());
 				MainPNML2NUPN.printStackTrace(e);
 				error |= true;
 			}
 		}
-		
+
 		if (!error) {
 			msg.append("Finished successfully.");
 			myLog.info(msg.toString());
 		} else {
 			msg.append("Finished in error.");
 			if (!MainPNML2NUPN.isDebug) {
-				msg.append(
-						" Activate debug mode to print stacktraces, like so: export ")
-						.append(PNML2NUPN_DEBUG).append("=true");
+				msg.append(" Activate debug mode to print stacktraces, like so: export ").append(PNML2NUPN_DEBUG)
+						.append("=true");
 			}
 			myLog.error(msg.toString());
 		}
 		long endTime = System.nanoTime();
-		myLog.info("PNML to NUPN took {} seconds.",
-				(endTime - startTime) / 1.0e9);
-		LoggerContext loggerContext = (LoggerContext) LoggerFactory
-				.getILoggerFactory();
+		myLog.info("PNML to NUPN took {} seconds.", (endTime - startTime) / 1.0e9);
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 		loggerContext.stop();
 		if (error) {
 			System.exit(-1);
 		}
 	}
-
-	
 
 	/**
 	 * Initialises signature message.
@@ -205,7 +198,8 @@ public final class MainPNML2NUPN {
 				signatureMesg.append(WSDASH).append(GENERATE_UNSAFE).append(EQ).append(isGenerateUnsafe);
 			}
 			if (isRemoveTransUnsafeArcs) {
-				signatureMesg.append(WSDASH).append(REMOVE_TRANS_UNSAFE_ARCS).append(EQ).append(isRemoveTransUnsafeArcs);
+				signatureMesg.append(WSDASH).append(REMOVE_TRANS_UNSAFE_ARCS).append(EQ)
+						.append(isRemoveTransUnsafeArcs);
 			}
 			if (!isCamiTmpDelete) {
 				signatureMesg.append(WSDASH).append(CAMI_TMP_KEEP).append(EQ).append(isCamiTmpDelete);
@@ -213,8 +207,7 @@ public final class MainPNML2NUPN {
 			if (isHasUnsafeArcs) {
 				signatureMesg.append(WSDASH).append(HAS_UNSAFE_ARCS).append(EQ).append(isHasUnsafeArcs);
 			}
-			
-			
+
 		} else {
 			signatureMesg.append(" with default values for options");
 		}
@@ -230,19 +223,17 @@ public final class MainPNML2NUPN {
 			isHasUnsafeArcs = false;
 			msg.append(
 					"Request to find unsafe arcs (exclusive option) not set. Default is false. If you want to "
-					+ "set this property (exclusive of the others, then invoke this program with ")
-					.append(HAS_UNSAFE_ARCS)
-					.append(" property like so: java -D")
-					.append(HAS_UNSAFE_ARCS)
+							+ "set this property (exclusive of the others, then invoke this program with ")
+					.append(HAS_UNSAFE_ARCS).append(" property like so: java -D").append(HAS_UNSAFE_ARCS)
 					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		} else {
 			isHasUnsafeArcs = false;
 			myLog.info("No request to find unsafe arcs (exclusive option).");
-		}	
+		}
 	}
-	
+
 	/**
 	 * 
 	 * @param myLog
@@ -259,10 +250,8 @@ public final class MainPNML2NUPN {
 			isGenerateUnsafe = false;
 			msg.append(
 					"Generation of unsafe NUPN not set. Default is false. If you want to "
-					+ "generate unsafe (structural) NUPN, then invoke this program with ")
-					.append(GENERATE_UNSAFE)
-					.append(" property like so: java -D")
-					.append(GENERATE_UNSAFE)
+							+ "generate unsafe (structural) NUPN, then invoke this program with ")
+					.append(GENERATE_UNSAFE).append(" property like so: java -D").append(GENERATE_UNSAFE)
 					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
@@ -278,8 +267,7 @@ public final class MainPNML2NUPN {
 	 * @param msg
 	 * @deprecated
 	 */
-	private static void checkRemoveTransUnsafeArcsMode(Logger myLog,
-			StringBuilder msg) {
+	private static void checkRemoveTransUnsafeArcsMode(Logger myLog, StringBuilder msg) {
 		String removeua = System.getProperty(REMOVE_TRANS_UNSAFE_ARCS);
 		if (removeua != null && Boolean.valueOf(removeua)) {
 			isRemoveTransUnsafeArcs = true;
@@ -289,22 +277,19 @@ public final class MainPNML2NUPN {
 			isRemoveTransUnsafeArcs = false;
 			msg.append(
 					"Remove transitions of unsafe arcs not set. Default is false. If you want to "
-					+ "remove transitions of unsafe arcs, then invoke this program with ")
-					.append(REMOVE_TRANS_UNSAFE_ARCS)
-					.append(" property like so: java -D")
-					.append(REMOVE_TRANS_UNSAFE_ARCS)
-					.append("=true [JVM OPTIONS] -jar ...");
+							+ "remove transitions of unsafe arcs, then invoke this program with ")
+					.append(REMOVE_TRANS_UNSAFE_ARCS).append(" property like so: java -D")
+					.append(REMOVE_TRANS_UNSAFE_ARCS).append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		} else {
 			isRemoveTransUnsafeArcs = false;
 			myLog.warn("Remove transitions of unsafe arcs disabled.");
 		}
-		
+
 	}
 
-	private static void checkBoundsCheckingMode(org.slf4j.Logger myLog,
-			StringBuilder msg) {
+	private static void checkBoundsCheckingMode(org.slf4j.Logger myLog, StringBuilder msg) {
 		String boundsChecking = System.getProperty(BOUNDS_CHECKING);
 		if (boundsChecking != null && Boolean.valueOf(boundsChecking)) {
 			isBoundsChecking = true;
@@ -313,9 +298,7 @@ public final class MainPNML2NUPN {
 			isBoundsChecking = true;
 			msg.append(
 					"Bounds checking not set. Default is true. If you want to disable bounds checking, then invoke this program with ")
-					.append(BOUNDS_CHECKING)
-					.append(" property like so: java -D")
-					.append(BOUNDS_CHECKING)
+					.append(BOUNDS_CHECKING).append(" property like so: java -D").append(BOUNDS_CHECKING)
 					.append("=false [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
@@ -330,8 +313,7 @@ public final class MainPNML2NUPN {
 	 * @param myLog
 	 * @param msg
 	 */
-	private static void checkForceBPNGenMode(org.slf4j.Logger myLog,
-			StringBuilder msg) {
+	private static void checkForceBPNGenMode(org.slf4j.Logger myLog, StringBuilder msg) {
 		String forceBpnGen = System.getProperty(FORCE_NUPN_GENERATION);
 		if (forceBpnGen != null && Boolean.valueOf(forceBpnGen)) {
 			isForceBPNGen = true;
@@ -341,9 +323,7 @@ public final class MainPNML2NUPN {
 			isForceBPNGen = false;
 			msg.append(
 					"Forcing NUPN generation not set. Default is false. If you want to force NUPN generation for non 1-Safe nets, then invoke this program with ")
-					.append(FORCE_NUPN_GENERATION)
-					.append(" property like so: java -D")
-					.append(FORCE_NUPN_GENERATION)
+					.append(FORCE_NUPN_GENERATION).append(" property like so: java -D").append(FORCE_NUPN_GENERATION)
 					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
@@ -354,8 +334,7 @@ public final class MainPNML2NUPN {
 	 * @param myLog
 	 * @param msg
 	 */
-	private static void checkCamiKeepingMode(org.slf4j.Logger myLog,
-			StringBuilder msg) {
+	private static void checkCamiKeepingMode(org.slf4j.Logger myLog, StringBuilder msg) {
 		String keep = System.getProperty(CAMI_TMP_KEEP);
 		if (keep != null && Boolean.valueOf(keep)) {
 			isCamiTmpDelete = false;
@@ -365,9 +344,7 @@ public final class MainPNML2NUPN {
 			isCamiTmpDelete = true;
 			msg.append(
 					"Keeping temporary Cami file property not set. If you want to keep temporary Cami file then invoke this program with ")
-					.append(CAMI_TMP_KEEP)
-					.append(" property like so: java -D")
-					.append(CAMI_TMP_KEEP)
+					.append(CAMI_TMP_KEEP).append(" property like so: java -D").append(CAMI_TMP_KEEP)
 					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
@@ -386,9 +363,8 @@ public final class MainPNML2NUPN {
 			setDebug(false);
 			msg.append(
 					"Debug mode not set. If you want to activate the debug mode (print stackstaces in case of errors), then set the ")
-					.append(PNML2NUPN_DEBUG)
-					.append(" environnement variable like so: export ")
-					.append(PNML2NUPN_DEBUG).append("=true.");
+					.append(PNML2NUPN_DEBUG).append(" environnement variable like so: export ").append(PNML2NUPN_DEBUG)
+					.append("=true.");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		}
@@ -426,8 +402,7 @@ public final class MainPNML2NUPN {
 		}
 	}
 
-	private static File[] extractSrcFiles(File srcf, PNMLFilenameFilter pff,
-			DirFileFilter dff) {
+	private static File[] extractSrcFiles(File srcf, PNMLFilenameFilter pff, DirFileFilter dff) {
 		List<File> res = new ArrayList<File>();
 
 		// filter PNML files
@@ -436,8 +411,10 @@ public final class MainPNML2NUPN {
 
 		// filter directories
 		pfiles = srcf.listFiles(dff);
-		for (File f : pfiles) {
-			res.addAll(Arrays.asList(extractSrcFiles(f, pff, dff)));
+		if (pfiles != null) {
+			for (File f : pfiles) {
+				res.addAll(Arrays.asList(extractSrcFiles(f, pff, dff)));
+			}
 		}
 
 		return res.toArray(new File[0]);
@@ -502,25 +479,27 @@ public final class MainPNML2NUPN {
 	public static synchronized boolean isBoundsChecking() {
 		return isBoundsChecking;
 	}
-	
+
 	/**
-	 * Returns true if user has asked for the removal of transitions
-	 * of unsafe arcs (incoming or outgoing).
+	 * Returns true if user has asked for the removal of transitions of unsafe
+	 * arcs (incoming or outgoing).
+	 * 
 	 * @return
 	 */
 	public static synchronized boolean isRemoveTransUnsafeArcs() {
 		return isRemoveTransUnsafeArcs;
 	}
-	
+
 	/**
-	 * Returns true if user has asked for the generation of unsafe 
-	 * BPN (structural.bpn) in the case of unsafe initial place(s) or arc(s). 
+	 * Returns true if user has asked for the generation of unsafe BPN
+	 * (structural.bpn) in the case of unsafe initial place(s) or arc(s).
+	 * 
 	 * @return
 	 */
 	public static synchronized boolean isGenerateUnsafe() {
 		return isGenerateUnsafe;
 	}
-	
+
 	public static synchronized void appendMesgLineToSignature(String msg) {
 		signatureMesg.append(NL).append(COLWS).append(msg);
 	}
