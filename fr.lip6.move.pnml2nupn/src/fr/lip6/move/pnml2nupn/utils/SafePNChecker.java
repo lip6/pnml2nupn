@@ -127,7 +127,7 @@ public final class SafePNChecker {
 		line = br.readLine();
 		if (line != null && UNKNOWN_CAMI_COMMAND.equalsIgnoreCase(line)) {
 			res = false;
-		} else {
+		} else if (line != null) {
 			do  {
 				m = p.matcher(line);
 				if (m.matches()) {
@@ -177,7 +177,6 @@ public final class SafePNChecker {
 		return val == ZERO || val == ONE;
 	}
 
-	@SuppressWarnings("unused")
 	private File createJavaTmpBoundsFile() {
 		File tmpExeFile = null;
 		boolean successful = true;
