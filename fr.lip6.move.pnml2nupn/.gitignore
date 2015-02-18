@@ -12,3 +12,5 @@ test
 /site-avant2015.xml
 /cov-int/
 /pnml2nupn.tgz
+build4cov.sh
+src/site/resources/download/*.jar
