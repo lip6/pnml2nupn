@@ -299,7 +299,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			} else {
 				log.warn("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
 			}
-			// Open BPN and mapping files channels, and init write queues
+			// Open NUPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile
 					.getCanonicalPath()) + TRANS_EXT);
 			outPSFile = new File(PNML2NUPNUtils.extractBaseName(outFile
@@ -400,7 +400,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	}
 
 	/**
-	 * Initialised the data structure for unsafe transitions.
+	 * Initialises the data structure for unsafe transitions.
 	 */
 	private void initUnsafeTransMaps() {
 		if (tr2InUnsafeArcsMap == null) {
@@ -445,7 +445,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	}
 
 	/**
-	 * Export transitions into BPN (since 1.3.0)
+	 * Export transitions into NUPN (since 1.3.0)
 	 * 
 	 * @param ap
 	 * @param vn
@@ -1130,7 +1130,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	}
 
 	/**
-	 * Close output channels.
+	 * Closes output channels.
 	 * 
 	 * @param ocbBpn
 	 * @param ocbTs

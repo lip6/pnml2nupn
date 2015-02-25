@@ -389,6 +389,7 @@ public final class MainPNML2NUPN {
 			srcf = new File(s);
 			if (srcf.isFile()) {
 				pathSrc.add(s);
+				// TODO: correct using lastindexof(.)
 				pathDest.add(s.replaceAll(PNML_EXT, NUPN));
 			} else if (srcf.isDirectory()) {
 				srcFiles = extractSrcFiles(srcf, pff, dff);
