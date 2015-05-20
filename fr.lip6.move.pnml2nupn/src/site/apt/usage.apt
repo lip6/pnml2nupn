@@ -132,8 +132,11 @@ Options
 * Unit Safeness Checking Only
  
  Unit safeness checking can be requested, and also have the tool stop just after that check, whatever the outcome
- (i.e. 1-safe net or not), by setting the <<unit.safeness.checking.only>> property set to true.
- If enabled, no NUPN generation will happen, so that part of the process is skipped.
+ (i.e. 1-safe net or not), by setting the <<unit.safeness.checking.only>> property set to true. This option overrides 
+ the <<force.nupn.generation>> option when both are set. When enabled, it is considered only if the <<unit.safeness.checking>>
+ property is also enabled.
+ 
+ If <<unit.safeness.checking.only>> is enabled, no NUPN generation will happen, so that part of the process is skipped.
  To enable that property, proceed like so: 
  
  <java -Dunit.safeness.checking.only=true ...>
