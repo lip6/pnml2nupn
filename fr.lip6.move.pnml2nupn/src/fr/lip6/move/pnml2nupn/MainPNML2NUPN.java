@@ -52,9 +52,11 @@ public final class MainPNML2NUPN {
 	public static final String WSDASH = " -";
 	public static final String XP = "!";
 	public static final String TOOL_NAME = "pnml2nupn";
-	public static final String VERSION = "1.3.2";
+	public static final String VERSION = "1.4.0";
 	public static final String CREATOR = "creator";
+	public static final String UNIT_SAFE = "unit_safe";
 	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME + WS + VERSION;
+	public static final String PRAGMA_UNIT_SAFE = XP + UNIT_SAFE + WS;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
 	public static final String PRAGMA_MULTIPLE_ARCS = XP + "multiple_arcs" + WS;
 	public static final String NUPN = "nupn";
@@ -62,14 +64,18 @@ public final class MainPNML2NUPN {
 	public static final String PNML2NUPN_DEBUG = "PNML2NUPN_DEBUG";
 	public static final String CAMI_TMP_KEEP = "cami.tmp.keep";
 	/**
-	 * Force BPN Generation works by default for the case where bounds checking
+	 * Force NUPN Generation works by default for the case where bounds checking
 	 * is disabled.
 	 */
 	public static final String FORCE_NUPN_GENERATION = "force.nupn.generation";
 	/**
 	 * Bounds checking property.
 	 */
-	public static final String BOUNDS_CHECKING = "bounds.checking";
+	public static final String UNIT_SAFENESS_CHECKING = "unit.safeness.checking";
+	/**
+	 * Stop after unit-safeness checking, whatever the result found.
+	 */
+	public static final String UNIT_SAFENESS_CHECKING_ONLY = "unit.safeness.checking.only";
 	/**
 	 * Remove transitions of unsafe arcs (incoming or outgoing)
 	 * 
@@ -98,7 +104,8 @@ public final class MainPNML2NUPN {
 	private static boolean isOption;
 	private static boolean isCamiTmpDelete;
 	private static boolean isForceBPNGen;
-	private static boolean isBoundsChecking;
+	private static boolean isUnitSafeChecking;
+	private static boolean isUnitSafeCheckingOnly;
 	private static boolean isRemoveTransUnsafeArcs;
 	private static boolean isGenerateUnsafe;
 	private static boolean isHasUnsafeArcs;
@@ -122,10 +129,12 @@ public final class MainPNML2NUPN {
 		checkDebugMode(myLog, msg);
 		// Keep Cami property
 		checkCamiKeepingMode(myLog, msg);
-		// Force BPN generation property
-		checkForceBPNGenMode(myLog, msg);
-		// Bounds checking property
-		checkBoundsCheckingMode(myLog, msg);
+		// Force NUPN generation property
+		checkForceNUPNGenMode(myLog, msg);
+		// Unit safeness checking property
+		checkUnitSafeCheckingMode(myLog, msg);
+		// Unit safeness checking only property
+		checkUnitSafeCheckingOnlyMode(myLog, msg);
 		// Has unsafe arcs?
 		checkHashUnsafeArcsMode(myLog, msg);
 
@@ -180,6 +189,7 @@ public final class MainPNML2NUPN {
 		}
 	}
 
+
 	/**
 	 * Initialises signature message.
 	 */
@@ -191,8 +201,11 @@ public final class MainPNML2NUPN {
 			if (isForceBPNGen) {
 				signatureMesg.append(WSDASH).append(FORCE_NUPN_GENERATION).append(EQ).append(isForceBPNGen);
 			}
-			if (!isBoundsChecking) {
-				signatureMesg.append(WSDASH).append(BOUNDS_CHECKING).append(EQ).append(isBoundsChecking);
+			if (!isUnitSafeChecking) {
+				signatureMesg.append(WSDASH).append(UNIT_SAFENESS_CHECKING).append(EQ).append(isUnitSafeChecking);
+			}
+			if (!isUnitSafeCheckingOnly) {
+				signatureMesg.append(WSDASH).append(UNIT_SAFENESS_CHECKING_ONLY).append(EQ).append(isUnitSafeCheckingOnly);
 			}
 			if (isGenerateUnsafe) {
 				signatureMesg.append(WSDASH).append(GENERATE_UNSAFE).append(EQ).append(isGenerateUnsafe);
@@ -289,31 +302,52 @@ public final class MainPNML2NUPN {
 
 	}
 
-	private static void checkBoundsCheckingMode(org.slf4j.Logger myLog, StringBuilder msg) {
-		String boundsChecking = System.getProperty(BOUNDS_CHECKING);
+	private static void checkUnitSafeCheckingMode(org.slf4j.Logger myLog, StringBuilder msg) {
+		String boundsChecking = System.getProperty(UNIT_SAFENESS_CHECKING);
 		if (boundsChecking != null && Boolean.valueOf(boundsChecking)) {
-			isBoundsChecking = true;
+			isUnitSafeChecking = true;
 			myLog.warn("Bounds checking enabled.");
 		} else if (boundsChecking == null) {
-			isBoundsChecking = true;
+			isUnitSafeChecking = false;
 			msg.append(
-					"Bounds checking not set. Default is true. If you want to disable bounds checking, then invoke this program with ")
-					.append(BOUNDS_CHECKING).append(" property like so: java -D").append(BOUNDS_CHECKING)
-					.append("=false [JVM OPTIONS] -jar ...");
+					"Unit safeness checking not set. Default is false. If you want to enable unit safeness checking, then invoke this program with ")
+					.append(UNIT_SAFENESS_CHECKING).append(" property like so: java -D").append(UNIT_SAFENESS_CHECKING)
+					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		} else {
-			isBoundsChecking = false;
+			isUnitSafeChecking = false;
 			isOption = true;
-			myLog.warn("Bounds checking disabled.");
+			myLog.warn("Unit safeness checking disabled.");
 		}
 	}
 
+	private static void checkUnitSafeCheckingOnlyMode(Logger myLog, StringBuilder msg) {
+		String usCheckOnly = System.getProperty(UNIT_SAFENESS_CHECKING_ONLY);
+		if (usCheckOnly != null && Boolean.valueOf(usCheckOnly)) {
+			isUnitSafeCheckingOnly = true;
+			myLog.warn("Unit safeness checking only enabled.");
+		} else if (usCheckOnly == null) {
+			isUnitSafeCheckingOnly = false;
+			msg.append(
+					"Unit safeness checking only not set. Default is false. If you want to enable unit safeness checking only, then invoke this program with ")
+					.append(UNIT_SAFENESS_CHECKING_ONLY).append(" property like so: java -D").append(UNIT_SAFENESS_CHECKING_ONLY)
+					.append("=true [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		} else {
+			isUnitSafeCheckingOnly = false;
+			isOption = true;
+			myLog.warn("Unit safeness checking disabled.");
+		}
+		
+	}
+	
 	/**
 	 * @param myLog
 	 * @param msg
 	 */
-	private static void checkForceBPNGenMode(org.slf4j.Logger myLog, StringBuilder msg) {
+	private static void checkForceNUPNGenMode(org.slf4j.Logger myLog, StringBuilder msg) {
 		String forceBpnGen = System.getProperty(FORCE_NUPN_GENERATION);
 		if (forceBpnGen != null && Boolean.valueOf(forceBpnGen)) {
 			isForceBPNGen = true;
@@ -473,12 +507,21 @@ public final class MainPNML2NUPN {
 	}
 
 	/**
-	 * Returns true if bounds checking is enabled (default), false otherwise.
+	 * Returns true if unit safeness checking is enabled (default), false otherwise.
 	 * 
 	 * @return
 	 */
-	public static synchronized boolean isBoundsChecking() {
-		return isBoundsChecking;
+	public static synchronized boolean isUnitSafenessChecking() {
+		return isUnitSafeChecking;
+	}
+	
+	/**
+	 * Returns true if unit safeness checking only is enabled, false otherwise (default).
+	 * 
+	 * @return
+	 */
+	public static synchronized boolean isUnitSafenessCheckingOnly() {
+		return isUnitSafeCheckingOnly;
 	}
 
 	/**

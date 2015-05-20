@@ -5,7 +5,7 @@
 
 	<groupId>fr.lip6.nupn</groupId>
 	<artifactId>pnml2nupn</artifactId>
-	<version>1.3.2</version>
+	<version>1.4.0</version>
 
 	<packaging>jar</packaging>
 
@@ -281,7 +281,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.artifactId}-latest-version</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -358,10 +358,10 @@
 						<version>1.8</version>
 						<configuration>
 							<target>
-								<copy file="target/${project.artifactId}-latest-version.jar"
-									tofile="src/site/resources/download/${project.artifactId}-latest-version.jar" />
-								<copy file="target/${project.artifactId}-latest-version.jar"
-									tofile="/Users/lom/Documents/Recherche/Projets/MCC/Repository/MCC/MODELS/__COMMON/${project.artifactId}-latest-version.jar" />
+								<copy file="target/${project.artifactId}-${project.version}.jar"
+									tofile="src/site/resources/download/${project.artifactId}-${project.version}.jar" />
+								<copy file="target/${project.artifactId}-${project.version}.jar"
+									tofile="/Users/lom/Documents/Recherche/Projets/MCC/Repository/MCC/MODELS/__COMMON/${project.artifactId}-${project.version}.jar" />
 							</target>
 						</configuration>
 						<executions>

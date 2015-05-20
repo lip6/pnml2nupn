@@ -21,18 +21,26 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2015-01
+2015-05
  ------
 
 Changelog
 
 * What's new in version ${project.version}?
 
-  * Transitions are numbered according to their order of appearance in the PNML file.
+  * Refactored bounds checking option as unit safeness checking.
+   
+  * Introduced unit safeness checking only option, to stop the tool whatever the outcome of the unit safeness checking process.
+  
+  * Produced jar name is shorter (pnml2nupn instead of fr.lip6.move.pnml2nupn)
+
+* What's new in version 1.3.2?
+
+  * Transitions are numbered according to their order of appearance in the PNML file (Bugged. Will be fixed in the 1.4.x line).
   
   * Multiple arcs between two same nodes in the PNML are now handled (add tokens).
 
-  * Places are numbered according to their order of appearance in the PNML file.
+  * Places are numbered according to their order of appearance in the PNML file (Bugged. Will be fixed in the 1.4.x line).
 
 * What's new in version 1.3.1?
 

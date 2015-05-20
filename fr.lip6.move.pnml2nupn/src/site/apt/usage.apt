@@ -22,7 +22,7 @@
 Usage Information
  -------
  -------
-2015-01
+2015-005
  -------
 
 Overview
@@ -113,6 +113,36 @@ Debug information
 Options
 
  This tool supports some options (technically speaking: properties) that you might activate to change its behaviour.
+
+* Unit Safeness Checking (previously Bounds Checking)
+ 
+ Unit safeness checking can be requested, by setting the <<unit.safeness.checking>> property set to true.
+ If disabled (which is the default), NUPN generation will be faster since this step, that can take a long time, is skipped.
+ To enable that property, proceed like so: 
+ 
+ <java -Dunit.safeness.checking=true ...>
+
+ The default value for this option is <false>.
+ 
+** Supporting versions
+
+  Since v1.4.0.
+
+
+* Unit Safeness Checking Only
+ 
+ Unit safeness checking can be requested, and also have the tool stop just after that check, whatever the outcome
+ (i.e. 1-safe net or not), by setting the <<unit.safeness.checking.only>> property set to true.
+ If enabled, no NUPN generation will happen, so that part of the process is skipped.
+ To enable that property, proceed like so: 
+ 
+ <java -Dunit.safeness.checking.only=true ...>
+
+ The default value for this option is <false>.
+ 
+** Supporting versions
+
+  Since v1.4.0.
 
 * Force NUPN Generation
  

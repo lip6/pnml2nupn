@@ -21,7 +21,7 @@
 Download PNML to NUPN Converter ${project.version}
  ------
  ------
-2015-01
+2015-05
  ------
 
 Download PNML to NUPN Converter ${project.version}
@@ -31,7 +31,7 @@ Download PNML to NUPN Converter ${project.version}
 
 * Single jar with all dependencies
 
-  Download {{{./download/${project.artifactId}-latest-version.jar}version ${project.version}}}.
+  Download {{{./download/${project.artifactId}-${project.version}.jar}version ${project.version}}}.
 
   Usage information is available on the {{{./usage.html}dedicated page}}. 
   Check out release notes on the {{{./changelog.html}changelog page}}.
@@ -39,8 +39,6 @@ Download PNML to NUPN Converter ${project.version}
 ===
 
 Previous stable versions
-
- * Download {{{./download/fr.lip6.move.pnml2nupn-1.3.2.jar}version 1.3.2}}
  
  * Download {{{./download/fr.lip6.move.pnml2nupn-1.3.1.jar}version 1.3.1}}
 

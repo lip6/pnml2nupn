@@ -49,8 +49,6 @@ public final class SafePNChecker {
 			+ "/tmp/";
 	private static final int ONE = 1;
 	private static final int ZERO = 0;
-	private static final int WAITING_TIME = 5 * 1000;
-
 	private static String P2C_OPT = "-p2c";
 	private static String BOUNDS = "bounds";
 	private static String EXE = ".exe";
@@ -131,7 +129,7 @@ public final class SafePNChecker {
 			do  {
 				m = p.matcher(line);
 				if (m.matches()) {
-					res &= (checkBoundIsZeroOrOne(m.group(2)) && checkBoundIsZeroOrOne(m
+					res &= (checkBoundIsZero(m.group(2)) && checkBoundIsOne(m
 							.group(3)));
 				}
 			} while ((line = br.readLine()) != null);
@@ -173,8 +171,17 @@ public final class SafePNChecker {
 	}
 
 	private boolean checkBoundIsZeroOrOne(String bound) {
+		return checkBoundIsZero(bound) || checkBoundIsOne(bound);
+	}
+	
+	private boolean checkBoundIsZero(String bound) {
 		int val = Integer.valueOf(bound).intValue();
-		return val == ZERO || val == ONE;
+		return val == ZERO ;
+	}
+	
+	private boolean checkBoundIsOne(String bound) {
+		int val = Integer.valueOf(bound).intValue();
+		return val == ONE;
 	}
 
 	private File createJavaTmpBoundsFile() {

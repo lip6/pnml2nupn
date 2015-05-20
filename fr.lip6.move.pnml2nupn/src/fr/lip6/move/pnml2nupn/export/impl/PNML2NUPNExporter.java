@@ -279,7 +279,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 								+ this.currentInputFile.getCanonicalPath());
 			}
 			// The net must be 1-safe, if bounds checking is enabled.
-			if (MainPNML2NUPN.isBoundsChecking()) {
+			if (MainPNML2NUPN.isUnitSafenessChecking()) {
 				log.info("Checking it is 1-Safe.");
 				if (!isNet1Safe()) {
 					if (MainPNML2NUPN.isForceBPNGen()) {

@@ -14,3 +14,4 @@ test
 /pnml2nupn.tgz
 build4cov.sh
 src/site/resources/download/*.jar
+/deployWebSite.sh
