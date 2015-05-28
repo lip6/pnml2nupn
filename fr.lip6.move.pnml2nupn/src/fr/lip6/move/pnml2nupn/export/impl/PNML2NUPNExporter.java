@@ -52,6 +52,7 @@ import com.ximpleware.extended.XPathEvalExceptionHuge;
 import com.ximpleware.extended.XPathParseExceptionHuge;
 
 import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
+import fr.lip6.move.pnml2nupn.exceptions.EarlyStopException;
 import fr.lip6.move.pnml2nupn.exceptions.InternalException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidNetException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidPNMLTypeException;
@@ -265,32 +266,39 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			log.info("Checking it is a PT Net.");
 			if (!isPTNet(ap, vn)) {
 				throw new InvalidPNMLTypeException(
-						"The contained Petri net(s) in the following file is not a P/T Net. Only P/T Nets are supported: "
+						"The Petri net in the following file is not a P/T Net. Only P/T Nets are supported: "
 								+ this.currentInputFile.getCanonicalPath());
 			}
 			// The net must be 1-safe, if bounds checking is enabled.
 			if (MainPNML2NUPN.isUnitSafenessChecking()) {
-				log.info("Checking it is 1-Safe.");
+				log.info("Checking the net is 1-Safe.");
 				if (!isNet1Safe()) {
 					if (MainPNML2NUPN.isForceNUPNGen() && !MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 						journal.warn(
-								"The net(s) in the submitted document is not 1-safe, but forced NUPN generation is set: {}",
+								"The net in the submitted document is not 1-safe, but forced NUPN generation is set: {}",
 								this.currentInputFile.getCanonicalPath());
+						journal.warn("The following places are unsafe: \n {}", generateUnsafePlacesReport());
 						journal.warn("Continuing NUPN generation.");
 					} else {
-						throw new InvalidSafeNetException(
-								"The net(s) in the submitted document is not 1-safe (using the Bounds tool): "
-										+ this.currentInputFile.getCanonicalPath());
+						journal.error("The net in the submitted document is not 1-safe (according to the Bounds tool): "
+								+ this.currentInputFile.getCanonicalPath());
+						journal.error("The following places are unsafe: \n {}", generateUnsafePlacesReport());
+						if (!MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
+							throw new InvalidSafeNetException("Unsafe net in "
+									+ this.currentInputFile.getCanonicalPath());
+						}
 					}
 				} else {
-					log.info("Submitted Net appears to be 1-Safe (using the Bounds tool): {}", this.currentInputFile.getCanonicalPath());
+					log.info("Submitted Net appears to be 1-Safe (according to the Bounds tool): {}",
+							this.currentInputFile.getCanonicalPath());
 				}
 				if (MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 					journal.info("Unit safeness checking only requested. Will stop here.");
-					return;
+					throw new EarlyStopException ("Unit safeness checking only on " +
+							 this.currentInputFile.getCanonicalPath());
 				}
 			} else {
-				log.warn("Bounds checking is disabled. I don't know if the net is 1-safe, or not.");
+				log.warn("Bounds checking is disabled. I don't know if the net is 1-Safe.");
 			}
 			// Open NUPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + TRANS_EXT);
@@ -340,7 +348,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			log.info("See NUPN and mapping files: {}, {} and {}", outFile.getCanonicalPath(),
 					outTSFile.getCanonicalPath(), outPSFile.getCanonicalPath());
 		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | ParseExceptionHuge
-				| InvalidSafeNetException | InternalException | InvalidNetException e) {
+				| InvalidSafeNetException | InternalException | InvalidNetException | EarlyStopException e) {
 			emergencyStop(outFile);
 			throw new PNMLImportExportException(e);
 		} catch (InterruptedException e) {
@@ -1026,6 +1034,10 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		spnc.setPnmlDocPath(this.currentInputFile.getCanonicalPath());
 		boolean res = spnc.isNet1Safe();
 		return res;
+	}
+
+	private String generateUnsafePlacesReport() {
+		return spnc.getExplanation();
 	}
 
 	/**

@@ -28,6 +28,16 @@ Changelog
 
 * What's new in version ${project.version}?
 
+  * Debugged Bounds tool result interpretation over infinite string pattern
+  
+  * The execution of the Bounds tool is now timed
+  
+  * Report on unsafe places in the log, when the net is unsafe
+  
+  * The number of unsafe places to report is determined by the environment variable <<unsafe.places.nb.report>>
+
+* What's new in version 1.4.0?
+
   * Refactored bounds checking option as unit safeness checking.
    
   * Introduced unit safeness checking only option, to stop the tool whatever the outcome of the unit safeness checking process.

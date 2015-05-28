@@ -52,6 +52,10 @@ UNIT_SAFENESS_CHECKING="-Dunit.safeness.checking=false"
 # Enable or disable unit safeness checking only? Default is false.
 UNIT_SAFENESS_CHECKING_ONLY="-Dunit.safeness.checking.only=false"
 
+# How many places (at most) to report when the net is unsafe? 
+# (e.g. 0, 1, 2, 4, or -1 to specify 'all')
+UNSAFE_PLACES_NB_REPORT="-Dunsafe.places.nb.report=3"
+
 # Check if the net has unsafe arcs. Default is false. 
 # This option is exlusive of all the others.When it is set, it deactivates the others. 
 HAS_UNSAFE_ARCS="-Dhas.unsafe.arcs=false"
@@ -68,7 +72,7 @@ fi
 
 echo "Launching PNML2NUPN program"
 
-TRADUCTEUR_PNML2NUPN="java $HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $FORCE_NUPN_GEN $JVM_ARGS -jar $JAR_FILE"
+TRADUCTEUR_PNML2NUPN="java $HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $JVM_ARGS -jar $JAR_FILE"
 
 for file in $1/*.pnml
 do
