@@ -254,7 +254,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			InterruptedException, PNMLImportExportException, IOException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
 		VTDGenHuge vg = new VTDGenHuge();
-
+		boolean isSafe = false;
 		try {
 			xb.readFile(inFile.getCanonicalPath());
 			vg.setDoc(xb);
@@ -272,17 +272,17 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			// The net must be 1-safe, if bounds checking is enabled.
 			if (MainPNML2NUPN.isUnitSafenessChecking()) {
 				log.info("Checking the net is 1-Safe.");
-				if (!isNet1Safe()) {
+				if (!(isSafe = isNet1Safe())) {
 					if (MainPNML2NUPN.isForceNUPNGen() && !MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 						journal.warn(
 								"The net in the submitted document is not 1-safe, but forced NUPN generation is set: {}",
 								this.currentInputFile.getCanonicalPath());
-						journal.warn("The following places are unsafe: \n {}", generateUnsafePlacesReport());
+						journal.warn("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
 						journal.warn("Continuing NUPN generation.");
 					} else {
 						journal.error("The net in the submitted document is not 1-safe (according to the Bounds tool): "
 								+ this.currentInputFile.getCanonicalPath());
-						journal.error("The following places are unsafe: \n {}", generateUnsafePlacesReport());
+						journal.error("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
 						if (!MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 							throw new InvalidSafeNetException("Unsafe net in "
 									+ this.currentInputFile.getCanonicalPath());
@@ -319,6 +319,10 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 			// Insert creator pragma (since 1.3.0)
 			insertCreatorPragma(nupnQueue);
+			// Insert unit_safe pragma if necessary (since 1.4.1)
+			if (MainPNML2NUPN.isUnitSafenessChecking() && isSafe) {
+				insertUnitSafePragma(nupnQueue);
+			}
 
 			// Init data type for places id and transitions
 			initPlacesMap();
@@ -360,8 +364,16 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		}
 	}
 
+	private void insertUnitSafePragma(BlockingQueue<String> nupnQueue2) throws InterruptedException {
+		insertPragma(MainPNML2NUPN.PRAGMA_UNIT_SAFE + NL, nupnQueue);
+	}
+
 	private void insertCreatorPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
-		nupnQueue.put(MainPNML2NUPN.PRAGMA_CREATOR + NL);
+		insertPragma(MainPNML2NUPN.PRAGMA_CREATOR + NL, nupnQueue);
+	}
+	
+	private void insertPragma(String pragma, BlockingQueue<String> nupnQueue) throws InterruptedException {
+		nupnQueue.put(pragma);
 	}
 
 	/**
