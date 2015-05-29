@@ -52,11 +52,12 @@ public final class MainPNML2NUPN {
 	public static final String WSDASH = " -";
 	public static final String XP = "!";
 	public static final String TOOL_NAME = "pnml2nupn";
-	public static final String VERSION = "1.4.0";
+	public static final String VERSION = "1.4.1";
 	public static final String CREATOR = "creator";
 	public static final String UNIT_SAFE = "unit_safe";
+	public static final String BOUNDS = "cosyverif/bounds 1.0";
 	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME + WS + VERSION;
-	public static final String PRAGMA_UNIT_SAFE = XP + UNIT_SAFE + WS;
+	public static final String PRAGMA_UNIT_SAFE = XP + UNIT_SAFE + WS + BOUNDS;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
 	public static final String PRAGMA_MULTIPLE_ARCS = XP + "multiple_arcs" + WS;
 	public static final String NUPN = "nupn";
