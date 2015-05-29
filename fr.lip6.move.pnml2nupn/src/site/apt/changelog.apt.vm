@@ -35,6 +35,8 @@ Changelog
   * Report on unsafe places in the log, when the net is unsafe
   
   * The number of unsafe places to report is determined by the environment variable <<unsafe.places.nb.report>>
+  
+  * The !unit_safe pragma is now inserted at the beginning of the .nupn if the net is 1-Safe
 
 * What's new in version 1.4.0?
 
