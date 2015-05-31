@@ -28,11 +28,16 @@ Changelog
 
 * What's new in version ${project.version}?
 
+ * This version handles the NUPN tool-specific section in the input PNML document, if it is included.
+ The information in that tool-specific section is used to build the units structure in the resulting NUPN.
+
+* What's new in version 1.4.1?
+
   * Debugged Bounds tool result interpretation over infinite string pattern
   
   * The execution of the Bounds tool is now timed
   
-  * Report on unsafe places in the log, when the net is unsafe
+  * Report on unsafe places in the log, when the net is unsafe (according to the Bounds tool)
   
   * The number of unsafe places to report is determined by the environment variable <<unsafe.places.nb.report>>
   
