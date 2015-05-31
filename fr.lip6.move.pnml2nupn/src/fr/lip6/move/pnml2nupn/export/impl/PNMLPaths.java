@@ -68,9 +68,11 @@ public final class PNMLPaths {
 	
 	public static final String TOOL_SPECIFIC = PAGES_PATH + "/toolspecific";
 	
-	public static final String NUPN_SIZE = TOOL_SPECIFIC + "/size";
+	public static final String NUPN_TOOL_SPECIFIC = TOOL_SPECIFIC + "[@tool='nupn']";
 	
-	public static final String NUPN_STRUCTURE = TOOL_SPECIFIC + "/structure";
+	public static final String NUPN_SIZE = NUPN_TOOL_SPECIFIC + "/size";
+	
+	public static final String NUPN_STRUCTURE = NUPN_TOOL_SPECIFIC + "/structure";
 	
 	public static final String NUPN_UNIT = NUPN_STRUCTURE + "/unit";
 	
