@@ -28,7 +28,7 @@ Changelog
 
 * What's new in version ${project.version}?
 
- * This version handles the NUPN tool-specific section in the input PNML document, if it is included.
+ * This version handles the {{{http://mcc.lip6.fr/nupn.php}NUPN tool-specific section}} in the input PNML document, if it is included.
  The information in that tool-specific section is used to build the units structure in the resulting NUPN.
 
 * What's new in version 1.4.1?
@@ -41,7 +41,7 @@ Changelog
   
   * The number of unsafe places to report is determined by the environment variable <<unsafe.places.nb.report>>
   
-  * The !unit_safe pragma is now inserted at the beginning of the .nupn if the net is 1-Safe
+  * The {{{http://cadp.inria.fr/man/caesar.bdd.html#sect10}!unit_safe pragma}} is now inserted at the beginning of the .nupn if the net is 1-Safe
 
 * What's new in version 1.4.0?
 
