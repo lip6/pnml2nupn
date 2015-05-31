@@ -72,6 +72,7 @@ import fr.lip6.move.pnml2nupn.utils.SafePNChecker;
  */
 public final class PNML2NUPNExporter implements PNMLExporter {
 
+	private static final String NUPN_SUPPORTED_VERSION = "1.1";
 	private static final String TEXT = "text";
 	private static final String TRANS_EXT = ".trans";
 	private static final String STATES_EXT = ".places";
@@ -269,21 +270,21 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			log.info("Checking it is a PT Net.");
 			if (!isPTNet(ap, vn)) {
 				throw new InvalidPNMLTypeException(
-						"The Petri net in the following file is not a P/T Net. Only P/T Nets are supported: "
+						"The net in the document is not a P/T Net. Only P/T Nets are supported: "
 								+ this.currentInputFile.getCanonicalPath());
 			}
 			// The net must be 1-safe, if bounds checking is enabled.
 			if (MainPNML2NUPN.isUnitSafenessChecking()) {
-				log.info("Checking the net is 1-Safe.");
+				log.info("Checking if this net is 1-Safe.");
 				if (!(isSafe = isNet1Safe())) {
 					if (MainPNML2NUPN.isForceNUPNGen() && !MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 						journal.warn(
-								"The net in the submitted document is not 1-safe, but forced NUPN generation is set: {}",
+								"This net is not 1-safe, but forced NUPN generation is set: {}",
 								this.currentInputFile.getCanonicalPath());
 						journal.warn("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
 						journal.warn("Continuing NUPN generation.");
 					} else {
-						journal.error("The net in the submitted document is not 1-safe (according to the Bounds tool): "
+						journal.error("This net is not 1-safe (according to the Bounds tool): "
 								+ this.currentInputFile.getCanonicalPath());
 						journal.error("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
 						if (!MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
@@ -292,7 +293,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 						}
 					}
 				} else {
-					log.info("Submitted Net appears to be 1-Safe (according to the Bounds tool): {}",
+					log.info("This net is 1-Safe (according to the Bounds tool): {}",
 							this.currentInputFile.getCanonicalPath());
 				}
 				if (MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
@@ -301,7 +302,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 							+ this.currentInputFile.getCanonicalPath());
 				}
 			} else {
-				log.warn("Bounds checking is disabled. I don't know if the net is 1-Safe.");
+				log.warn("Unit safeness checking is disabled. I don't know if this net is 1-Safe.");
 			}
 			// Open NUPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + TRANS_EXT);
@@ -829,10 +830,30 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			placesId2bpnMap.put(id, pId);
 			vn.pop();
 		}
+
+		// Check existence of nupn toolspecific
+		boolean hasNUPNToolspecific = false;
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
+		ap.selectXPath(PNMLPaths.NUPN_TOOL_SPECIFIC);
+		String version;
+		while ((ap.evalXPath()) != -1) {
+			vn.push();
+			version = vn.toString(vn.getAttrVal(PNMLPaths.VERSION_ATTR));
+			if (NUPN_SUPPORTED_VERSION.equals(version)) {
+				hasNUPNToolspecific = true;
+				vn.pop();
+				break;
+			} else {
+				log.warn("NUPN toolspecific element detected in the PNML, but version not supported: {}", version);
+				log.warn("I support NUPN toolspecific version {}", NUPN_SUPPORTED_VERSION);
+			}
+			vn.pop();
+		}
 
 		// select initial places, assign ids to them
+		ap.resetXPath();
+		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.MARKED_PLACES);
 		List<Long> initPlaces = new ArrayList<>();
 		StringBuilder initPlacesId = new StringBuilder();
@@ -852,7 +873,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					pId = placesId2bpnMap.getLong(id);
 					// placesId2bpnMap.put(id, pId);
 					initPlaces.add(pId);
-					psQueue.put(pId + WS + id + NL);
+					if (!hasNUPNToolspecific) psQueue.put(pId + WS + id + NL);
 					initPlacesId.append(id + COMMAWS);
 				} catch (InterruptedException e) {
 					log.error(e.getMessage());
@@ -922,45 +943,37 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		}
 		nupnsb.append(NL);
 
-		// Check existence of nupn toolspecific
-		boolean hasNUPNToolspecific = false;
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
-		ap.selectXPath(PNMLPaths.TOOL_SPECIFIC);
-		String tool, version;
-		while ((ap.evalXPath()) != -1) {
-			vn.push();
-			tool = vn.toString(vn.getAttrVal(PNMLPaths.TOOL_ATTR));
-			version = vn.toString(vn.getAttrVal(PNMLPaths.VERSION_ATTR));
-			if ("nupn".equals(tool) && "1.1".equals(version)) {
-				hasNUPNToolspecific = true;
-				break;
-			}
-			vn.pop();
-		}
 		// to write PNML places id mapping to NUPN id
 		final StringBuilder tsmapping = new StringBuilder();
 		// If there is nupn toolspecific, use that info to build units
 		if (hasNUPNToolspecific) {
-			log.info("NUPN toolspecific element detected in the PNML. Will use that info to build units.");
-			vn.toElement(VTDNavHuge.FIRST_CHILD);
-			while (!vn.matchElement(STRUCTURE)) {
-				vn.toElement(VTDNavHuge.NEXT_SIBLING);
+			log.info("NUPN toolspecific element detected in the PNML. Will use that information to build units.");
+			/*
+			 * vn.toElement(VTDNavHuge.FIRST_CHILD); while
+			 * (!vn.matchElement(STRUCTURE)) {
+			 * vn.toElement(VTDNavHuge.NEXT_SIBLING); }
+			 */
+			ap.resetXPath();
+			vn.toElement(VTDNavHuge.ROOT);
+			ap.selectXPath(PNMLPaths.NUPN_STRUCTURE);
+			while ((ap.evalXPath()) != -1) {
+				vn.push();
+				// write number of units
+				int nbUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.UNITS_ATTR))).intValue();
+				nupnsb.append(UNITS).append(WS).append(HK).append(nbUn).append(WS).append(ZERO).append(DOTS)
+						.append(nbUn - 1).append(NL);
+				// write root unit
+				int rootUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.ROOT_ATTR)).substring(1)).intValue();
+				nupnsb.append(ROOT_UNIT).append(WS).append(rootUn).append(NL);
+				nupnQueue.put(nupnsb.toString());
+				nupnsb.delete(0, nupnsb.length());
+				vn.pop();
 			}
-			// write number of units
-			int nbUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.UNITS_ATTR))).intValue();
-			nupnsb.append(UNITS).append(WS).append(HK).append(nbUn).append(WS).append(ZERO).append(DOTS)
-					.append(nbUn - 1).append(NL);
-			// write root unit
-			int rootUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.ROOT_ATTR)).substring(1)).intValue();
-			nupnsb.append(ROOT_UNIT).append(WS).append(rootUn).append(NL);
-			nupnQueue.put(nupnsb.toString());
-			nupnsb.delete(0, nupnsb.length());
 			// write each unit
 			ap.resetXPath();
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.NUPN_UNIT);
-			String places, subunits;
+			String places = "", subunits = "";
 			String[] elemId;
 			LongList placesIntId = new LongArrayList();
 			long plId;
@@ -969,21 +982,23 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				nupnsb.append(vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR)).toUpperCase());
 				// places
 				vn.toElement(VTDNavHuge.FIRST_CHILD);
-				places = vn.toString(vn.getText()).trim();
+				if (vn.getText() != -1) {
+					places = vn.toString(vn.getText()).trim();
+				}
 				if (!places.isEmpty()) {
 					elemId = places.split(WS);
 					for (String s : elemId) {
 						plId = placesId2bpnMap.getLong(s);
 						if (plId != -1L) {
 							placesIntId.add(plId);
-							tsmapping.append(s).append(WS).append(plId).append(NL);
+							tsmapping.append(plId).append(WS).append(s).append(NL);
 							psQueue.put(tsmapping.toString());
 							tsmapping.delete(0, tsmapping.length());
 						}
 					}
 					nupnsb.append(WS).append(HK).append(placesIntId.size());
 					if (placesIntId.size() > 1) {
-						placesIntId.stream().map(i -> nupnsb.append(WS).append(i));
+						placesIntId.stream().forEach(i -> nupnsb.append(WS).append(i));
 					} else {
 						nupnsb.append(WS).append(placesIntId.get(0)).append(DOTS).append(placesIntId.get(0));
 					}
@@ -992,19 +1007,24 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				}
 				// subunits
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
-				subunits = vn.toString(vn.getText()).trim();
+				if (vn.getText() != -1) {
+					subunits = vn.toString(vn.getText()).trim();
+				}
 				if (!subunits.isEmpty()) {
 					elemId = subunits.split(WS);
 					nupnsb.append(WS).append(HK).append(elemId.length);
 					for (String s : elemId) {
 						nupnsb.append(WS).append(s.substring(1));
 					}
-					nupnsb.append(NL);
 				} else {
-					nupnsb.append(WS).append(HK).append(ZERO).append(NL);
+					nupnsb.append(WS).append(HK).append(ZERO);
 				}
+				nupnsb.append(NL);
 				nupnQueue.put(nupnsb.toString());
 				nupnsb.delete(0, nupnsb.length());
+				placesIntId.clear();
+				subunits = "";
+				places = "";
 				vn.toElement(VTDNavHuge.PARENT);
 				vn.pop();
 			}
@@ -1044,7 +1064,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			ap.resetXPath();
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
-			
+
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
 				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
