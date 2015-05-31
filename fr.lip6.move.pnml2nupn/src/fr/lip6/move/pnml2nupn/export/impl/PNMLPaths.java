@@ -20,7 +20,7 @@
 package fr.lip6.move.pnml2nupn.export.impl;
 
 /**
- * A set of in-memory XPATH queries used to parsing PNML.
+ * A set of in-memory XPATH queries used to parse PNML.
  * @author lom
  *
  */
@@ -65,5 +65,33 @@ public final class PNMLPaths {
 	public static final String COUNT_PLACES_PATH = "count(" + PLACES_PATH + ")";
 
 	public static final String COUNT_TRANSITIONS_PATH = "count(" + TRANSITIONS_PATH + ")";
+	
+	public static final String TOOL_SPECIFIC = PAGES_PATH + "/toolspecific";
+	
+	public static final String NUPN_SIZE = TOOL_SPECIFIC + "/size";
+	
+	public static final String NUPN_STRUCTURE = TOOL_SPECIFIC + "/structure";
+	
+	public static final String NUPN_UNIT = NUPN_STRUCTURE + "/unit";
+	
+	public static final String NUPN_UNIT_PLACES = NUPN_UNIT + "/places";
+	
+	public static final String NUPN_UNIT_SUBUNITS = NUPN_UNIT + "/subunits";
+	
+	public static final String TOOL_ATTR = "tool";
+	
+	public static final String VERSION_ATTR = "version";
+	
+	public static final String PLACES_ATTR = "places";
+	
+	public static final String TRANS_ATTR = "transitions";
+	
+	public static final String ARCS_ATTR = "arcs";
+	
+	public static final String UNITS_ATTR = "units";
+	
+	public static final String ROOT_ATTR = "root";
+	
+	public static final String SAFE_ATTR = "safe";
 
 }

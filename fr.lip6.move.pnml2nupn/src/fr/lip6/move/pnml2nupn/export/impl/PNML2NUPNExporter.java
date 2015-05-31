@@ -21,8 +21,10 @@ package fr.lip6.move.pnml2nupn.export.impl;
 
 import it.unimi.dsi.fastutil.ints.IntBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -92,6 +94,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private static final String DOTS = "...";
 	private static final String COMMA = ",";
 	private static final String COMMAWS = COMMA + WS;
+	private static final String STRUCTURE = "structure";
 
 	private Logger log = null;
 
@@ -294,8 +297,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				}
 				if (MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 					journal.info("Unit safeness checking only requested. Will stop here.");
-					throw new EarlyStopException ("Unit safeness checking only on " +
-							 this.currentInputFile.getCanonicalPath());
+					throw new EarlyStopException("Unit safeness checking only on "
+							+ this.currentInputFile.getCanonicalPath());
 				}
 			} else {
 				log.warn("Bounds checking is disabled. I don't know if the net is 1-Safe.");
@@ -307,7 +310,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			ocbBpn = PNML2NUPNUtils.openOutChannel(outFile);
 			ocbTs = PNML2NUPNUtils.openOutChannel(outTSFile);
 			ocbPs = PNML2NUPNUtils.openOutChannel(outPSFile);
-			// Queues for BPN, transitions and places id mapping
+			// Queues for NUPN, transitions and places id mapping
 			nupnQueue = initQueue();
 			tsQueue = initQueue();
 			psQueue = initQueue();
@@ -371,7 +374,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private void insertCreatorPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
 		insertPragma(MainPNML2NUPN.PRAGMA_CREATOR + NL, nupnQueue);
 	}
-	
+
 	private void insertPragma(String pragma, BlockingQueue<String> nupnQueue) throws InterruptedException {
 		nupnQueue.put(pragma);
 	}
@@ -730,7 +733,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		}
 	}
 
-	private void exportPlacesIntoUnits(AutoPilotHuge ap, VTDNavHuge vn, BlockingQueue<String> bpnQueue,
+	private void exportPlacesIntoUnits(AutoPilotHuge ap, VTDNavHuge vn, BlockingQueue<String> nupnQueue,
 			BlockingQueue<String> psQueue) throws XPathParseExceptionHuge, XPathEvalExceptionHuge, NavExceptionHuge,
 			InvalidSafeNetException, InternalException, InterruptedException, InvalidNetException, IOException {
 		// long iDCount = 0L;
@@ -845,8 +848,9 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			if (id != null) {
 				try {
-					pId = iDCount++;
-					placesId2bpnMap.put(id, pId);
+					// pId = iDCount++;
+					pId = placesId2bpnMap.getLong(id);
+					// placesId2bpnMap.put(id, pId);
 					initPlaces.add(pId);
 					psQueue.put(pId + WS + id + NL);
 					initPlacesId.append(id + COMMAWS);
@@ -860,7 +864,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 		if (nbUnsafePlaces > 0) {
 			unsafePlaces = true;
-			bpnQueue.put(MainPNML2NUPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK + totalMkg + WS + HK + nbUnsafePlaces + WS
+			nupnQueue.put(MainPNML2NUPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK + totalMkg + WS + HK + nbUnsafePlaces + WS
 					+ minMarking + DOTS + maxMarking + NL);
 			log.warn("There are {} unsafe initial places in this net.", nbUnsafePlaces);
 			unsafePlacesId.delete(unsafePlacesId.length() - 2, unsafePlacesId.length());
@@ -896,104 +900,193 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		buildTransitions(ap, vn);
-		buildUnsafeArcsPragma(bpnQueue);
+		buildUnsafeArcsPragma(nupnQueue);
 
 		// count all places
 		// ap.resetXPath();
 		// vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.COUNT_PLACES_PATH);
-		long nb = (long) ap.evalXPathToNumber();
-		StringBuilder bpnsb = new StringBuilder();
+		long nbPl = (long) ap.evalXPathToNumber();
+		final StringBuilder nupnsb = new StringBuilder();
 		// Write Number of places
-		bpnsb.append(PLACES).append(WS).append(HK).append(nb).append(WS).append(ZERO).append(DOTS).append(nb - 1)
+		nupnsb.append(PLACES).append(WS).append(HK).append(nbPl).append(WS).append(ZERO).append(DOTS).append(nbPl - 1)
 				.append(NL);
 		// Handle case where there are several initial places
 		if (initPlaces.size() > 1) {
-			bpnsb.append(INIT_PLACES).append(WS).append(HK).append(initPlaces.size());
+			nupnsb.append(INIT_PLACES).append(WS).append(HK).append(initPlaces.size());
 			for (Long l : initPlaces) {
-				bpnsb.append(WS).append(l);
+				nupnsb.append(WS).append(l);
 			}
 		} else {
-			bpnsb.append(INIT_PLACE).append(WS).append(ZERO);
+			nupnsb.append(INIT_PLACE).append(WS).append(ZERO);
 		}
-		bpnsb.append(NL);
-		// Write the number of Units. Check case there is just one place.
-		if (nb > 1) {
-			bpnsb.append(UNITS).append(WS).append(HK).append(nb + 1).append(WS).append(ZERO).append(DOTS).append(nb)
-					.append(NL);
-		} else {
-			bpnsb.append(UNITS).append(WS).append(HK).append(nb).append(WS).append(ZERO).append(DOTS).append(nb - 1)
-					.append(NL);
-		}
+		nupnsb.append(NL);
 
-		// Root unit declaration - id is N - 1. Check case there is just one
-		// place.
-		if (nb > 1) {
-			bpnsb.append(ROOT_UNIT).append(WS).append(nb).append(NL);
-		} else {
-			bpnsb.append(ROOT_UNIT).append(WS).append(nb - 1).append(NL);
-		}
-		bpnQueue.put(bpnsb.toString());
-		bpnsb.delete(0, bpnsb.length());
-
-		// One place per unit, keep track of their PNML id in ts file
-		// First the initial places
-		long count = 0L;
-		for (Long l : initPlaces) {
-			bpnsb.append(U).append(count).append(WS).append(HK).append(ONE).append(WS).append(l).append(DOTS).append(l)
-					.append(WS).append(HK).append(ZERO).append(NL);
-			bpnQueue.put(bpnsb.toString());
-			count++;
-			bpnsb.delete(0, bpnsb.length());
-		}
-
-		// Then the rest
+		// Check existence of nupn toolspecific
+		boolean hasNUPNToolspecific = false;
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
-		ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
-		StringBuilder tsmapping = new StringBuilder();
+		ap.selectXPath(PNMLPaths.TOOL_SPECIFIC);
+		String tool, version;
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
-			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
-			pId = placesId2bpnMap.getLong(id);
-			/*
-			 * if (pId == -1L) { pId = iDCount++; placesId2bpnMap.put(id, pId);
-			 * }
-			 */
-			tsmapping.append(pId).append(WS).append(id).append(NL);
-			psQueue.put(tsmapping.toString());
-			bpnsb.append(U).append(count).append(WS).append(HK).append(ONE).append(WS).append(pId).append(DOTS)
-					.append(pId).append(WS).append(HK).append(ZERO).append(NL);
-			bpnQueue.put(bpnsb.toString());
-			// placesId2bpnMap.put(id, iDCount);
-			bpnsb.delete(0, bpnsb.length());
-			tsmapping.delete(0, tsmapping.length());
-			count++;
-			// iDCount++;
+			tool = vn.toString(vn.getAttrVal(PNMLPaths.TOOL_ATTR));
+			version = vn.toString(vn.getAttrVal(PNMLPaths.VERSION_ATTR));
+			if ("nupn".equals(tool) && "1.1".equals(version)) {
+				hasNUPNToolspecific = true;
+				break;
+			}
 			vn.pop();
 		}
-		tsmapping = null;
-		// / Root Unit N and its subunits. Check case there is just one place.
-		if (nb > 1) {
-			bpnsb.append(U).append(nb).append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS)
-					.append(ZERO).append(WS).append(HK).append(nb);
-			for (count = 0L; count < nb; count++) {
-				bpnsb.append(WS).append(count);
+		// to write PNML places id mapping to NUPN id
+		final StringBuilder tsmapping = new StringBuilder();
+		// If there is nupn toolspecific, use that info to build units
+		if (hasNUPNToolspecific) {
+			log.info("NUPN toolspecific element detected in the PNML. Will use that info to build units.");
+			vn.toElement(VTDNavHuge.FIRST_CHILD);
+			while (!vn.matchElement(STRUCTURE)) {
+				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
-		} else if (nb == 1) {
-			// DO NOTHING, already handled above.
-			log.warn("I encountered the case where there is just one place in the net.");
-		} else { // FIXME This case should not happen.
-			bpnsb.append(U).append(nb).append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS)
-					.append(ZERO).append(WS).append(HK).append(ZERO);
-			log.error("I encountered the case where there is no place at all in the net.");
-			log.error("This violates the rules stating that root unit must have at least 2 sub-units, if it does not contain any place.");
-			throw new InvalidNetException("No place in the net! See error messages above.");
+			// write number of units
+			int nbUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.UNITS_ATTR))).intValue();
+			nupnsb.append(UNITS).append(WS).append(HK).append(nbUn).append(WS).append(ZERO).append(DOTS)
+					.append(nbUn - 1).append(NL);
+			// write root unit
+			int rootUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.ROOT_ATTR)).substring(1)).intValue();
+			nupnsb.append(ROOT_UNIT).append(WS).append(rootUn).append(NL);
+			nupnQueue.put(nupnsb.toString());
+			nupnsb.delete(0, nupnsb.length());
+			// write each unit
+			ap.resetXPath();
+			vn.toElement(VTDNavHuge.ROOT);
+			ap.selectXPath(PNMLPaths.NUPN_UNIT);
+			String places, subunits;
+			String[] elemId;
+			LongList placesIntId = new LongArrayList();
+			long plId;
+			while ((ap.evalXPath()) != -1) {
+				vn.push();
+				nupnsb.append(vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR)).toUpperCase());
+				// places
+				vn.toElement(VTDNavHuge.FIRST_CHILD);
+				places = vn.toString(vn.getText()).trim();
+				if (!places.isEmpty()) {
+					elemId = places.split(WS);
+					for (String s : elemId) {
+						plId = placesId2bpnMap.getLong(s);
+						if (plId != -1L) {
+							placesIntId.add(plId);
+							tsmapping.append(s).append(WS).append(plId).append(NL);
+							psQueue.put(tsmapping.toString());
+							tsmapping.delete(0, tsmapping.length());
+						}
+					}
+					nupnsb.append(WS).append(HK).append(placesIntId.size());
+					if (placesIntId.size() > 1) {
+						placesIntId.stream().map(i -> nupnsb.append(WS).append(i));
+					} else {
+						nupnsb.append(WS).append(placesIntId.get(0)).append(DOTS).append(placesIntId.get(0));
+					}
+				} else {
+					nupnsb.append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS).append(ZERO);
+				}
+				// subunits
+				vn.toElement(VTDNavHuge.NEXT_SIBLING);
+				subunits = vn.toString(vn.getText()).trim();
+				if (!subunits.isEmpty()) {
+					elemId = subunits.split(WS);
+					nupnsb.append(WS).append(HK).append(elemId.length);
+					for (String s : elemId) {
+						nupnsb.append(WS).append(s.substring(1));
+					}
+					nupnsb.append(NL);
+				} else {
+					nupnsb.append(WS).append(HK).append(ZERO).append(NL);
+				}
+				nupnQueue.put(nupnsb.toString());
+				nupnsb.delete(0, nupnsb.length());
+				vn.toElement(VTDNavHuge.PARENT);
+				vn.pop();
+			}
+		} else {
+
+			// Write the number of Units. Check case there is just one place.
+			if (nbPl > 1) {
+				nupnsb.append(UNITS).append(WS).append(HK).append(nbPl + 1).append(WS).append(ZERO).append(DOTS)
+						.append(nbPl).append(NL);
+			} else {
+				nupnsb.append(UNITS).append(WS).append(HK).append(nbPl).append(WS).append(ZERO).append(DOTS)
+						.append(nbPl - 1).append(NL);
+			}
+
+			// Root unit declaration - id is N - 1. Check case there is just one
+			// place.
+			if (nbPl > 1) {
+				nupnsb.append(ROOT_UNIT).append(WS).append(nbPl).append(NL);
+			} else {
+				nupnsb.append(ROOT_UNIT).append(WS).append(nbPl - 1).append(NL);
+			}
+			nupnQueue.put(nupnsb.toString());
+			nupnsb.delete(0, nupnsb.length());
+
+			// One place per unit, keep track of their PNML id in ts file
+			// First the initial places
+			long count = 0L;
+			for (Long l : initPlaces) {
+				nupnsb.append(U).append(count).append(WS).append(HK).append(ONE).append(WS).append(l).append(DOTS)
+						.append(l).append(WS).append(HK).append(ZERO).append(NL);
+				nupnQueue.put(nupnsb.toString());
+				count++;
+				nupnsb.delete(0, nupnsb.length());
+			}
+
+			// Then the rest
+			ap.resetXPath();
+			vn.toElement(VTDNavHuge.ROOT);
+			ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
+			
+			while ((ap.evalXPath()) != -1) {
+				vn.push();
+				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+				pId = placesId2bpnMap.getLong(id);
+				/*
+				 * if (pId == -1L) { pId = iDCount++; placesId2bpnMap.put(id,
+				 * pId); }
+				 */
+				tsmapping.append(pId).append(WS).append(id).append(NL);
+				psQueue.put(tsmapping.toString());
+				nupnsb.append(U).append(count).append(WS).append(HK).append(ONE).append(WS).append(pId).append(DOTS)
+						.append(pId).append(WS).append(HK).append(ZERO).append(NL);
+				nupnQueue.put(nupnsb.toString());
+				// placesId2bpnMap.put(id, iDCount);
+				nupnsb.delete(0, nupnsb.length());
+				tsmapping.delete(0, tsmapping.length());
+				count++;
+				// iDCount++;
+				vn.pop();
+			}
+			// / Root Unit N and its subunits. Check case there is just one
+			// place.
+			if (nbPl > 1) {
+				nupnsb.append(U).append(nbPl).append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS)
+						.append(ZERO).append(WS).append(HK).append(nbPl);
+				for (count = 0L; count < nbPl; count++) {
+					nupnsb.append(WS).append(count);
+				}
+			} else if (nbPl == 1) {
+				// DO NOTHING, already handled above.
+				log.warn("I encountered the case where there is just one place in the net.");
+			} else { // FIXME This case should not happen.
+				nupnsb.append(U).append(nbPl).append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS)
+						.append(ZERO).append(WS).append(HK).append(ZERO);
+				log.error("I encountered the case where there is no place at all in the net.");
+				log.error("This violates the rules stating that root unit must have at least 2 sub-units, if it does not contain any place.");
+				throw new InvalidNetException("No place in the net! See error messages above.");
+			}
+			nupnsb.append(NL);
+			nupnQueue.put(nupnsb.toString());
+			nupnsb.delete(0, nupnsb.length());
 		}
-		bpnsb.append(NL);
-		bpnQueue.put(bpnsb.toString());
-		bpnsb.delete(0, bpnsb.length());
-		bpnsb = null;
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 	}
