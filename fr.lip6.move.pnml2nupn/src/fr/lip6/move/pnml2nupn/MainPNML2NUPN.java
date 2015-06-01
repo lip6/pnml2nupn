@@ -225,7 +225,7 @@ public final class MainPNML2NUPN {
 			}
 
 		} else {
-			signatureMesg.append(" with default values for options");
+			signatureMesg.append(" with default values for all options.");
 		}
 	}
 
