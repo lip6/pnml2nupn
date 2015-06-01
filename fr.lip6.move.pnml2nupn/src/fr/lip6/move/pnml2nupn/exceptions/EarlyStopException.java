@@ -19,6 +19,12 @@
  */
 package fr.lip6.move.pnml2nupn.exceptions;
 
+/**
+ * Document early but normal stops of this translation tool, i.e. when it must stop without
+ * performing any NUPN generation.
+ * @author lom
+ *
+ */
 public class EarlyStopException extends Exception {
 
 	private static final long serialVersionUID = -1831941091402450999L;
