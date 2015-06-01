@@ -21,19 +21,26 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2015-05
+2015-06
  ------
 
 Changelog
 
+
 * What's new in version ${project.version}?
 
- * This version handles the {{{http://mcc.lip6.fr/nupn.php}NUPN tool-specific section}} in the input PNML document, if it is included.
+  * Debugged pattern matching on Bounds results.
+ 
+  * Early and normal stops of the tool handled separately from emergency ones.  
+
+* What's new in version 1.5.0?
+
+  * This version handles the {{{http://mcc.lip6.fr/nupn.php}NUPN tool-specific section}} in the input PNML document, if it is included.
  The information in that tool-specific section is used to build the units structure in the resulting NUPN.
 
 * What's new in version 1.4.1?
 
-  * Debugged Bounds tool result interpretation over infinite string pattern
+  * Debugged the Bounds tool results interpretation over infinite string pattern
   
   * The execution of the Bounds tool is now timed
   
