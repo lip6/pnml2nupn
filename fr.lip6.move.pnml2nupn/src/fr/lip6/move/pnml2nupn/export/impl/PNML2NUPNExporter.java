@@ -143,14 +143,14 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 	@Override
 	public void exportPNML(File inFile, File outFile, Logger journal) throws PNMLImportExportException,
-			InterruptedException, IOException {
+			InterruptedException, IOException, EarlyStopException {
 		initLog(journal);
 		export(inFile, outFile, journal);
 	}
 
 	@Override
 	public void exportPNML(String inFile, String outFile, Logger journal) throws PNMLImportExportException,
-			InterruptedException, IOException {
+			InterruptedException, IOException, EarlyStopException {
 		initLog(journal);
 		export(new File(inFile), new File(outFile), journal);
 	}
@@ -237,7 +237,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	}
 
 	private void export(File inFile, File outFile, Logger journal) throws PNMLImportExportException,
-			InterruptedException, IOException {
+			InterruptedException, IOException, EarlyStopException {
 		initLog(journal);
 		try {
 			this.currentInputFile = inFile;
@@ -255,7 +255,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	}
 
 	private void translateIntoNUPN(File inFile, File outFile, Logger journal) throws InvalidPNMLTypeException,
-			InterruptedException, PNMLImportExportException, IOException {
+			InterruptedException, PNMLImportExportException, IOException, EarlyStopException {
 		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
 		VTDGenHuge vg = new VTDGenHuge();
 		boolean isSafe = false;
@@ -279,12 +279,12 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				if (!(isSafe = isNet1Safe())) {
 					if (MainPNML2NUPN.isForceNUPNGen() && !MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 						journal.warn(
-								"This net is not 1-safe, but forced NUPN generation is set: {}",
+								"This net is not 1-safe (proven by the Bounds tool using structural analysis of place bounds), but forced NUPN generation is set: {}",
 								this.currentInputFile.getCanonicalPath());
 						journal.warn("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
 						journal.warn("Continuing NUPN generation.");
 					} else {
-						journal.error("This net is not 1-safe (according to the Bounds tool): "
+						journal.error("This net is not 1-safe (proven by the Bounds tool using structural analysis of place bounds): "
 								+ this.currentInputFile.getCanonicalPath());
 						journal.error("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
 						if (!MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
@@ -293,12 +293,12 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 						}
 					}
 				} else {
-					log.info("This net is 1-Safe (according to the Bounds tool): {}",
+					log.info("This net is 1-safe (proven by the Bounds tool using structural analysis of place bounds): {}",
 							this.currentInputFile.getCanonicalPath());
 				}
 				if (MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
 					journal.info("Unit safeness checking only requested. Will stop here.");
-					throw new EarlyStopException("Unit safeness checking only on "
+					throw new EarlyStopException("Unit safeness checking only requested on "
 							+ this.currentInputFile.getCanonicalPath());
 				}
 			} else {
@@ -355,8 +355,11 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			clearAllCollections();
 			log.info("See NUPN and mapping files: {}, {} and {}", outFile.getCanonicalPath(),
 					outTSFile.getCanonicalPath(), outPSFile.getCanonicalPath());
+		} catch (EarlyStopException e) {
+			normalStop(outFile);
+			throw e;
 		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | ParseExceptionHuge
-				| InvalidSafeNetException | InternalException | InvalidNetException | EarlyStopException e) {
+				| InvalidSafeNetException | InternalException | InvalidNetException  e) {
 			emergencyStop(outFile);
 			throw new PNMLImportExportException(e);
 		} catch (InterruptedException e) {
@@ -873,7 +876,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					pId = placesId2bpnMap.getLong(id);
 					// placesId2bpnMap.put(id, pId);
 					initPlaces.add(pId);
-					if (!hasNUPNToolspecific) psQueue.put(pId + WS + id + NL);
+					if (!hasNUPNToolspecific)
+						psQueue.put(pId + WS + id + NL);
 					initPlacesId.append(id + COMMAWS);
 				} catch (InterruptedException e) {
 					log.error(e.getMessage());
@@ -1169,29 +1173,39 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	 * Emergency stop.
 	 * 
 	 * @param outFile
-	 * @param nupnQueue
-	 * @param tsQueue
-	 * @param psQueue
-	 * @param ocbBpn
-	 * @param ocbTs
-	 * @param ocbPs
-	 * @param outTSFile
-	 * @param outPSFile
-	 * @param journal
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
 	private void emergencyStop(File outFile) throws InterruptedException, IOException {
+		stop(outFile);
+		log.error("Emergency stop. Cancelled the translation and released opened resources.");
+	}
+	
+	/**
+	 * Normal stop.
+	 * @param outFile
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	private void normalStop(File outFile) throws InterruptedException, IOException {
+		stop(outFile);
+	}
 
+	/**
+	 * Stop NUPN writers and releases opened resources
+	 * @param outFile
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	private void stop(File outFile) throws InterruptedException, IOException {
 		cancelWriters(nupnQueue, tsQueue, psQueue);
 		cancelWriter(uaQueue);
 		closeChannels(ocbBpn, ocbTs, ocbPs);
 		closeChannel(ocbUA);
 		deleteOutputFiles(outFile, outTSFile, outPSFile);
 		deleteOutputFile(outUAFile);
-		log.error("Emergency stop. Cancelled the translation and released opened resources.");
 	}
-
+	
 	/**
 	 * Emergency stop actions.
 	 * 
