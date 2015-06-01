@@ -59,7 +59,7 @@ public final class SafePNChecker {
 	private static String BOUNDS = "bounds";
 	private static String EXE = ".exe";
 	private static String BOUNDS_INPACKAGE = "main/resources/bounds";
-	private static String BOUNDS_PATTERN = "(.*)\\s\\[(\\d).{3}(\\d|o{2})\\]$";
+	private static String BOUNDS_PATTERN = "(.*)\\s\\[(\\d+).{3}(\\d+|o{2})\\]$";
 
 	private String pnmlDocPath;
 	private StringBuffer explain;
@@ -218,7 +218,8 @@ public final class SafePNChecker {
 			int val = Integer.valueOf(bound).intValue();
 			return val == ZERO;
 		} catch (NumberFormatException e) {
-			log.warn("While checking a bound is equal to 0: could not convert bound string {} to a number.", bound);
+			if (MainPNML2NUPN.isDebug())
+				log.warn("While checking a bound is equal to 0: could not convert bound string {} to a number.", bound);
 			return false;
 		}
 	}
@@ -228,7 +229,8 @@ public final class SafePNChecker {
 			int val = Integer.valueOf(bound).intValue();
 			return val == ONE;
 		} catch (NumberFormatException e) {
-			log.warn("While checking a bound is equal to 1: could not convert bound string {} to a number.", bound);
+			if (MainPNML2NUPN.isDebug())
+				log.warn("While checking a bound is equal to 1: could not convert bound string {} to a number.", bound);
 			return false;
 		}
 	}
@@ -313,11 +315,10 @@ public final class SafePNChecker {
 		// "resources/bounds");
 		Pattern p = Pattern.compile(BOUNDS_PATTERN);
 		Matcher m = p.matcher(args[0] + " " + args[1]);
-
+		System.out.println(args[0] + " " + args[1]);
 		boolean b = m.matches();
 		if (b) {
 			System.out.println("Matches!");
-
 			System.out.println(m.group(2) + "..." + m.group(3));
 		} else {
 			System.out.println("Does not match!");
