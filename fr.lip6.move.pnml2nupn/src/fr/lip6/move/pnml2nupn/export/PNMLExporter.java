@@ -25,6 +25,7 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 
+import fr.lip6.move.pnml2nupn.exceptions.EarlyStopException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
 
@@ -45,10 +46,10 @@ public interface PNMLExporter {
 			throws PNMLImportExportException, InterruptedException, IOException;
 
 	void exportPNML(File inFile, File outFile, Logger journal)
-			throws PNMLImportExportException, InterruptedException, IOException;
+			throws PNMLImportExportException, InterruptedException, IOException, EarlyStopException;
 
 	void exportPNML(String inFile, String outFile, Logger journal)
-			throws PNMLImportExportException, InterruptedException, IOException;
+			throws PNMLImportExportException, InterruptedException, IOException, EarlyStopException;
 
 	void hasUnsafeArcs(String inFile, String outFile, Logger journal)
 			throws InvalidPNMLTypeException, IOException,
