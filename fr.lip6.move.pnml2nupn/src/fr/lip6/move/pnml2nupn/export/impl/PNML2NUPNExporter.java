@@ -104,10 +104,10 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private Object2LongOpenHashMap<String> trId2bpnMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap = null;
-	private Object2ObjectOpenHashMap<String, IntBigArrayBigList> tr2InUnsafeArcsMap = null;
-	private Object2ObjectOpenHashMap<String, IntBigArrayBigList> tr2OutUnsafeArcsMap = null;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2InUnsafeArcsMap = null;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2OutUnsafeArcsMap = null;
 	private ObjectSet<String> unsafeNodes = null;
-	private Object2IntOpenHashMap<String> unsafeArcsMap = null;
+	private Object2LongOpenHashMap<String> unsafeArcsMap = null;
 
 	private File currentInputFile = null;
 	private SafePNChecker spnc = null;
@@ -190,7 +190,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
 			StringBuilder unsafeArcsId = new StringBuilder();
-			int val;
+			long val;
 			String id, src, trg;
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
@@ -198,7 +198,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				while (!vn.matchElement(TEXT)) {
 					vn.toElement(VTDNavHuge.NEXT_SIBLING);
 				}
-				val = Integer.parseInt(vn.toString(vn.getText()).trim());
+				val = Long.parseLong(vn.toString(vn.getText()).trim());
 				vn.toElement(VTDNavHuge.PARENT);
 				vn.toElement(VTDNavHuge.PARENT);
 				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
@@ -277,23 +277,33 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			if (MainPNML2NUPN.isUnitSafenessChecking()) {
 				log.info("Checking if this net is 1-Safe.");
 				if (!(isSafe = isNet1Safe())) {
-					if (MainPNML2NUPN.isForceNUPNGen() && !MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
-						journal.warn(
-								"This net is not 1-safe (proven by the Bounds tool using structural analysis of place bounds), but forced NUPN generation is set: {}",
-								this.currentInputFile.getCanonicalPath());
-						journal.warn("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
-						journal.warn("Continuing NUPN generation.");
+					if (SafePNChecker.isBoundsVerdictInconclusive()) {
+						journal.warn("This net cannot be proven 1-safe or unsafe (the Bounds tool could not compute the bounds using structural analysis of place bounds): "
+								+ this.currentInputFile.getCanonicalPath());
 					} else {
 						journal.error("This net is not 1-safe (proven by the Bounds tool using structural analysis of place bounds): "
 								+ this.currentInputFile.getCanonicalPath());
 						journal.error("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
+					}
+
+					if (MainPNML2NUPN.isForceNUPNGen() && !MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
+
+						journal.warn("Forced NUPN generation is set => Continuing NUPN generation.");
+					} else {
+
 						if (!MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
-							throw new InvalidSafeNetException("Unsafe net in "
-									+ this.currentInputFile.getCanonicalPath());
+							if (SafePNChecker.isBoundsVerdictInconclusive()) {
+								journal.warn("Potentially unsafe net (inconclusive verdict by the Bounds tool) => Continuing NUPN generation.");
+							} else {
+								throw new InvalidSafeNetException("Unsafe net in "
+										+ this.currentInputFile.getCanonicalPath());
+							}
 						}
+
 					}
 				} else {
-					log.info("This net is 1-safe (proven by the Bounds tool using structural analysis of place bounds): {}",
+					log.info(
+							"This net is 1-safe (proven by the Bounds tool using structural analysis of place bounds): {}",
 							this.currentInputFile.getCanonicalPath());
 				}
 				if (MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
@@ -359,7 +369,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			normalStop(outFile);
 			throw e;
 		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | ParseExceptionHuge
-				| InvalidSafeNetException | InternalException | InvalidNetException  e) {
+				| InvalidSafeNetException | InternalException | InvalidNetException e) {
 			emergencyStop(outFile);
 			throw new PNMLImportExportException(e);
 		} catch (InterruptedException e) {
@@ -418,11 +428,11 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	 */
 	private void initUnsafeTransMaps() {
 		if (tr2InUnsafeArcsMap == null) {
-			tr2InUnsafeArcsMap = new Object2ObjectOpenHashMap<String, IntBigArrayBigList>();
+			tr2InUnsafeArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
 			tr2InUnsafeArcsMap.defaultReturnValue(null);
 		}
 		if (tr2OutUnsafeArcsMap == null) {
-			tr2OutUnsafeArcsMap = new Object2ObjectOpenHashMap<String, IntBigArrayBigList>();
+			tr2OutUnsafeArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
 			tr2OutUnsafeArcsMap.defaultReturnValue(null);
 		}
 
@@ -444,7 +454,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	 */
 	private void initUnsafeArcsMap() {
 		if (unsafeArcsMap == null) {
-			unsafeArcsMap = new Object2IntOpenHashMap<>();
+			unsafeArcsMap = new Object2LongOpenHashMap<>();
 			unsafeArcsMap.defaultReturnValue(-1);
 		}
 		if (unsafeNodes == null) {
@@ -528,9 +538,9 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		String arc, src, trg, id;
 		long count = 0L;
 		long tId, pId;
-		int arcInsc = 0;
+		long arcInsc = 0;
 		LongBigArrayBigList pls = null;
-		IntBigArrayBigList arcVals = null;
+		LongBigArrayBigList arcVals = null;
 		// nbUnsafeTrans = 0L;
 
 		ap.selectXPath(PNMLPaths.TRANSITIONS_PATH);
@@ -571,11 +581,11 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				pls.add(pId);
 				// Unsafe node ?
 				if (unsafeNodes.contains(trg)) {
-					arcInsc = unsafeArcsMap.getInt(arc);
+					arcInsc = unsafeArcsMap.getLong(arc);
 					if (arcInsc != -1) {
 						arcVals = tr2InUnsafeArcsMap.get(trg);
 						if (arcVals == null) {
-							arcVals = new IntBigArrayBigList();
+							arcVals = new LongBigArrayBigList();
 							tr2InUnsafeArcsMap.put(trg, arcVals);
 						}
 						arcVals.add(arcInsc);
@@ -591,11 +601,11 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				pId = placesId2bpnMap.getLong(trg);
 				pls.add(pId);
 				if (unsafeNodes.contains(src)) {
-					arcInsc = unsafeArcsMap.getInt(arc);
+					arcInsc = unsafeArcsMap.getLong(arc);
 					if (arcInsc != -1) {
 						arcVals = tr2OutUnsafeArcsMap.get(src);
 						if (arcVals == null) {
-							arcVals = new IntBigArrayBigList();
+							arcVals = new LongBigArrayBigList();
 							tr2OutUnsafeArcsMap.put(src, arcVals);
 						}
 						arcVals.add(arcInsc);
@@ -615,9 +625,9 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	 * @throws InterruptedException
 	 */
 	private void buildUnsafeArcsPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
-		IntBigArrayBigList arcVals = null;
+		LongBigArrayBigList arcVals = null;
 		long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
-		int minValIn = -1, minValOut = -1, maxValIn = -1, maxValOut = -1;
+		long minValIn = -1, minValOut = -1, maxValIn = -1, maxValOut = -1;
 		long minDiff = -1000000L, maxDiff = -10000000L, diff = 0L, inValT = 0L, outValT = 0L;
 
 		nbUnsafeTrans = 0L;
@@ -629,7 +639,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 						.append(" incoming arc(s) with respective valuation(s):");
 				inValT = 0L;
 				outValT = 0L;
-				for (int v : arcVals) {
+				for (long v : arcVals) {
 					warnMsg.append(WS).append(v);
 					if (minValIn == -1 && v > maxValIn && v > minValIn) {
 						minValIn = v;
@@ -647,7 +657,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					warnMsg.append(", and ").append(arcVals.size64())
 							.append(" outgoing arc(s) with respective valuation(s):");
 					nbTransInOut++;
-					for (int v : arcVals) {
+					for (long v : arcVals) {
 						warnMsg.append(WS).append(v);
 						if (minValOut == -1 && v > maxValOut && v > minValOut) {
 							minValOut = v;
@@ -684,7 +694,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				nbTransOut++;
 				inValT = 0L;
 				outValT = 0L;
-				for (int v : arcVals) {
+				for (long v : arcVals) {
 					warnMsg.append(WS).append(v);
 					if (minValOut == -1 && v > maxValOut && v > minValOut) {
 						minValOut = v;
@@ -742,7 +752,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			InvalidSafeNetException, InternalException, InterruptedException, InvalidNetException, IOException {
 		// long iDCount = 0L;
 		long nbMarkedPlaces = 0L;
-		int minMarking = 0, maxMarking = 0, mkg, totalMkg = 0;
+		long minMarking = 0, maxMarking = 0, mkg, totalMkg = 0;
 		unsafePlaces = false;
 		unsafeArcs = false;
 		nbUnsafePlaces = 0L;
@@ -767,7 +777,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			while (!vn.matchElement(TEXT)) {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
-			mkg = Integer.parseInt(vn.toString(vn.getText()).trim());
+			mkg = Long.parseLong(vn.toString(vn.getText()).trim());
 			if (minMarking == 0 && mkg > maxMarking && mkg > minMarking) {
 				minMarking = mkg;
 				maxMarking = mkg;
@@ -790,7 +800,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.UNSAFE_ARCS);
-		int val;
+		long val;
 		String src, trg;
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
@@ -798,7 +808,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			while (!vn.matchElement(TEXT)) {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
-			val = Integer.parseInt(vn.toString(vn.getText()).trim());
+			val = Long.parseLong(vn.toString(vn.getText()).trim());
 			vn.toElement(VTDNavHuge.PARENT);
 			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
@@ -866,7 +876,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			while (!vn.matchElement(TEXT)) {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
-			totalMkg += Integer.parseInt(vn.toString(vn.getText()).trim());
+			totalMkg += Long.parseLong(vn.toString(vn.getText()).trim());
 			vn.toElement(VTDNavHuge.PARENT);
 			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
@@ -1144,7 +1154,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
 			mkg = vn.toString(vn.getText());
-			if (Integer.valueOf(mkg) == 1) {
+			if (Long.valueOf(mkg) == 1) {
 				count++;
 			} else {
 				break;
@@ -1180,9 +1190,10 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		stop(outFile);
 		log.error("Emergency stop. Cancelled the translation and released opened resources.");
 	}
-	
+
 	/**
 	 * Normal stop.
+	 * 
 	 * @param outFile
 	 * @throws InterruptedException
 	 * @throws IOException
@@ -1193,6 +1204,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 	/**
 	 * Stop NUPN writers and releases opened resources
+	 * 
 	 * @param outFile
 	 * @throws InterruptedException
 	 * @throws IOException
@@ -1205,7 +1217,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		deleteOutputFiles(outFile, outTSFile, outPSFile);
 		deleteOutputFile(outUAFile);
 	}
-	
+
 	/**
 	 * Emergency stop actions.
 	 * 

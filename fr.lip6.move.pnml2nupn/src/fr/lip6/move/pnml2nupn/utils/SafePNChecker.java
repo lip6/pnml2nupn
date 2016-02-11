@@ -66,6 +66,8 @@ public final class SafePNChecker {
 	private Timer timer;
 	private int boundsExitValue;
 	private org.slf4j.Logger log;
+	/*The bounds tool might not be able to compute the bounds: [Cannot compute the bound...Cannot compute the bound]*/
+	private static boolean inconclusive;
 
 	public SafePNChecker(String pnmlDocumentPath) {
 		this.setPnmlDocPath(pnmlDocumentPath);
@@ -110,6 +112,10 @@ public final class SafePNChecker {
 	public String getExplanation() {
 		return explain.toString();
 	}
+	
+	public static boolean isBoundsVerdictInconclusive(){
+		return inconclusive;
+	}
 
 	private void initLog() {
 		log = LoggerFactory.getLogger(SafePNChecker.class.getCanonicalName());
@@ -123,7 +129,7 @@ public final class SafePNChecker {
 	}
 
 	private boolean checkNetIs1Safe(File camiFile, File tmpBoundFile) throws IOException, ExecutionException {
-		boolean totalRes = true;
+		boolean totalRes = true, neverMatched = true;
 		boolean ligneRes;
 		List<String> command = new ArrayList<String>();
 		command.add(tmpBoundFile.getCanonicalPath());
@@ -164,6 +170,7 @@ public final class SafePNChecker {
 							explain.append(line).append(SEP);
 						}
 					}
+					neverMatched = false;
 				}
 			} while ((line = br.readLine()) != null);
 		}
@@ -189,6 +196,12 @@ public final class SafePNChecker {
 		}
 		if (explain.length() != 0) {
 			explain.delete(explain.length() - 2, explain.length());
+		}
+		if (neverMatched) {
+			inconclusive = true;
+			totalRes = false;
+		} else {
+			inconclusive = false;
 		}
 		return totalRes;
 	}

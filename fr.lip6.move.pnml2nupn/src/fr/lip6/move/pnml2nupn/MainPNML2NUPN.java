@@ -53,7 +53,7 @@ public final class MainPNML2NUPN {
 	public static final String WSDASH = " -";
 	public static final String XP = "!";
 	public static final String TOOL_NAME = "pnml2nupn";
-	public static final String VERSION = "1.5.1";
+	public static final String VERSION = "1.5.2";
 	public static final String CREATOR = "creator";
 	public static final String UNIT_SAFE = "unit_safe";
 	public static final String BOUNDS = "cosyverif/bounds 1.0";

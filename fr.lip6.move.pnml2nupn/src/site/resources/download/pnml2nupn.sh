@@ -22,14 +22,14 @@
 
 #################################################################################################
 # Script to launch PNML 2 NuPN (1-Safe P/T Net) model transformation.                           #
-# Version: 2015-05-20       (since v1.4.0)                                                      #
+# Version: 2016-02-10       (since v1.5.2)                                                      #
 # Contributors: Lom M. Hillah                                                                   #
 # Institutions: Sorbonne Universités, Univ. Paris 06 and Univ. Paris Ouest, CNRS UMR 7606 (LIP6)#
 # Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]      #
 #################################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-1.4.0.jar
+JAR_FILE=pnml2nupn-1.5.2.jar
 
 # Constants
 NBPARAM=1

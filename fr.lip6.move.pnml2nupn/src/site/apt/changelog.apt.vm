@@ -21,13 +21,19 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2015-06
+2016-02
  ------
 
 Changelog
 
 
 * What's new in version ${project.version}?
+  
+  * Handles the case where Bounds cannot campute the bounds. Message in log warns about this case.
+  
+  * Dependency on PNML Framework 2.2.10
+
+* What's new in version 1.5.1?
 
   * Debugged pattern matching on Bounds results.
  

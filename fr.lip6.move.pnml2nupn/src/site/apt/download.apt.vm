@@ -21,7 +21,7 @@
 Download PNML to NUPN Converter ${project.version}
  ------
  ------
-2015-06
+2016-02
  ------
 
 Download PNML to NUPN Converter ${project.version}
@@ -40,7 +40,9 @@ Download PNML to NUPN Converter ${project.version}
 
 Previous stable versions
  
-  * Download {{{./download/pnml2nupn-1.5.0.jar}version 1.5.0}}
+ * Download {{{./download/pnml2nupn-1.5.1.jar}version 1.5.1}}
+ 
+ * Download {{{./download/pnml2nupn-1.5.0.jar}version 1.5.0}}
  
  * Download {{{./download/pnml2nupn-1.4.1.jar}version 1.4.1}}
  
