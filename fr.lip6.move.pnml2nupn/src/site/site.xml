@@ -149,6 +149,7 @@
 		</menu>
 		<menu name="Find out more" inherit="bottom">
 			<item name="Caesar.bdd" href="http://cadp.inria.fr/man/caesar.bdd.html" />
+			<item name="PNML Framework" href="http://pnml.lip6.fr" />
 			<item name="PNML.org" href="http://www.pnml.org" />
 			<item name="Project on GitHub" href="https://github.com/lhillah/pnml2nupn/tree/master/fr.lip6.move.pnml2nupn" />
 		</menu>
