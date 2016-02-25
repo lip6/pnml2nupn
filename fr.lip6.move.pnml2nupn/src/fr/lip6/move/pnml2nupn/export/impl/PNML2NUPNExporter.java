@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014-2015 Université Paris Ouest and Sorbonne Universités,
+ *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
  * 							Univ. Paris 06 - CNRS UMR
  * 							7606 (LIP6)
  *
@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import java_cup.Main;
+
 import javax.xml.bind.ValidationException;
 
 import org.slf4j.Logger;
@@ -74,6 +76,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 	private static final String NUPN_SUPPORTED_VERSION = "1.1";
 	private static final String TEXT = "text";
+	private static final String INSCRIPTION = "inscription";
 	private static final String TRANS_EXT = ".trans";
 	private static final String STATES_EXT = ".places";
 	private static final String UNSAFE_ARC = ".unsafe.arcs";
@@ -104,6 +107,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private Object2LongOpenHashMap<String> trId2bpnMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap = null;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2InAllArcsMap = null;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2OutAllArcsMap = null;
 	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2InUnsafeArcsMap = null;
 	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2OutUnsafeArcsMap = null;
 	private ObjectSet<String> unsafeNodes = null;
@@ -421,6 +426,14 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			tr2OutPlacesMap = new Long2ObjectOpenHashMap<>();
 			tr2OutPlacesMap.defaultReturnValue(null);
 		}
+		if (tr2InAllArcsMap == null) {
+			tr2InAllArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
+			tr2InAllArcsMap.defaultReturnValue(null);
+		}
+		if (tr2OutAllArcsMap == null) {
+			tr2OutAllArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
+			tr2OutAllArcsMap.defaultReturnValue(null);
+		}
 	}
 
 	/**
@@ -539,8 +552,10 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		long count = 0L;
 		long tId, pId;
 		long arcInsc = 0;
+		boolean foundInsc;
 		LongBigArrayBigList pls = null;
 		LongBigArrayBigList arcVals = null;
+		LongBigArrayBigList allArcVals = null;
 		// nbUnsafeTrans = 0L;
 
 		ap.selectXPath(PNMLPaths.TRANSITIONS_PATH);
@@ -591,6 +606,30 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 						arcVals.add(arcInsc);
 					}
 				}
+				// looking for inscription
+				if (vn.toElement(VTDNavHuge.FIRST_CHILD)) {
+					while (!(foundInsc = vn.matchElement(INSCRIPTION))) {
+						if (!vn.toElement(VTDNavHuge.NEXT_SIBLING)){
+							break;
+						}
+					}
+					if (foundInsc){
+						vn.toElement(VTDNavHuge.FIRST_CHILD);
+						while (!vn.matchElement(TEXT)) {
+							vn.toElement(VTDNavHuge.NEXT_SIBLING);
+						}
+						arcInsc = Long.parseLong(vn.toString(vn.getText()).trim());
+						// map the transition to all input arcs
+						allArcVals = tr2InAllArcsMap.get(trg);
+						if (allArcVals == null) {
+							allArcVals = new LongBigArrayBigList();
+							tr2InAllArcsMap.put(trg, allArcVals);
+						}
+						allArcVals.add(arcInsc);
+						vn.toElement(VTDNavHuge.PARENT);
+					}
+					vn.toElement(VTDNavHuge.PARENT);
+				}
 
 			} else {// transition is the source
 				pls = tr2OutPlacesMap.get(tId);
@@ -611,6 +650,30 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 						arcVals.add(arcInsc);
 					}
 				}
+				// looking for inscription
+				if (vn.toElement(VTDNavHuge.FIRST_CHILD)) {
+					while (!(foundInsc = vn.matchElement(INSCRIPTION))) {
+						if (!vn.toElement(VTDNavHuge.NEXT_SIBLING)){
+							break;
+						}
+					}
+					if (foundInsc){
+						vn.toElement(VTDNavHuge.FIRST_CHILD);
+						while (!vn.matchElement(TEXT)) {
+							vn.toElement(VTDNavHuge.NEXT_SIBLING);
+						}
+						arcInsc = Long.parseLong(vn.toString(vn.getText()).trim());
+						// map the transition to all input arcs
+						allArcVals = tr2OutAllArcsMap.get(src);
+						if (allArcVals == null) {
+							allArcVals = new LongBigArrayBigList();
+							tr2OutAllArcsMap.put(src, allArcVals);
+						}
+						allArcVals.add(arcInsc);
+						vn.toElement(VTDNavHuge.PARENT);
+					}
+					vn.toElement(VTDNavHuge.PARENT);
+				}
 			}
 			vn.pop();
 		}
@@ -628,7 +691,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		LongBigArrayBigList arcVals = null;
 		long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
 		long minValIn = -1, minValOut = -1, maxValIn = -1, maxValOut = -1;
-		long minDiff = -1000000L, maxDiff = -10000000L, diff = 0L, inValT = 0L, outValT = 0L;
+		long minDiff = -1_000_000L, maxDiff = -10_000_000L, diff = 0L, inValT = 0L, outValT = 0L;
 
 		nbUnsafeTrans = 0L;
 		if (unsafeTrans) {
@@ -670,6 +733,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 						outValT += v;
 					}
 					tr2OutUnsafeArcsMap.remove(s);
+					tr2InAllArcsMap.remove(s);
+					tr2OutAllArcsMap.remove(s);
 				} else {
 					nbTransIn++;
 				}
@@ -677,7 +742,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				log.warn(warnMsg.toString());
 				warnMsg.delete(0, warnMsg.length());
 				diff = outValT - inValT;
-				if (minDiff == -1000000L && diff > maxDiff && diff > minDiff) {
+				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
 					maxDiff = diff;
 				} else if (diff < minDiff) {
@@ -685,6 +750,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				} else if (diff > maxDiff) {
 					maxDiff = diff;
 				}
+				
+				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
 			}
 
 			for (String s : tr2OutUnsafeArcsMap.keySet()) {
@@ -710,7 +777,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				log.warn(warnMsg.toString());
 				warnMsg.delete(0, warnMsg.length());
 				diff = outValT - inValT;
-				if (minDiff == -1000000L && diff > maxDiff && diff > minDiff) {
+				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
 					maxDiff = diff;
 				} else if (diff < minDiff) {
@@ -718,7 +785,56 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				} else if (diff > maxDiff) {
 					maxDiff = diff;
 				}
+				tr2InAllArcsMap.remove(s);
+				tr2OutAllArcsMap.remove(s);
+				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
 			}
+			
+			// process the rest of the transitions (safe ones) to compute min-diff and max-diff
+			for (String s : tr2InAllArcsMap.keySet()) {
+				arcVals = tr2InAllArcsMap.get(s);
+				inValT = 0L;
+				outValT = 0L;
+				for (long v : arcVals) {
+					inValT += v;
+				}
+				arcVals = tr2OutAllArcsMap.get(s);
+				if (arcVals != null) {
+					for (long v : arcVals) {
+						outValT += v;
+					}
+					tr2OutAllArcsMap.remove(s);
+				}
+				diff = outValT - inValT;
+				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
+					minDiff = diff;
+					maxDiff = diff;
+				} else if (diff < minDiff) {
+					minDiff = diff;
+				} else if (diff > maxDiff) {
+					maxDiff = diff;
+				}
+				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+			}
+			for (String s : tr2OutAllArcsMap.keySet()) {
+				arcVals = tr2OutAllArcsMap.get(s);
+				inValT = 0L;
+				outValT = 0L;
+				for (long v : arcVals) {
+					outValT += v;
+				}
+				diff = outValT - inValT;
+				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
+					minDiff = diff;
+					maxDiff = diff;
+				} else if (diff < minDiff) {
+					minDiff = diff;
+				} else if (diff > maxDiff) {
+					maxDiff = diff;
+				}
+				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+			}
+				
 			// Write pragma
 			StringBuffer multArcsPrama = new StringBuffer();
 			multArcsPrama.append(MainPNML2NUPN.PRAGMA_MULTIPLE_ARCS)
@@ -1329,6 +1445,19 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		unsafeArcsMap.clear();
 		tr2InUnsafeArcsMap.clear();
 		tr2OutUnsafeArcsMap.clear();
+		tr2InAllArcsMap.clear();
+		tr2OutAllArcsMap.clear();
 		unsafeNodes.clear();
 	}
-}
+	
+	/**
+	 * Prints debug message (using info level), only if debug env variable is set.
+	 * @param msg the message to print
+	 * @param args optional arguments for variable substitution with {}
+	 */
+	private void debug(String msg, Object... args){
+		if (MainPNML2NUPN.isDebug()){
+			log.info(msg, args);
+		}
+	}
+}	

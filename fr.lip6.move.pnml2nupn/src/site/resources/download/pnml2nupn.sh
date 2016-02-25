@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-#  Copyright 2014-2015 Université Paris Ouest and Sorbonne Universités,
+#  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
 # 							Univ. Paris 06 - CNRS UMR
 # 							7606 (LIP6)
 #
