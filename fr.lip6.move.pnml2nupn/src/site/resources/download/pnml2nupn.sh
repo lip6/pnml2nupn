@@ -29,7 +29,7 @@
 #################################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-1.5.2.jar
+JAR_FILE=pnml2nupn-1.5.3.jar
 
 # Constants
 NBPARAM=1
@@ -44,9 +44,11 @@ JVM_ARGS="-d64 -server -Xmx7g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+Use
 CAMI_TMP_KEEP="-Dcami.tmp.keep=false"
 
 # Should the NuPN generated, even if the net is not 1-safe? Default is false.
-FORCE_NUPN_GEN="-Dforce.nupn.generation=false"
+FORCE_NUPN_GEN="-Dforce.nupn.generation=true"
 
 # Enable or disable unit safeness checking of the PNML model? Default is false.
+# This option would properly work only on *nix systems since it relies on 
+# the Bounds tool (embedded but deployed locally at runtime)
 UNIT_SAFENESS_CHECKING="-Dunit.safeness.checking=false"
 
 # Enable or disable unit safeness checking only? Default is false.
@@ -54,7 +56,7 @@ UNIT_SAFENESS_CHECKING_ONLY="-Dunit.safeness.checking.only=false"
 
 # How many places (at most) to report when the net is unsafe? 
 # (e.g. 0, 1, 2, 4, or -1 to specify 'all')
-UNSAFE_PLACES_NB_REPORT="-Dunsafe.places.nb.report=3"
+UNSAFE_PLACES_NB_REPORT="-Dunsafe.places.nb.report=10"
 
 # Check if the net has unsafe arcs. Default is false. 
 # This option is exlusive of all the others.When it is set, it deactivates the others. 
