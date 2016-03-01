@@ -109,6 +109,7 @@
 							<report>summary</report>
 							<report>dependency-info</report>
 							<report>dependencies</report>
+							<report>dependency-convergence</report>
 							<report>project-team</report>
 							<report>mailing-list</report>
 							<report>issue-tracking</report>
