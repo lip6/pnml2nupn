@@ -30,23 +30,31 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.bind.ValidationException;
+
+import org.slf4j.Logger;
+
+import com.ximpleware.extended.AutoPilotHuge;
+import com.ximpleware.extended.ParseExceptionHuge;
+import com.ximpleware.extended.VTDGenHuge;
+import com.ximpleware.extended.XMLMemMappedBuffer;
 
 import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
 import fr.lip6.move.pnml2nupn.exceptions.InternalException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidFileException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException;
+import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
+import fr.lip6.move.pnml2nupn.export.impl.NUPNConstants;
+import fr.lip6.move.pnml2nupn.export.impl.NUPNWriter;
 import fr.lip6.move.pnml2nupn.export.impl.OutChannelBean;
 
 /**
  * Provides a set of utility methods, useful mainly for channel-related
  * operations.
- * 
- * These operations are synchronized.
- * 
- * @author lom
  *
  */
 public final class PNML2NUPNUtils {
@@ -74,8 +82,32 @@ public final class PNML2NUPNUtils {
 			ocb.getFc().close();
 			ocb.getFos().close();
 		}
-
 	}
+	
+	/**
+	 * Closes output channels.
+	 * 
+	 * @param ocbBpn
+	 * @param ocbTs
+	 * @param ocbPs
+	 * @throws IOException
+	 */
+	public static final void closeChannels(OutChannelBean... channels) throws IOException {
+		for (OutChannelBean ch : channels) {
+			PNML2NUPNUtils.closeChannel(ch);
+		}
+	}
+	
+	/**
+	 * Closes an output channel.
+	 * 
+	 * @param cb
+	 * @throws IOException
+	 */
+	public static final void closeChannel(OutChannelBean cb) throws IOException {
+		closeOutChannel(cb);
+	}
+
 
 	/**
 	 * Writes output to file using Java NIO API. Buffer size is 8K and choped
@@ -239,6 +271,28 @@ public final class PNML2NUPNUtils {
 			throw e;
 		}
 	}
+	
+	/**
+	 * Emergency stop actions.
+	 * 
+	 * @param files the set of files to delete
+	 */
+	public static final void deleteOutputFiles(File... files) {
+		for (File f: files) {
+			PNML2NUPNUtils.deleteOutputFile(f);
+		}
+	}
+
+	/**
+	 * Deletes an output file.
+	 * 
+	 * @param oFile
+	 */
+	public static final void deleteOutputFile(File oFile) {
+		if (oFile != null && oFile.exists()) {
+			oFile.delete();
+		}
+	}
 
 	/**
 	 * Extracts the basename of a file path.
@@ -249,6 +303,110 @@ public final class PNML2NUPNUtils {
 	public static final String extractBaseName(String path) {
 		int dotPos = path.lastIndexOf('.');
 		return path.substring(0, dotPos);
+	}
+	
+	/**
+	 * Initialises and returns and blocking queue.
+	 * @return
+	 */
+	public static final BlockingQueue<String> initQueue() {
+		BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
+		return queue;
+	}
+	
+	/**
+	 * Creates and starts a new thread.
+	 * @param ocb
+	 * @param queue
+	 * @return the started thread
+	 */
+	public static final Thread startWriter(OutChannelBean ocb, BlockingQueue<String> queue) {
+		Thread t = new Thread(new NUPNWriter(ocb, queue));
+		t.start();
+		return t;
+	}
+	
+	/**
+	 * Cancels writers in case of emergency stop.
+	 * 
+	 * @param bpnQueue
+	 * @param tsQueue
+	 * @param psQueue
+	 * @throws InterruptedException
+	 */
+	@SafeVarargs
+	public static final void cancelWriters(BlockingQueue<String>...queues) throws InterruptedException {
+		for (BlockingQueue<String> q: queues) {
+			PNML2NUPNUtils.cancelWriter(q);
+		}
+	}
+	
+	/**
+	 * Cancel a writer by sending a cancellation message to it.
+	 * 
+	 * @param queue
+	 * @throws InterruptedException
+	 */
+	public static final void cancelWriter(BlockingQueue<String> queue) throws InterruptedException {
+		if (queue != null) {
+			queue.put(NUPNConstants.CANCEL);
+		}
+	}
+	/**
+	 * Normal stop of writers.
+	 * 
+	 * @param queues the set of queues to the writers
+	 * @throws InterruptedException
+	 */
+	@SafeVarargs
+	public static final void stopWriters(BlockingQueue<String>...queues) throws InterruptedException {
+		for (BlockingQueue<String> q : queues) {
+			PNML2NUPNUtils.stopWriter(q);
+		}
+	}
+	
+	/**
+	 * Normal stop of a writer.
+	 * 
+	 * @param queue
+	 * @throws InterruptedException
+	 */
+	public static final void stopWriter(BlockingQueue<String> queue) throws InterruptedException {
+		if (queue != null)
+			queue.put(NUPNConstants.STOP);
+	}
+	
+	public static final void insertCreatorPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
+		insertPragma(MainPNML2NUPN.PRAGMA_CREATOR + NUPNConstants.NL, nupnQueue);
+	}
+	
+	public static final void insertPragma(String pragma, BlockingQueue<String> nupnQueue) throws InterruptedException {
+		nupnQueue.put(pragma);
+	}
+	
+	public static final VTDGenHuge openXMLStream(File inFile) throws PNMLImportExportException {
+		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
+		VTDGenHuge vg = new VTDGenHuge();
+		try {
+			xb.readFile(inFile.getCanonicalPath());
+			vg.setDoc(xb);
+			vg.parse(true);
+		} catch (ParseExceptionHuge | IOException e) {
+			throw new PNMLImportExportException(e);
+		}
+		return vg;
+	}
+	
+	/**
+	 * Prints debug message (using info level), only if debug env variable is set.
+	 * @param msg the message to print
+	 * @param log  the logger to use
+	 * @param args optional arguments for variable substitution with {}
+	 */
+	public static final void debug(String msg,  Logger log, Object... args){
+		if (MainPNML2NUPN.isDebug()){
+			log.info(msg, args);
+		}
 	}
 
 }

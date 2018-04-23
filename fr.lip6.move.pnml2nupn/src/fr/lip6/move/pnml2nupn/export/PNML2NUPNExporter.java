@@ -33,22 +33,17 @@ import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
  * <p>
  * Interface to implement for exporting PNML into other formats.
  * </p>
- * <p>
- * It is offered as a convenience. The Event Bus method could alternatively be
- * used.
- * </p>
  * 
- * @author lom
  * 
  */
-public interface PNMLExporter {
-	void exportPNML(URI inFile, URI outFile, Logger journal)
+public interface PNML2NUPNExporter {
+	void export2NUPN(URI inFile, URI outFile, Logger journal)
 			throws PNMLImportExportException, InterruptedException, IOException;
 
-	void exportPNML(File inFile, File outFile, Logger journal)
+	void export2NUPN(File inFile, File outFile, Logger journal)
 			throws PNMLImportExportException, InterruptedException, IOException, EarlyStopException;
 
-	void exportPNML(String inFile, String outFile, Logger journal)
+	void export2NUPN(String inFile, String outFile, Logger journal)
 			throws PNMLImportExportException, InterruptedException, IOException, EarlyStopException;
 
 	void hasUnsafeArcs(String inFile, String outFile, Logger journal)

@@ -3,10 +3,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>fr.lip6.nupn</groupId>
+	<groupId>fr.lip6.pnml</groupId>
 	<artifactId>pnml2nupn</artifactId>
-	<version>1.5.3</version>
-
+	<version>2.1.0</version>
+	
 	<packaging>jar</packaging>
 
 	<name>PNML to NUPN Converter</name>
@@ -20,12 +20,11 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<manifestdir>META-INF</manifestdir>
-		<miage-repo.url>http://miage11.u-paris10.fr:8081/nexus/content/groups/public/</miage-repo.url>
 		<sonar.language>java</sonar.language>
 	</properties>
 
 	<organization>
-		<name>Sorbonne Universités, Univ. Paris 06, CNRS UMR 7606 (LIP6/MoVe)</name>
+		<name>Sorbonne Université, CNRS, LIP6, and Univ. Paris Nanterre</name>
 		<url>http://www.lip6.fr/</url>
 	</organization>
 
@@ -76,33 +75,12 @@
 		</mailingList>
 	</mailingLists>
 
-	<distributionManagement>
-		<repository>
-			<id>deployment</id>
-			<name>Public Releases</name>
-			<url>http://miage11.u-paris10.fr:8081/nexus/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>deployment</id>
-			<name>Snapshots</name>
-			<url>http://miage11.u-paris10.fr:8081/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<repositories>
-		<repository>
-			<id>miage11</id>
-			<url>${miage-repo.url}</url>
-		</repository>
-	</repositories>
-
-
 	<reporting>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.8.1</version>
+				<version>2.9</version>
 				<reportSets>
 					<reportSet>
 						<reports>
@@ -131,12 +109,14 @@
 		<dependency>
 			<groupId>com.ximpleware</groupId>
 			<artifactId>vtd-xml</artifactId>
-			<version>2.11</version>
+			<!-- Previous working in pnml2nupn 1.5.3: 2.11 -->
+			<version>2.13.4</version>
 		</dependency>
 		<dependency>
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>fastutil</artifactId>
-			<version>6.5.16</version>
+			<!-- Previous working in pnml2nupn 1.5.3: 6.5.16  -->
+			<version>8.1.1</version>
 		</dependency>
 	</dependencies>
 
@@ -171,66 +151,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.7.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>com.mycila</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<version>2.0</version>
-				<configuration>
-					<basedir>${basedir}</basedir>
-					<header>http://pnml.lip6.fr/resources/License</header>
-					<strictCheck>true</strictCheck>
-					<quiet>false</quiet>
-					<failIfMissing>false</failIfMissing>
-					<aggregate>false</aggregate>
-					<includes>
-						<include>src/**</include>
-						<include>**/test/**</include>
-					</includes>
-					<excludes>
-						<exclude>target/**</exclude>
-						<exclude>.clover/**</exclude>
-					</excludes>
-					<useDefaultExcludes>true</useDefaultExcludes>
-					<useDefaultMapping>true</useDefaultMapping>
-					<properties>
-						<year>${project.inceptionYear}-2016</year>
-						<organisation>
-							Université Paris Ouest and Sorbonne Universités,
-							Univ. Paris 06 - CNRS UMR
-							7606 (LIP6)
-						</organisation>
-						<maincontributor>Lom Messan Hillah</maincontributor>
-						<email>lom-messan.hillah@lip6.fr</email>
-						<mailing>lom-messan.hillah@lip6.fr</mailing>
-					</properties>
-					<encoding>UTF-8</encoding>
-				</configuration>
-				<executions>
-					<execution>
-						<id>sources-header</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>format</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>check-headers</id>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.5</version>
+				<version>3.6</version>
 				<dependencies>
 					<dependency>
 						<groupId>lt.velykis.maven.skins</groupId>
@@ -248,17 +178,18 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.0.2</version>
 				<configuration>
 					<archive>
 						<manifestFile>${manifestdir}/MANIFEST.MF</manifestFile>
+						<!-- <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> -->
 					</archive>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.4.3</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -289,7 +220,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.8.1</version>
+				<version>2.9</version>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -297,7 +228,7 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>3.3.0.603</version>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
@@ -343,7 +274,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>
@@ -357,7 +288,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>copy-to-mcc</id>
+			<id>copy-to-releases</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -367,8 +298,6 @@
 							<target>
 								<copy file="target/${project.artifactId}-${project.version}.jar"
 									tofile="src/site/resources/download/${project.artifactId}-${project.version}.jar" />
-								<copy file="target/${project.artifactId}-${project.version}.jar"
-									tofile="/Users/lom/Documents/Recherche/Projets/MCC/Repository/MCC/MODELS/__COMMON/${project.artifactId}-${project.version}.jar" />
 							</target>
 						</configuration>
 						<executions>

@@ -1,7 +1,6 @@
 #*
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2018 Sorbonne Université, CNRS, LIP6, Paris, France
+ *                      and Université Paris Nanterre, Nanterre, France
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -21,7 +20,7 @@
 Download PNML to NUPN Converter ${project.version}
  ------
  ------
-2016-02
+2018-04
  ------
 
 Download PNML to NUPN Converter ${project.version}
@@ -39,6 +38,14 @@ Download PNML to NUPN Converter ${project.version}
 ===
 
 Previous stable versions
+
+ * Download {{{./download/pnml2nupn-2.1.0.jar}version 2.1.0}}
+
+ * Download {{{./download/pnml2nupn-1.5.4.jar}version 1.5.4}}
+ 
+ * Download {{{./download/pnml2nupn-1.5.2.jar}version 1.5.3}}
+ 
+ * Download {{{./download/pnml2nupn-1.5.2.jar}version 1.5.2}}
  
  * Download {{{./download/pnml2nupn-1.5.1.jar}version 1.5.1}}
  
@@ -59,6 +66,10 @@ Previous stable versions
  * Download {{{./download/fr.lip6.move.pnml2bpn-1.1.11.jar}version 1.1.11}}
 
 ===
+
+Previous unstable versions (no more proposed for download)
+
+ * 1.5.3: bug in outputting the unique initial place ID (see changelog for version 1.5.4)
 
 Requirements
 

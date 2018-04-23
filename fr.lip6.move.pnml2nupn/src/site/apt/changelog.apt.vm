@@ -1,7 +1,6 @@
 #*
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2018 Sorbonne Université, CNRS, LIP6, Paris, France
+ *                     and Université Paris Nanterre, Nanterre, France
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -21,13 +20,30 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2016-02
+2018-04
  ------
 
 Changelog
 
-
 * What's new in version ${project.version}?
+  
+  * Bug fix: the bug introduced in calculating min-in and min-out in version 2.0.0 was fixed.
+  * Remove deprecated input options to the programme
+  * Add option to preserve NUPN tool info section in mixed mode, i.e. while performing the naive translation strategy.
+  
+* What's new in version 2.0.0?
+  
+  * Bug fix: Even when transitions are conservative, they were reported as completely unsafe.
+  * Bug fix: default inscriptions on arcs were not properly processed
+  * Dependencies upgrade 
+  * This version is unstable, and known to have a bug in the generated NUPN, so please do not use it.
+
+* What's new in version 1.5.4?
+  
+  * Bug fix: when there is only one initial place, the corresponding instruction (see the {{{http://cadp.inria.fr/man/nupn.html#sect2} NUPN manual page}}
+    in the NUPN automatically assigns 0 as ID to the unique initial place (whatever its actual ID).   
+
+* What's new in version 1.5.3?
   
   * Handles the case where Bounds cannot campute the bounds. Message in log warns about this case.
   

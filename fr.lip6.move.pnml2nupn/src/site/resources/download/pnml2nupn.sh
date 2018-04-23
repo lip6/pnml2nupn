@@ -1,35 +1,31 @@
 #! /bin/sh
 #
-#  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
-# 							Univ. Paris 06 - CNRS UMR
-# 							7606 (LIP6)
+#  Copyright 2014-2018 Université Paris Nanterre and Sorbonne Universités,
+# 							CNRS, LIP6
 #
 #  All rights reserved.   This program and the accompanying materials
 #  are made available under the terms of the Eclipse Public License v1.0
 #  which accompanies this distribution, and is available at
 #  http://www.eclipse.org/legal/epl-v10.html
 #
-#  Project leader / Initial Contributor:
+#  Project leader / Principal Contributor:
 #    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
-#
-#  Contributors:
-#    ${ocontributors} - <$oemails}>
 #
 #  Mailing list:
 #    lom-messan.hillah@lip6.fr
 #
 
 
-#################################################################################################
-# Script to launch PNML 2 NuPN (1-Safe P/T Net) model transformation.                           #
-# Version: 2016-02-10       (since v1.5.2)                                                      #
-# Contributors: Lom M. Hillah                                                                   #
-# Institutions: Sorbonne Universités, Univ. Paris 06 and Univ. Paris Ouest, CNRS UMR 7606 (LIP6)#
-# Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]      #
-#################################################################################################
+#############################################################################################
+# Script to launch PNML 2 NuPN (1-Safe P/T Net) model transformation.                       #
+# Version: 2018-04-23       (since v1.5.2)                                                  #
+# Contributors: Lom M. Hillah                                                               #
+# Institutions: Sorbonne Université, and Univ. Paris Nanterre, CNRS LIP6                    #
+# Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]  #
+#############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-1.5.3.jar
+JAR_FILE=pnml2nupn-1.5.4.jar
 
 # Constants
 NBPARAM=1
@@ -61,6 +57,12 @@ UNSAFE_PLACES_NB_REPORT="-Dunsafe.places.nb.report=10"
 # Check if the net has unsafe arcs. Default is false. 
 # This option is exlusive of all the others.When it is set, it deactivates the others. 
 HAS_UNSAFE_ARCS="-Dhas.unsafe.arcs=false"
+
+# Use NUPN tool info section (if present) to complement the naive generation strategy of NUPN.
+PRESERVE_NUPN_MIX="-Dpreserve.nupn.mix"
+
+# Use NUPN tool info section (if present) right from the beginning to generate the NUPN.
+PRESERVE_NUPN_NATIVE="-Dpreserve.nupn.native"
 
 # Activate debug mode (print stack traces in case of error)? Uncomment the following if you wish so.
 export PNML2NUPN_DEBUG=true

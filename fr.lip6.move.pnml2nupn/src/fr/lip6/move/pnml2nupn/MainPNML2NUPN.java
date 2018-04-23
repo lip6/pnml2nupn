@@ -1,7 +1,6 @@
 /**
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2016 Université Paris Nanterre and Sorbonne Université,
+ * 							 CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -11,8 +10,6 @@
  *  Project leader / Initial Contributor:
  *    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
  *
- *  Contributors:
- *    ${ocontributors} - <$oemails}>
  *
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
@@ -35,7 +32,7 @@ import fr.lip6.move.pnml2nupn.exceptions.EarlyStopException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
 import fr.lip6.move.pnml2nupn.export.PNML2NUPNFactory;
-import fr.lip6.move.pnml2nupn.export.PNMLExporter;
+import fr.lip6.move.pnml2nupn.export.PNML2NUPNExporter;
 
 /**
  * Main class for command-line invocation.
@@ -53,12 +50,13 @@ public final class MainPNML2NUPN {
 	public static final String WSDASH = " -";
 	public static final String XP = "!";
 	public static final String TOOL_NAME = "pnml2nupn";
-	public static final String VERSION = "1.5.3";
+	public static final String VERSION = "2.1.0";
 	public static final String CREATOR = "creator";
 	public static final String UNIT_SAFE = "unit_safe";
 	public static final String BOUNDS = "cosyverif/bounds 1.0";
 	public static final String PRAGMA_CREATOR = XP + CREATOR + WS + TOOL_NAME + WS + VERSION;
-	public static final String PRAGMA_UNIT_SAFE = XP + UNIT_SAFE + WS + BOUNDS;
+	public static final String PRAGMA_UNIT_SAFE_BY_CREATOR = XP + UNIT_SAFE;
+	public static final String PRAGMA_UNIT_SAFE_BY_BOUNDS = XP + UNIT_SAFE + WS + BOUNDS;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
 	public static final String PRAGMA_MULTIPLE_ARCS = XP + "multiple_arcs" + WS;
 	public static final String NUPN = "nupn";
@@ -78,22 +76,18 @@ public final class MainPNML2NUPN {
 	 * Stop after unit-safeness checking, whatever the result found.
 	 */
 	public static final String UNIT_SAFENESS_CHECKING_ONLY = "unit.safeness.checking.only";
-	/**
-	 * Remove transitions of unsafe arcs (incoming or outgoing)
-	 * 
-	 * @deprecated
-	 */
-	public static final String REMOVE_TRANS_UNSAFE_ARCS = "remove.unsafe.trans";
-	/**
-	 * Force generation of unsafe nets, where it is clearly checked that at
-	 * least one initial place has more than 1 token or the inscription of an
-	 * arc is valued to more than 1.
-	 * 
-	 * @deprecated
-	 */
-	public static final String GENERATE_UNSAFE = "generate.unsafe";
 
 	public static final String HAS_UNSAFE_ARCS = "has.unsafe.arcs";
+	
+	/**
+	 * Preserve NUPN toolspecific section when encountered during the generation - best effort mode.
+	 * Mixed generation strategy: naive one combined with NUPN information.
+	 */
+	public static final String PRESERVE_NUPN_MIX = "preserve.nupn.mix";
+	/**
+	 * Preserve NUPN toolspecific section right from the beginning by looking for it first - native mode
+	 */
+	public static final String PRESERVE_NUPN_NATIVE = "preserve.nupn.native";
 
 	private static StringBuilder signatureMesg;
 
@@ -111,6 +105,8 @@ public final class MainPNML2NUPN {
 	private static boolean isRemoveTransUnsafeArcs;
 	private static boolean isGenerateUnsafe;
 	private static boolean isHasUnsafeArcs;
+	private static boolean isPreserveNupnMix;
+	private static boolean isPreserveNupnNative;
 
 	private MainPNML2NUPN() {
 		super();
@@ -139,7 +135,10 @@ public final class MainPNML2NUPN {
 		checkUnitSafeCheckingOnlyMode(myLog, msg);
 		// Has unsafe arcs?
 		checkHashUnsafeArcsMode(myLog, msg);
-
+		// Preserve NUPN tool info in mixed mode?
+		checkPreserveNUPMix(myLog, msg);
+		// Preserve NUNPN info in native mode?
+		checkPreserveNUPNative(myLog, msg);
 		try {
 			extractSrcDestPaths(args);
 		} catch (IOException e1) {
@@ -150,7 +149,7 @@ public final class MainPNML2NUPN {
 			}
 		}
 		initSignatureMessage();
-		PNMLExporter pe = PNML2NUPNFactory.instance().createExporter();
+		PNML2NUPNExporter pe = PNML2NUPNFactory.instance().createExporter();
 		org.slf4j.Logger jr = LoggerFactory.getLogger(pe.getClass().getCanonicalName());
 		// TODO : optimize with threads
 		boolean error = false;
@@ -160,7 +159,7 @@ public final class MainPNML2NUPN {
 				if (isHasUnsafeArcs) {
 					pe.hasUnsafeArcs(pathSrc.get(i), pathDest.get(i), jr);
 				} else {
-					pe.exportPNML(new File(pathSrc.get(i)), new File(pathDest.get(i)), jr);
+					pe.export2NUPN(new File(pathSrc.get(i)), new File(pathDest.get(i)), jr);
 				}
 			} catch (PNMLImportExportException | InterruptedException | IOException | InvalidPNMLTypeException e) {
 				myLog.error(e.getMessage());
@@ -210,18 +209,17 @@ public final class MainPNML2NUPN {
 			if (!isUnitSafeCheckingOnly) {
 				signatureMesg.append(WSDASH).append(UNIT_SAFENESS_CHECKING_ONLY).append(EQ).append(isUnitSafeCheckingOnly);
 			}
-			if (isGenerateUnsafe) {
-				signatureMesg.append(WSDASH).append(GENERATE_UNSAFE).append(EQ).append(isGenerateUnsafe);
-			}
-			if (isRemoveTransUnsafeArcs) {
-				signatureMesg.append(WSDASH).append(REMOVE_TRANS_UNSAFE_ARCS).append(EQ)
-						.append(isRemoveTransUnsafeArcs);
-			}
 			if (!isCamiTmpDelete) {
 				signatureMesg.append(WSDASH).append(CAMI_TMP_KEEP).append(EQ).append(isCamiTmpDelete);
 			}
 			if (isHasUnsafeArcs) {
 				signatureMesg.append(WSDASH).append(HAS_UNSAFE_ARCS).append(EQ).append(isHasUnsafeArcs);
+			}
+			if (isPreserveNupnMix) {
+				signatureMesg.append(WSDASH).append(PRESERVE_NUPN_MIX).append(EQ).append(isPreserveNupnMix);
+			}
+			if (isPreserveNupnNative) {
+				signatureMesg.append(WSDASH).append(PRESERVE_NUPN_NATIVE).append(EQ).append(isPreserveNupnNative);
 			}
 
 		} else {
@@ -248,61 +246,6 @@ public final class MainPNML2NUPN {
 			isHasUnsafeArcs = false;
 			myLog.info("No request to find unsafe arcs (exclusive option).");
 		}
-	}
-
-	/**
-	 * 
-	 * @param myLog
-	 * @param msg
-	 * @deprecated
-	 */
-	private static void checkGenerateUnsafeMode(Logger myLog, StringBuilder msg) {
-		String genUnsafe = System.getProperty(GENERATE_UNSAFE);
-		if (genUnsafe != null && Boolean.valueOf(genUnsafe)) {
-			isGenerateUnsafe = true;
-			isOption = true;
-			myLog.warn("Generation of unsafe (structural) NUPN enabled.");
-		} else if (genUnsafe == null) {
-			isGenerateUnsafe = false;
-			msg.append(
-					"Generation of unsafe NUPN not set. Default is false. If you want to "
-							+ "generate unsafe (structural) NUPN, then invoke this program with ")
-					.append(GENERATE_UNSAFE).append(" property like so: java -D").append(GENERATE_UNSAFE)
-					.append("=true [JVM OPTIONS] -jar ...");
-			myLog.warn(msg.toString());
-			msg.delete(0, msg.length());
-		} else {
-			isGenerateUnsafe = false;
-			myLog.info("Generation of unsafe (structural) NuPN  disabled.");
-		}
-	}
-
-	/**
-	 * 
-	 * @param myLog
-	 * @param msg
-	 * @deprecated
-	 */
-	private static void checkRemoveTransUnsafeArcsMode(Logger myLog, StringBuilder msg) {
-		String removeua = System.getProperty(REMOVE_TRANS_UNSAFE_ARCS);
-		if (removeua != null && Boolean.valueOf(removeua)) {
-			isRemoveTransUnsafeArcs = true;
-			isOption = true;
-			myLog.warn("Removal of transitions connected to unsafe arcs enabled.");
-		} else if (removeua == null) {
-			isRemoveTransUnsafeArcs = false;
-			msg.append(
-					"Remove transitions of unsafe arcs not set. Default is false. If you want to "
-							+ "remove transitions of unsafe arcs, then invoke this program with ")
-					.append(REMOVE_TRANS_UNSAFE_ARCS).append(" property like so: java -D")
-					.append(REMOVE_TRANS_UNSAFE_ARCS).append("=true [JVM OPTIONS] -jar ...");
-			myLog.warn(msg.toString());
-			msg.delete(0, msg.length());
-		} else {
-			isRemoveTransUnsafeArcs = false;
-			myLog.warn("Remove transitions of unsafe arcs disabled.");
-		}
-
 	}
 
 	private static void checkUnitSafeCheckingMode(org.slf4j.Logger myLog, StringBuilder msg) {
@@ -402,6 +345,40 @@ public final class MainPNML2NUPN {
 					"Debug mode not set. If you want to activate the debug mode (print stacktraces in case of errors), then set the ")
 					.append(PNML2NUPN_DEBUG).append(" environment variable like so: export ").append(PNML2NUPN_DEBUG)
 					.append("=true.");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		}
+	}
+	
+	private static void checkPreserveNUPMix(org.slf4j.Logger myLog, StringBuilder msg) {
+		String preserveNupnMix = System.getProperty(PRESERVE_NUPN_MIX);
+		if (preserveNupnMix != null && Boolean.valueOf(preserveNupnMix)) {
+			isPreserveNupnMix = true;
+			isOption = true;
+			myLog.warn("Preserve NUPN tool specific info in mixed mode enabled");
+		} else {
+			isPreserveNupnMix = false;
+			msg.append(
+					"Preserving NUPN tool specific info in mixed mode not set. Default is false. If you want to preserve NUPN tool specific info when in naive generation mode, then invoke this program with ")
+					.append(PRESERVE_NUPN_MIX).append(" property like so: java -D").append(PRESERVE_NUPN_MIX)
+					.append("=true [JVM OPTIONS] -jar ...");
+			myLog.warn(msg.toString());
+			msg.delete(0, msg.length());
+		}
+	}
+	
+	private static void checkPreserveNUPNative(org.slf4j.Logger myLog, StringBuilder msg) {
+		String preserveNupnNative = System.getProperty(PRESERVE_NUPN_NATIVE);
+		if (preserveNupnNative != null && Boolean.valueOf(preserveNupnNative)) {
+			isPreserveNupnNative = true;
+			isOption = true;
+			myLog.warn("Preserve NUPN tool specific info in native mode enabled");
+		} else {
+			isPreserveNupnNative = false;
+			msg.append(
+					"Preserving NUPN tool specific info in native mode not set. Default is false. If you want to preserve NUPN tool specific info right from the beginning, then invoke this program with ")
+					.append(PRESERVE_NUPN_NATIVE).append(" property like so: java -D").append(PRESERVE_NUPN_NATIVE)
+					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.warn(msg.toString());
 			msg.delete(0, msg.length());
 		}
@@ -544,6 +521,14 @@ public final class MainPNML2NUPN {
 	 */
 	public static synchronized boolean isGenerateUnsafe() {
 		return isGenerateUnsafe;
+	}
+
+	public static boolean isPreserveNupnMix() {
+		return isPreserveNupnMix;
+	}
+	
+	public static boolean isPreserveNupnNative() {
+		return isPreserveNupnNative;
 	}
 
 	public static synchronized void appendMesgLineToSignature(String msg) {

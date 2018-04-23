@@ -1,7 +1,6 @@
 /**
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2016 Université Paris Nanterre and Sorbonne Université,
+ *  					CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -11,26 +10,10 @@
  *  Project leader / Initial Contributor:
  *    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
  *
- *  Contributors:
- *    ${ocontributors} - <$oemails}>
- *
  *  Mailing list:
  *    lom-messan.hillah@lip6.fr
  */
 package fr.lip6.move.pnml2nupn.export.impl;
-
-import it.unimi.dsi.fastutil.ints.IntBigArrayBigList;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import it.unimi.dsi.fastutil.longs.LongList;
-import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,9 +21,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import java_cup.Main;
 
 import javax.xml.bind.ValidationException;
 
@@ -62,9 +42,19 @@ import fr.lip6.move.pnml2nupn.exceptions.InvalidNetException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidPNMLTypeException;
 import fr.lip6.move.pnml2nupn.exceptions.InvalidSafeNetException;
 import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
-import fr.lip6.move.pnml2nupn.export.PNMLExporter;
+import fr.lip6.move.pnml2nupn.export.PNML2NUPNExporter;
 import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
 import fr.lip6.move.pnml2nupn.utils.SafePNChecker;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * Actual PNML 2 BPN exporter.
@@ -72,38 +62,11 @@ import fr.lip6.move.pnml2nupn.utils.SafePNChecker;
  * @author lom
  * 
  */
-public final class PNML2NUPNExporter implements PNMLExporter {
-
-	private static final String NUPN_SUPPORTED_VERSION = "1.1";
-	private static final String TEXT = "text";
-	private static final String INSCRIPTION = "inscription";
-	private static final String TRANS_EXT = ".trans";
-	private static final String STATES_EXT = ".places";
-	private static final String UNSAFE_ARC = ".unsafe.arcs";
-	private static final String STOP = "STOP";
-	private static final String CANCEL = "CANCEL";
-	private static final String NL = "\n";
-	private static final String HK = "#";
-	private static final String PLACES = "places";
-	private static final String UNITS = "units";
-	private static final String U = "U";
-	private static final String INIT_PLACE = "initial place";
-	private static final String INIT_PLACES = "initial places";
-	private static final String ROOT_UNIT = "root unit";
-	private static final String TRANSITIONS = "transitions";
-	private static final String T = "T";
-	private static final String WS = " ";
-	private static final String ZERO = "0";
-	private static final String ONE = "1";
-	private static final String DOTS = "...";
-	private static final String COMMA = ",";
-	private static final String COMMAWS = COMMA + WS;
-	private static final String STRUCTURE = "structure";
+public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 
 	private Logger log = null;
 
 	private Object2LongOpenHashMap<String> placesId2bpnMap = null;
-
 	private Object2LongOpenHashMap<String> trId2bpnMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap = null;
 	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap = null;
@@ -117,6 +80,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private File currentInputFile = null;
 	private SafePNChecker spnc = null;
 	private long nbUnsafeArcs, nbUnsafePlaces, nbUnsafeTrans;
+	private long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
 	// For places id count
 	private long iDCount;
 	private boolean unsafePlaces, unsafeArcs, unsafeTrans;
@@ -135,26 +99,31 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private File outTSFile = null;
 	private File outPSFile = null;
 	private File outUAFile = null;
+	/*Navigation in the XML*/
+	private VTDNavHuge vn;
+	private AutoPilotHuge ap;
+	/*NUPN tool specific section in the PNML?*/
+	private boolean hasNUPNToolspecific;
 
-	public PNML2NUPNExporter() {
+	public PNML2NUPNExporterImpl() {
 		spnc = new SafePNChecker();
 	}
 
 	@Override
-	public void exportPNML(URI inFile, URI outFile, Logger journal) throws PNMLImportExportException,
+	public void export2NUPN(URI inFile, URI outFile, Logger journal) throws PNMLImportExportException,
 			InterruptedException, IOException {
 		throw new UnsupportedOperationException("Not yet implemented.");
 	}
 
 	@Override
-	public void exportPNML(File inFile, File outFile, Logger journal) throws PNMLImportExportException,
+	public void export2NUPN(File inFile, File outFile, Logger journal) throws PNMLImportExportException,
 			InterruptedException, IOException, EarlyStopException {
 		initLog(journal);
 		export(inFile, outFile, journal);
 	}
 
 	@Override
-	public void exportPNML(String inFile, String outFile, Logger journal) throws PNMLImportExportException,
+	public void export2NUPN(String inFile, String outFile, Logger journal) throws PNMLImportExportException,
 			InterruptedException, IOException, EarlyStopException {
 		initLog(journal);
 		export(new File(inFile), new File(outFile), journal);
@@ -185,10 +154,10 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 						"The contained Petri net(s) in the following file is not a P/T Net. Only P/T Nets are supported: "
 								+ inFile.getCanonicalPath());
 			}
-			outUAFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + UNSAFE_ARC);
+			outUAFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.UNSAFE_ARC);
 			ocbUA = PNML2NUPNUtils.openOutChannel(outUAFile);
-			uaQueue = initQueue();
-			Thread uaWriter = startWriter(ocbUA, uaQueue);
+			uaQueue = PNML2NUPNUtils.initQueue();
+			Thread uaWriter = PNML2NUPNUtils.startWriter(ocbUA, uaQueue);
 
 			// Check inscriptions > 1
 			ap.resetXPath();
@@ -200,7 +169,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
 				vn.toElement(VTDNavHuge.FIRST_CHILD);
-				while (!vn.matchElement(TEXT)) {
+				while (!vn.matchElement(NUPNConstants.TEXT)) {
 					vn.toElement(VTDNavHuge.NEXT_SIBLING);
 				}
 				val = Long.parseLong(vn.toString(vn.getText()).trim());
@@ -210,7 +179,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				if (id != null) {
 					src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
 					trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
-					unsafeArcsId.append(src + WS + id + WS + trg + WS + HK + val + NL);
+					unsafeArcsId.append(src + NUPNConstants.WS + id + NUPNConstants.WS + trg + NUPNConstants.WS + NUPNConstants.HK + val + NUPNConstants.NL);
 					uaQueue.put(unsafeArcsId.toString());
 					nbUnsArcs++;
 				}
@@ -222,9 +191,9 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			} else {
 				log.info("There are no unsafe arcs in this net.");
 			}
-			stopWriter(uaQueue);
+			PNML2NUPNUtils.stopWriter(uaQueue);
 			uaWriter.join();
-			closeChannel(ocbUA);
+			PNML2NUPNUtils.closeChannel(ocbUA);
 			if (nbUnsArcs > 0) {
 				log.info("See unsafe arcs files: {}", outUAFile.getCanonicalPath());
 			} else {
@@ -249,6 +218,16 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			journal.info("Checking preconditions on input file format: {} ", inFile.getCanonicalPath());
 			PNML2NUPNUtils.checkIsPnmlFile(inFile);
 			log.info("Exporting into NUPN: {}", inFile.getCanonicalPath());
+			openXMLStream(inFile);
+			boolean hasNupnToolInfo = hasNUPNToolSpecificSection(inFile);
+			/*TODO: NOT YET SUPPORTED.
+			 * if (MainPNML2NUPN.isPreserveNupnNative() && hasNupnToolInfo) {
+				journal.info("NUPN extraction in native mode requested, and there is a NUPN tool specific section.");
+				NativeNUPNExtractor nupnExtractor = new NativeNUPNExtractor(inFile, outFile, journal);
+				nupnExtractor.extractNUPN(vn, ap);
+			} else {
+				translateIntoNUPN(inFile, outFile, journal);
+			}*/
 			translateIntoNUPN(inFile, outFile, journal);
 		} catch (ValidationException | fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException
 				| fr.lip6.move.pnml2nupn.exceptions.InvalidFileException | InternalException | InvalidPNMLTypeException e) {
@@ -256,22 +235,52 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		} catch (IOException e) {
 			throw e;
 		}
-
+	}
+	
+	private void openXMLStream(File inFile) throws PNMLImportExportException {
+		vn = PNML2NUPNUtils.openXMLStream(inFile).getNav();
+		ap = new AutoPilotHuge(vn);
+	}
+	
+	private boolean hasNUPNToolSpecificSection(File inFile) throws PNMLImportExportException {
+		boolean hasNUPNToolspecific = false;
+		ap.resetXPath();
+		try {
+			log.info("Checking for the presence of a NUPN tool specific section...");
+			vn.toElement(VTDNavHuge.ROOT);
+			ap.selectXPath(PNMLPaths.NUPN_TOOL_SPECIFIC);
+			String version;
+			while ((ap.evalXPath()) != -1) {
+				vn.push();
+				version = vn.toString(vn.getAttrVal(PNMLPaths.VERSION_ATTR));
+				if (NUPNConstants.NUPN_SUPPORTED_VERSION.equals(version)) {
+					hasNUPNToolspecific = true;
+					log.info("NUPN toolspecific section detected in the PNML, version: {}", version);
+					vn.pop();
+					break;
+				} else {
+					log.warn("NUPN toolspecific section detected in the PNML, but version not supported: {}", version);
+					log.warn("I support NUPN toolspecific version {}", NUPNConstants.NUPN_SUPPORTED_VERSION);
+				}
+				vn.pop();
+			}
+		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge e) {
+			throw new PNMLImportExportException(e);
+		}
+		ap.resetXPath();
+		this.hasNUPNToolspecific = hasNUPNToolspecific;
+		if (!hasNUPNToolspecific) {
+			log.info("No NUPN tool specific section in this PNML file.");
+		}
+		return hasNUPNToolspecific;
 	}
 
 	private void translateIntoNUPN(File inFile, File outFile, Logger journal) throws InvalidPNMLTypeException,
 			InterruptedException, PNMLImportExportException, IOException, EarlyStopException {
-		XMLMemMappedBuffer xb = new XMLMemMappedBuffer();
-		VTDGenHuge vg = new VTDGenHuge();
+		
 		boolean isSafe = false;
 		try {
-			xb.readFile(inFile.getCanonicalPath());
-			vg.setDoc(xb);
-			vg.parse(true);
-
-			VTDNavHuge vn = vg.getNav();
-
-			AutoPilotHuge ap = new AutoPilotHuge(vn);
+			
 			log.info("Checking it is a PT Net.");
 			if (!isPTNet(ap, vn)) {
 				throw new InvalidPNMLTypeException(
@@ -320,27 +329,27 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				log.warn("Unit safeness checking is disabled. I don't know if this net is 1-Safe.");
 			}
 			// Open NUPN and mapping files channels, and init write queues
-			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + TRANS_EXT);
-			outPSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + STATES_EXT);
+			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.TRANS_EXT);
+			outPSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.STATES_EXT);
 			// Channels for NuPN, transitions and places id mapping
 			ocbBpn = PNML2NUPNUtils.openOutChannel(outFile);
 			ocbTs = PNML2NUPNUtils.openOutChannel(outTSFile);
 			ocbPs = PNML2NUPNUtils.openOutChannel(outPSFile);
 			// Queues for NUPN, transitions and places id mapping
-			nupnQueue = initQueue();
-			tsQueue = initQueue();
-			psQueue = initQueue();
+			nupnQueue = PNML2NUPNUtils.initQueue();
+			tsQueue = PNML2NUPNUtils.initQueue();
+			psQueue = PNML2NUPNUtils.initQueue();
 
 			// Start writers
-			Thread nupnWriter = startWriter(ocbBpn, nupnQueue);
-			Thread tsWriter = startWriter(ocbTs, tsQueue);
-			Thread psWriter = startWriter(ocbPs, psQueue);
+			Thread nupnWriter = PNML2NUPNUtils.startWriter(ocbBpn, nupnQueue);
+			Thread tsWriter = PNML2NUPNUtils.startWriter(ocbTs, tsQueue);
+			Thread psWriter = PNML2NUPNUtils.startWriter(ocbPs, psQueue);
 
 			// Insert creator pragma (since 1.3.0)
-			insertCreatorPragma(nupnQueue);
+			PNML2NUPNUtils.insertCreatorPragma(nupnQueue);
 			// Insert unit_safe pragma if necessary (since 1.4.1)
 			if (MainPNML2NUPN.isUnitSafenessChecking() && isSafe) {
-				insertUnitSafePragma(nupnQueue);
+				insertUnitSafePragma();
 			}
 
 			// Init data type for places id and transitions
@@ -359,13 +368,13 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			exportTransitions130(ap, vn, nupnQueue);
 
 			// Stop Writers
-			stopWriters(nupnQueue, tsQueue, psQueue);
+			PNML2NUPNUtils.stopWriters(nupnQueue, tsQueue, psQueue);
 			// stopWriter(uaQueue);
 			nupnWriter.join();
 			tsWriter.join();
 			psWriter.join();
 			// Close channels
-			closeChannels(ocbBpn, ocbTs, ocbPs);
+			PNML2NUPNUtils.closeChannels(ocbBpn, ocbTs, ocbPs);
 			// clear maps
 			clearAllCollections();
 			log.info("See NUPN and mapping files: {}, {} and {}", outFile.getCanonicalPath(),
@@ -373,7 +382,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		} catch (EarlyStopException e) {
 			normalStop(outFile);
 			throw e;
-		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | ParseExceptionHuge
+		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge 
 				| InvalidSafeNetException | InternalException | InvalidNetException e) {
 			emergencyStop(outFile);
 			throw new PNMLImportExportException(e);
@@ -386,100 +395,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		}
 	}
 
-	private void insertUnitSafePragma(BlockingQueue<String> nupnQueue2) throws InterruptedException {
-		insertPragma(MainPNML2NUPN.PRAGMA_UNIT_SAFE + NL, nupnQueue);
-	}
-
-	private void insertCreatorPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
-		insertPragma(MainPNML2NUPN.PRAGMA_CREATOR + NL, nupnQueue);
-	}
-
-	private void insertPragma(String pragma, BlockingQueue<String> nupnQueue) throws InterruptedException {
-		nupnQueue.put(pragma);
-	}
-
-	/**
-	 * @param journal
-	 */
-	private void initLog(Logger journal) {
-		this.log = journal;
-	}
-
-	private BlockingQueue<String> initQueue() {
-		BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
-		return queue;
-	}
-
-	/**
-	 * Initializes internal data structures for transitions.
-	 */
-	private void initTransitionsMaps() {
-		if (trId2bpnMap == null) {
-			trId2bpnMap = new Object2LongOpenHashMap<String>();
-			trId2bpnMap.defaultReturnValue(-1L);
-		}
-		if (tr2InPlacesMap == null) {
-			tr2InPlacesMap = new Long2ObjectOpenHashMap<>();
-			tr2InPlacesMap.defaultReturnValue(null);
-		}
-		if (tr2OutPlacesMap == null) {
-			tr2OutPlacesMap = new Long2ObjectOpenHashMap<>();
-			tr2OutPlacesMap.defaultReturnValue(null);
-		}
-		if (tr2InAllArcsMap == null) {
-			tr2InAllArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
-			tr2InAllArcsMap.defaultReturnValue(null);
-		}
-		if (tr2OutAllArcsMap == null) {
-			tr2OutAllArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
-			tr2OutAllArcsMap.defaultReturnValue(null);
-		}
-	}
-
-	/**
-	 * Initialises the data structure for unsafe transitions.
-	 */
-	private void initUnsafeTransMaps() {
-		if (tr2InUnsafeArcsMap == null) {
-			tr2InUnsafeArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
-			tr2InUnsafeArcsMap.defaultReturnValue(null);
-		}
-		if (tr2OutUnsafeArcsMap == null) {
-			tr2OutUnsafeArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
-			tr2OutUnsafeArcsMap.defaultReturnValue(null);
-		}
-
-	}
-
-	/**
-	 * Initializes internal data structures for places.
-	 */
-	private void initPlacesMap() {
-		iDCount = 0L;
-		if (placesId2bpnMap == null) {
-			placesId2bpnMap = new Object2LongOpenHashMap<String>();
-			placesId2bpnMap.defaultReturnValue(-1L);
-		}
-	}
-
-	/**
-	 * Initializes internal data structures for arcs.
-	 */
-	private void initUnsafeArcsMap() {
-		if (unsafeArcsMap == null) {
-			unsafeArcsMap = new Object2LongOpenHashMap<>();
-			unsafeArcsMap.defaultReturnValue(-1);
-		}
-		if (unsafeNodes == null) {
-			unsafeNodes = new ObjectOpenHashSet<>();
-		}
-	}
-
-	private Thread startWriter(OutChannelBean ocb, BlockingQueue<String> queue) {
-		Thread t = new Thread(new NUPNWriter(ocb, queue));
-		t.start();
-		return t;
-	}
+	
 
 	/**
 	 * Export transitions into NUPN (since 1.3.0)
@@ -497,18 +413,18 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			throws XPathParseExceptionHuge, NavExceptionHuge, InterruptedException, XPathEvalExceptionHuge {
 		long nb = trId2bpnMap.size();
 		StringBuilder bpnsb = new StringBuilder();
-		bpnsb.append(TRANSITIONS).append(WS).append(HK).append(nb).append(WS).append(ZERO).append(DOTS).append(nb - 1L)
-				.append(NL);
+		bpnsb.append(NUPNConstants.TRANSITIONS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nb).append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nb - 1L)
+				.append(NUPNConstants.NL);
 		bpnQueue.put(bpnsb.toString());
 		bpnsb.delete(0, bpnsb.length());
 
 		LongCollection allTr = new LongRBTreeSet(trId2bpnMap.values());
 
 		for (long trId : allTr) {
-			bpnsb.append(T).append(trId);
+			bpnsb.append(NUPNConstants.T).append(trId);
 			buildConnectedPlaces2Transition(bpnsb, trId, tr2InPlacesMap);
 			buildConnectedPlaces2Transition(bpnsb, trId, tr2OutPlacesMap);
-			bpnsb.append(NL);
+			bpnsb.append(NUPNConstants.NL);
 			bpnQueue.put(bpnsb.toString());
 			bpnsb.delete(0, bpnsb.length());
 		}
@@ -530,15 +446,33 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		} else { // no place in input or output list of this transition
 			plsSize = 0L;
 		}
-		bpnsb.append(WS).append(HK).append(plsSize);
+		bpnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(plsSize);
 
 		if (plsSize > 0L) {
 			for (long plId : pls) {
-				bpnsb.append(WS).append(plId);
+				bpnsb.append(NUPNConstants.WS).append(plId);
 			}
 		}
 	}
 
+	private void mapInputArcToTransition(String targetTrId, long inscription) {
+		LongBigArrayBigList allArcVals = tr2InAllArcsMap.get(targetTrId);
+		if (allArcVals == null) {
+			allArcVals = new LongBigArrayBigList();
+		}
+		allArcVals.add(inscription);
+		tr2InAllArcsMap.put(targetTrId, allArcVals);
+	}
+	
+	private void mapOutputArcToTransition(String sourceTrId, long inscription) {
+		LongBigArrayBigList allArcVals = tr2OutAllArcsMap.get(sourceTrId);
+		if (allArcVals == null) {
+			allArcVals = new LongBigArrayBigList();
+		}
+		allArcVals.add(inscription);
+		tr2OutAllArcsMap.put(sourceTrId, allArcVals);
+	}
+	
 	/**
 	 * Build transitions collections, collecting unsafe arcs and corresponding
 	 * transitions.
@@ -555,8 +489,6 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		boolean foundInsc;
 		LongBigArrayBigList pls = null;
 		LongBigArrayBigList arcVals = null;
-		LongBigArrayBigList allArcVals = null;
-		// nbUnsafeTrans = 0L;
 
 		ap.selectXPath(PNMLPaths.TRANSITIONS_PATH);
 		while ((ap.evalXPath()) != -1) {
@@ -564,7 +496,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			tId = count++;
 			trId2bpnMap.put(id, tId);
-			tsQueue.put(tId + WS + id + NL);
+			tsQueue.put(tId + NUPNConstants.WS + id + NUPNConstants.NL);
 			vn.pop();
 		}
 
@@ -584,7 +516,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				if (tId == -1L) {
 					tId = count++;
 					trId2bpnMap.put(trg, tId);
-					tsQueue.put(tId + WS + trg + NL);
+					tsQueue.put(tId + NUPNConstants.WS + trg + NUPNConstants.NL);
 				}
 				pls = tr2InPlacesMap.get(tId);
 				if (pls == null) {
@@ -608,27 +540,26 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				}
 				// looking for inscription
 				if (vn.toElement(VTDNavHuge.FIRST_CHILD)) {
-					while (!(foundInsc = vn.matchElement(INSCRIPTION))) {
+					while (!(foundInsc = vn.matchElement(NUPNConstants.INSCRIPTION))) {
 						if (!vn.toElement(VTDNavHuge.NEXT_SIBLING)){
 							break;
 						}
 					}
 					if (foundInsc){
 						vn.toElement(VTDNavHuge.FIRST_CHILD);
-						while (!vn.matchElement(TEXT)) {
+						while (!vn.matchElement(NUPNConstants.TEXT)) {
 							vn.toElement(VTDNavHuge.NEXT_SIBLING);
 						}
 						arcInsc = Long.parseLong(vn.toString(vn.getText()).trim());
 						// map the transition to all input arcs
-						allArcVals = tr2InAllArcsMap.get(trg);
-						if (allArcVals == null) {
-							allArcVals = new LongBigArrayBigList();
-							tr2InAllArcsMap.put(trg, allArcVals);
-						}
-						allArcVals.add(arcInsc);
+						mapInputArcToTransition(trg, arcInsc);
 						vn.toElement(VTDNavHuge.PARENT);
+					}else {
+						mapInputArcToTransition(trg, 1L);
 					}
 					vn.toElement(VTDNavHuge.PARENT);
+				} else {
+					mapInputArcToTransition(trg, 1L);
 				}
 
 			} else {// transition is the source
@@ -652,33 +583,52 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				}
 				// looking for inscription
 				if (vn.toElement(VTDNavHuge.FIRST_CHILD)) {
-					while (!(foundInsc = vn.matchElement(INSCRIPTION))) {
+					while (!(foundInsc = vn.matchElement(NUPNConstants.INSCRIPTION))) {
 						if (!vn.toElement(VTDNavHuge.NEXT_SIBLING)){
 							break;
 						}
 					}
 					if (foundInsc){
 						vn.toElement(VTDNavHuge.FIRST_CHILD);
-						while (!vn.matchElement(TEXT)) {
+						while (!vn.matchElement(NUPNConstants.TEXT)) {
 							vn.toElement(VTDNavHuge.NEXT_SIBLING);
 						}
 						arcInsc = Long.parseLong(vn.toString(vn.getText()).trim());
-						// map the transition to all input arcs
-						allArcVals = tr2OutAllArcsMap.get(src);
-						if (allArcVals == null) {
-							allArcVals = new LongBigArrayBigList();
-							tr2OutAllArcsMap.put(src, allArcVals);
-						}
-						allArcVals.add(arcInsc);
+						// map the transition to all output arcs
+						mapOutputArcToTransition(src, arcInsc);
 						vn.toElement(VTDNavHuge.PARENT);
+					} else {
+						mapOutputArcToTransition(src, 1L);
 					}
 					vn.toElement(VTDNavHuge.PARENT);
+				} else {
+					mapOutputArcToTransition(src, 1L);
 				}
 			}
 			vn.pop();
 		}
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
+	}
+	
+	private void setMin(long newNb, LongArrayList minHolder) {
+		if (minHolder.isEmpty()) {
+			minHolder.add(newNb);
+		} else {
+			long currentDiff = minHolder.getLong(0);
+			currentDiff = Math.min(currentDiff, newNb);
+			minHolder.set(0, currentDiff);
+		}	
+	}
+	
+	private void setMax(long newNb, LongArrayList maxHolder) {
+		if (maxHolder.isEmpty()) {
+			maxHolder.add(newNb);
+		} else {
+			long currentDiff = maxHolder.getLong(0);
+			currentDiff = Math.max(currentDiff, newNb);
+			maxHolder.set(0, currentDiff);
+		}
 	}
 
 	/**
@@ -689,106 +639,187 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	 */
 	private void buildUnsafeArcsPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
 		LongBigArrayBigList arcVals = null;
-		long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
-		long minValIn = -1, minValOut = -1, maxValIn = -1, maxValOut = -1;
-		long minDiff = -1_000_000L, maxDiff = -10_000_000L, diff = 0L, inValT = 0L, outValT = 0L;
+		//long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
+		//long minValIn = 1, minValOut = 1, maxValIn = 1, maxValOut = 1;
+		//long minDiff = -1_000_000L, maxDiff = -10_000_000L;
+		LongArrayList minValIn = new LongArrayList(2);
+		LongArrayList minValOut = new LongArrayList(2);
+		LongArrayList maxValIn = new LongArrayList(2);
+		LongArrayList maxValOut = new LongArrayList(2);
+		
+		LongArrayList minAllDiff = new LongArrayList(2);
+		LongArrayList maxAllDiff = new LongArrayList(2);
+		//long minDiff = 0L, maxDiff = 0L;
+		long diff = 0L;
+		long inValT = 0L, outValT = 0L;
 
 		nbUnsafeTrans = 0L;
 		if (unsafeTrans) {
 			StringBuilder warnMsg = new StringBuilder();
 			for (String s : tr2InUnsafeArcsMap.keySet()) {
 				arcVals = tr2InUnsafeArcsMap.get(s);
-				warnMsg.append("Transition ").append(s).append(" is unsafe because it has ").append(arcVals.size64())
-						.append(" incoming arc(s) with respective valuation(s):");
 				inValT = 0L;
 				outValT = 0L;
+				warnMsg.append("Transition ").append(s).append(" is unsafe because it has ").append(arcVals.size64())
+				.append(" unsafe incoming arc(s) with respective valuation(s):");
 				for (long v : arcVals) {
-					warnMsg.append(WS).append(v);
-					if (minValIn == -1 && v > maxValIn && v > minValIn) {
-						minValIn = v;
-						maxValIn = v;
-					} else if (v < minValIn) {
-						minValIn = v;
-					} else if (v > maxValIn) {
-						maxValIn = v;
-					}
+					warnMsg.append(NUPNConstants.WS).append(v);
+					setMin(v, minValIn);
+					setMax(v, maxValIn);
+					/*minValIn = Math.min(minValIn, v);
+					maxValIn = Math.max(maxValIn, v);*/
 					inValT += v;
+				}	
+				// they could also have incoming arcs with valuation = 1...
+				arcVals = tr2InAllArcsMap.get(s);
+				if (arcVals != null) {
+					long arcValsSafe = arcVals.stream().filter(v -> v == 1L).map(x -> x).reduce(0L, (a, b) -> a + b);
+					if (arcValsSafe > 0L) {
+						inValT += arcValsSafe;
+						warnMsg.append(", safe incoming arc(s) with respective valuation(s):");
+						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+							warnMsg.append(NUPNConstants.WS).append(v);
+						});
+					}
+					tr2InAllArcsMap.remove(s);
 				}
 
 				arcVals = tr2OutUnsafeArcsMap.get(s);
 				if (arcVals != null) {
-					warnMsg.append(", and ").append(arcVals.size64())
-							.append(" outgoing arc(s) with respective valuation(s):");
 					nbTransInOut++;
+					warnMsg.append(", ").append(arcVals.size64())
+							.append(" unsafe outgoing arc(s) with respective valuation(s):");
 					for (long v : arcVals) {
-						warnMsg.append(WS).append(v);
-						if (minValOut == -1 && v > maxValOut && v > minValOut) {
-							minValOut = v;
-							maxValOut = v;
-						} else if (v < minValOut) {
-							minValOut = v;
-						} else if (v > maxValOut) {
-							maxValOut = v;
-						}
+						warnMsg.append(NUPNConstants.WS).append(v);
+						setMin(v, minValOut);
+						setMax(v, maxValOut);
+						/*minValOut = Math.min(minValOut, v);
+						maxValOut = Math.max(maxValOut, v);*/
 						outValT += v;
 					}
 					tr2OutUnsafeArcsMap.remove(s);
-					tr2InAllArcsMap.remove(s);
-					tr2OutAllArcsMap.remove(s);
+					//tr2InAllArcsMap.remove(s);
+					//tr2OutAllArcsMap.remove(s);
 				} else {
-					nbTransIn++;
+					nbTransIn++;	
 				}
+				
+				// they could also have outgoing arcs with valuation = 1...
+				arcVals = tr2OutAllArcsMap.get(s);
+				if (arcVals != null) {
+					long arcValsSafe = arcVals.stream().filter(v -> v == 1L).map(x -> x).reduce(0L, (a, b) -> a + b);
+					if (arcValsSafe > 0L) {
+						outValT += arcValsSafe;
+						warnMsg.append(", and safe outgoing arc(s) with respective valuation(s):");
+						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+							warnMsg.append(NUPNConstants.WS).append(v);
+						});
+					}
+					tr2OutAllArcsMap.remove(s);
+				}
+				
 				nbUnsafeTrans++;
-				log.warn(warnMsg.toString());
-				warnMsg.delete(0, warnMsg.length());
+				
 				diff = outValT - inValT;
-				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
+				setMin(diff, minAllDiff);
+				setMax(diff, maxAllDiff);
+				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
 					maxDiff = diff;
 				} else if (diff < minDiff) {
 					minDiff = diff;
 				} else if (diff > maxDiff) {
 					maxDiff = diff;
+				}*/
+				
+				if (diff == 0) {
+					int replacementStartIndex = 12 + s.length();
+					warnMsg.replace(replacementStartIndex, replacementStartIndex + 3, "might be ");
+					PNML2NUPNUtils.debug(warnMsg.toString(), log);
+				} else {
+					log.warn(warnMsg.toString());
 				}
 				
-				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				warnMsg.delete(0, warnMsg.length());
+				//debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				PNML2NUPNUtils.debug("Diff for transition {}: outVal({}) - inVal({}) = {}", log, s, s, s, diff);
 			}
+			
+			tr2InUnsafeArcsMap.clear();
 
 			for (String s : tr2OutUnsafeArcsMap.keySet()) {
 				arcVals = tr2OutUnsafeArcsMap.get(s);
-				warnMsg.append("Transition ").append(s).append(" is unsafe because it has ").append(arcVals.size64())
-						.append(" outgoing arc(s) with respective valuation(s):");
-				nbTransOut++;
 				inValT = 0L;
 				outValT = 0L;
+				warnMsg.append("Transition ").append(s).append(" is unsafe because it has ").append(arcVals.size64())
+						.append(" unsafe outgoing arc(s) with respective valuation(s):");
+				nbTransOut++;
 				for (long v : arcVals) {
-					warnMsg.append(WS).append(v);
-					if (minValOut == -1 && v > maxValOut && v > minValOut) {
-						minValOut = v;
-						maxValOut = v;
-					} else if (v < minValOut) {
-						minValOut = v;
-					} else if (v > maxValOut) {
-						maxValOut = v;
-					}
+					warnMsg.append(NUPNConstants.WS).append(v);
+					setMin(v, minValOut);
+					setMax(v, maxValOut);
+					/*minValOut = Math.min(minValOut, v);
+					maxValOut = Math.max(maxValOut, v);*/
 					outValT += v;
 				}
+				// they could also have outgoing arcs with valuation = 1...
+				arcVals = tr2OutAllArcsMap.get(s);
+				if (arcVals != null) {
+					long arcValsSafe = arcVals.stream().filter(v -> v == 1).map(x -> x).reduce(0L, (a, b) -> a + b);
+					if (arcValsSafe > 0L) {
+						outValT += arcValsSafe;
+						warnMsg.append(", safe outgoing arc(s) with respective valuation(s):");	
+						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+							warnMsg.append(NUPNConstants.WS).append(v);
+						});
+					}
+					tr2OutAllArcsMap.remove(s);
+				}
+				// they could also have incoming arcs with valuation = 1...
+				arcVals = tr2InAllArcsMap.get(s);
+				if (arcVals != null) {
+					warnMsg.append(", and ").append(arcVals.size64())
+					.append(" safe incoming arc(s) with respective valuation(s):");
+					long arcValsSafe = arcVals.stream().filter(v -> v == 1).map(x -> x).reduce(0L, (a, b) -> a + b);
+					if (arcValsSafe > 0L) {
+						inValT += arcValsSafe;
+						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+							warnMsg.append(NUPNConstants.WS).append(v);
+						});
+					}
+					tr2InAllArcsMap.remove(s);
+				}
 				nbUnsafeTrans++;
-				log.warn(warnMsg.toString());
-				warnMsg.delete(0, warnMsg.length());
+				
 				diff = outValT - inValT;
-				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
+				setMin(diff, minAllDiff);
+				setMax(diff, maxAllDiff);
+				
+				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
 					maxDiff = diff;
 				} else if (diff < minDiff) {
 					minDiff = diff;
 				} else if (diff > maxDiff) {
 					maxDiff = diff;
+				}*/
+				
+				/*tr2InAllArcsMap.remove(s);
+				tr2OutAllArcsMap.remove(s);*/
+				
+				if (diff == 0) {
+					int replacementStartIndex = 12 + s.length();
+					warnMsg.replace(replacementStartIndex, replacementStartIndex + 3, "might be ");
+					PNML2NUPNUtils.debug(warnMsg.toString(), log);
+				} else {
+					log.warn(warnMsg.toString());
 				}
-				tr2InAllArcsMap.remove(s);
-				tr2OutAllArcsMap.remove(s);
-				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				warnMsg.delete(0, warnMsg.length());
+				//debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				PNML2NUPNUtils.debug("Diff for transition {}: outVal({}) - inVal({}) = {}", log, s, s, s, diff);
 			}
+			
+			tr2OutUnsafeArcsMap.clear();
 			
 			// process the rest of the transitions (safe ones) to compute min-diff and max-diff
 			for (String s : tr2InAllArcsMap.keySet()) {
@@ -806,16 +837,22 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					tr2OutAllArcsMap.remove(s);
 				}
 				diff = outValT - inValT;
-				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
+				setMin(diff, minAllDiff);
+				setMax(diff, maxAllDiff);
+				
+				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
 					maxDiff = diff;
 				} else if (diff < minDiff) {
 					minDiff = diff;
 				} else if (diff > maxDiff) {
 					maxDiff = diff;
-				}
-				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				}*/
+				//debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				
+				PNML2NUPNUtils.debug("Diff for transition {}: outVal({}) - inVal({}) = {}", log, s, s, s, diff);
 			}
+			
 			for (String s : tr2OutAllArcsMap.keySet()) {
 				arcVals = tr2OutAllArcsMap.get(s);
 				inValT = 0L;
@@ -824,36 +861,40 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					outValT += v;
 				}
 				diff = outValT - inValT;
-				if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
+				setMin(diff, minAllDiff);
+				setMax(diff, maxAllDiff);
+				
+				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
 					maxDiff = diff;
 				} else if (diff < minDiff) {
 					minDiff = diff;
 				} else if (diff > maxDiff) {
 					maxDiff = diff;
-				}
-				debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				}*/
+				//debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
+				PNML2NUPNUtils.debug("Diff for transition {}: outVal({}) - inVal({}) = {}", log, s, s, s, diff);
 			}
 				
 			// Write pragma
 			StringBuffer multArcsPrama = new StringBuffer();
 			multArcsPrama.append(MainPNML2NUPN.PRAGMA_MULTIPLE_ARCS)
-			// .append(HK + nbUnsafeArcs).append(WS)
-					.append(HK + nbTransIn).append(WS).append(HK + nbTransOut).append(WS).append(HK + nbTransInOut);
+					.append(NUPNConstants.HK + nbTransIn).append(NUPNConstants.WS).append(NUPNConstants.HK + nbTransOut).append(NUPNConstants.WS).append(NUPNConstants.HK + nbTransInOut);
 
 			if (nbTransIn == 0L && nbTransInOut == 0L) {
-				multArcsPrama.append(WS).append(ONE).append(DOTS).append(ZERO);
+				multArcsPrama.append(NUPNConstants.WS).append(NUPNConstants.ONE).append(NUPNConstants.DOTS).append(NUPNConstants.ZERO);
 			} else {
-				multArcsPrama.append(WS).append(minValIn).append(DOTS).append(maxValIn);
+				multArcsPrama.append(NUPNConstants.WS).append(minValIn.getLong(0)).append(NUPNConstants.DOTS).append(maxValIn.getLong(0));
 			}
 
 			if (nbTransOut == 0L && nbTransInOut == 0L) {
-				multArcsPrama.append(WS).append(ONE).append(DOTS).append(ZERO);
+				multArcsPrama.append(NUPNConstants.WS).append(NUPNConstants.ONE).append(NUPNConstants.DOTS).append(NUPNConstants.ZERO);
 			} else {
-				multArcsPrama.append(WS).append(minValOut).append(DOTS).append(maxValOut);
+				multArcsPrama.append(NUPNConstants.WS).append(minValOut.getLong(0)).append(NUPNConstants.DOTS).append(maxValOut.getLong(0));
 			}
-			multArcsPrama.append(WS).append(minDiff).append(DOTS).append(maxDiff);
-			multArcsPrama.append(NL);
+			//multArcsPrama.append(NUPNConstants.WS).append(minDiff).append(NUPNConstants.DOTS).append(maxDiff);
+			multArcsPrama.append(NUPNConstants.WS).append(minAllDiff.getLong(0)).append(NUPNConstants.DOTS).append(maxAllDiff.getLong(0));
+			multArcsPrama.append(NUPNConstants.NL);
 			nupnQueue.put(multArcsPrama.toString());
 
 			// Write unsafe arcs and transitions info in signature message
@@ -890,7 +931,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
 			vn.toElement(VTDNavHuge.FIRST_CHILD);
-			while (!vn.matchElement(TEXT)) {
+			while (!vn.matchElement(NUPNConstants.TEXT)) {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
 			mkg = Long.parseLong(vn.toString(vn.getText()).trim());
@@ -906,7 +947,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			vn.toElement(VTDNavHuge.PARENT);
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			if (id != null) {
-				unsafePlacesId.append(id + COMMAWS);
+				unsafePlacesId.append(id + NUPNConstants.COMMAWS);
 				nbUnsafePlaces++;
 			}
 			vn.pop();
@@ -921,7 +962,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
 			vn.toElement(VTDNavHuge.FIRST_CHILD);
-			while (!vn.matchElement(TEXT)) {
+			while (!vn.matchElement(NUPNConstants.TEXT)) {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
 			val = Long.parseLong(vn.toString(vn.getText()).trim());
@@ -933,7 +974,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				unsafeNodes.add(src);
 				trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
 				unsafeNodes.add(trg);
-				log.warn("Unsafe arc: {}", src + WS + id + WS + trg + WS + HK + val);
+				log.warn("Unsafe arc: {}", src + NUPNConstants.WS + id + NUPNConstants.WS + trg + NUPNConstants.WS + NUPNConstants.HK + val);
 				unsafeArcsMap.put(id, val);
 				nbUnsafeArcs++;
 			}
@@ -960,26 +1001,6 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			vn.pop();
 		}
 
-		// Check existence of nupn toolspecific
-		boolean hasNUPNToolspecific = false;
-		ap.resetXPath();
-		vn.toElement(VTDNavHuge.ROOT);
-		ap.selectXPath(PNMLPaths.NUPN_TOOL_SPECIFIC);
-		String version;
-		while ((ap.evalXPath()) != -1) {
-			vn.push();
-			version = vn.toString(vn.getAttrVal(PNMLPaths.VERSION_ATTR));
-			if (NUPN_SUPPORTED_VERSION.equals(version)) {
-				hasNUPNToolspecific = true;
-				vn.pop();
-				break;
-			} else {
-				log.warn("NUPN toolspecific element detected in the PNML, but version not supported: {}", version);
-				log.warn("I support NUPN toolspecific version {}", NUPN_SUPPORTED_VERSION);
-			}
-			vn.pop();
-		}
-
 		// select initial places, assign ids to them
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
@@ -989,7 +1010,7 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		while ((ap.evalXPath()) != -1) {
 			vn.push();
 			vn.toElement(VTDNavHuge.FIRST_CHILD);
-			while (!vn.matchElement(TEXT)) {
+			while (!vn.matchElement(NUPNConstants.TEXT)) {
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 			}
 			totalMkg += Long.parseLong(vn.toString(vn.getText()).trim());
@@ -1003,8 +1024,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					// placesId2bpnMap.put(id, pId);
 					initPlaces.add(pId);
 					if (!hasNUPNToolspecific)
-						psQueue.put(pId + WS + id + NL);
-					initPlacesId.append(id + COMMAWS);
+						psQueue.put(pId + NUPNConstants.WS + id + NUPNConstants.NL);
+					initPlacesId.append(id + NUPNConstants.COMMAWS);
 				} catch (InterruptedException e) {
 					log.error(e.getMessage());
 					throw new InternalException(e.getMessage());
@@ -1015,8 +1036,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 
 		if (nbUnsafePlaces > 0) {
 			unsafePlaces = true;
-			nupnQueue.put(MainPNML2NUPN.PRAGMA_MULTIPLE_INIT_TOKEN + HK + totalMkg + WS + HK + nbUnsafePlaces + WS
-					+ minMarking + DOTS + maxMarking + NL);
+			nupnQueue.put(MainPNML2NUPN.PRAGMA_MULTIPLE_INIT_TOKEN + NUPNConstants.HK + totalMkg + NUPNConstants.WS + NUPNConstants.HK + nbUnsafePlaces + NUPNConstants.WS
+					+ minMarking + NUPNConstants.DOTS + maxMarking + NUPNConstants.NL);
 			log.warn("There are {} unsafe initial places in this net.", nbUnsafePlaces);
 			unsafePlacesId.delete(unsafePlacesId.length() - 2, unsafePlacesId.length());
 			log.warn("Unsafe initial places: {}", unsafePlacesId.toString());
@@ -1054,35 +1075,30 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		buildUnsafeArcsPragma(nupnQueue);
 
 		// count all places
-		// ap.resetXPath();
-		// vn.toElement(VTDNavHuge.ROOT);
 		ap.selectXPath(PNMLPaths.COUNT_PLACES_PATH);
 		long nbPl = (long) ap.evalXPathToNumber();
 		final StringBuilder nupnsb = new StringBuilder();
 		// Write Number of places
-		nupnsb.append(PLACES).append(WS).append(HK).append(nbPl).append(WS).append(ZERO).append(DOTS).append(nbPl - 1)
-				.append(NL);
-		// Handle case where there are several initial places
+		nupnsb.append(NUPNConstants.PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPl).append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbPl - 1)
+				.append(NUPNConstants.NL);
+		// Output initial places
 		if (initPlaces.size() > 1) {
-			nupnsb.append(INIT_PLACES).append(WS).append(HK).append(initPlaces.size());
+			nupnsb.append(NUPNConstants.INIT_PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK).append(initPlaces.size());
 			for (Long l : initPlaces) {
-				nupnsb.append(WS).append(l);
+				nupnsb.append(NUPNConstants.WS).append(l);
 			}
 		} else {
-			nupnsb.append(INIT_PLACE).append(WS).append(ZERO);
+			nupnsb.append(NUPNConstants.INIT_PLACE).append(NUPNConstants.WS).append(initPlaces.get(0));
 		}
-		nupnsb.append(NL);
+		nupnsb.append(NUPNConstants.NL);
 
 		// to write PNML places id mapping to NUPN id
 		final StringBuilder tsmapping = new StringBuilder();
 		// If there is nupn toolspecific, use that info to build units
-		if (hasNUPNToolspecific) {
-			log.info("NUPN toolspecific element detected in the PNML. Will use that information to build units.");
-			/*
-			 * vn.toElement(VTDNavHuge.FIRST_CHILD); while
-			 * (!vn.matchElement(STRUCTURE)) {
-			 * vn.toElement(VTDNavHuge.NEXT_SIBLING); }
-			 */
+		if (hasNUPNToolspecific && MainPNML2NUPN.isPreserveNupnMix()) {
+			log.info("NUPN tool specific section detected in the PNML.");
+			log.info("Mixed generation strategy requested. Will use the NUPN structure provided in that section to build units.");
+
 			ap.resetXPath();
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.NUPN_STRUCTURE);
@@ -1090,11 +1106,11 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				vn.push();
 				// write number of units
 				int nbUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.UNITS_ATTR))).intValue();
-				nupnsb.append(UNITS).append(WS).append(HK).append(nbUn).append(WS).append(ZERO).append(DOTS)
-						.append(nbUn - 1).append(NL);
+				nupnsb.append(NUPNConstants.UNITS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbUn).append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS)
+						.append(nbUn - 1).append(NUPNConstants.NL);
 				// write root unit
 				int rootUn = Integer.valueOf(vn.toString(vn.getAttrVal(PNMLPaths.ROOT_ATTR)).substring(1)).intValue();
-				nupnsb.append(ROOT_UNIT).append(WS).append(rootUn).append(NL);
+				nupnsb.append(NUPNConstants.ROOT_UNIT).append(NUPNConstants.WS).append(rootUn).append(NUPNConstants.NL);
 				nupnQueue.put(nupnsb.toString());
 				nupnsb.delete(0, nupnsb.length());
 				vn.pop();
@@ -1116,24 +1132,24 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					places = vn.toString(vn.getText()).trim();
 				}
 				if (!places.isEmpty()) {
-					elemId = places.split(WS);
+					elemId = places.split(NUPNConstants.WS);
 					for (String s : elemId) {
 						plId = placesId2bpnMap.getLong(s);
 						if (plId != -1L) {
 							placesIntId.add(plId);
-							tsmapping.append(plId).append(WS).append(s).append(NL);
+							tsmapping.append(plId).append(NUPNConstants.WS).append(s).append(NUPNConstants.NL);
 							psQueue.put(tsmapping.toString());
 							tsmapping.delete(0, tsmapping.length());
 						}
 					}
-					nupnsb.append(WS).append(HK).append(placesIntId.size());
+					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(placesIntId.size());
 					if (placesIntId.size() > 1) {
-						placesIntId.stream().forEach(i -> nupnsb.append(WS).append(i));
+						placesIntId.stream().forEach(i -> nupnsb.append(NUPNConstants.WS).append(i));
 					} else {
-						nupnsb.append(WS).append(placesIntId.get(0)).append(DOTS).append(placesIntId.get(0));
+						nupnsb.append(NUPNConstants.WS).append(placesIntId.getLong(0)).append(NUPNConstants.DOTS).append(placesIntId.getLong(0));
 					}
 				} else {
-					nupnsb.append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS).append(ZERO);
+					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.WS).append(NUPNConstants.ONE).append(NUPNConstants.DOTS).append(NUPNConstants.ZERO);
 				}
 				// subunits
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
@@ -1141,15 +1157,15 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 					subunits = vn.toString(vn.getText()).trim();
 				}
 				if (!subunits.isEmpty()) {
-					elemId = subunits.split(WS);
-					nupnsb.append(WS).append(HK).append(elemId.length);
+					elemId = subunits.split(NUPNConstants.WS);
+					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(elemId.length);
 					for (String s : elemId) {
-						nupnsb.append(WS).append(s.substring(1));
+						nupnsb.append(NUPNConstants.WS).append(s.substring(1));
 					}
 				} else {
-					nupnsb.append(WS).append(HK).append(ZERO);
+					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO);
 				}
-				nupnsb.append(NL);
+				nupnsb.append(NUPNConstants.NL);
 				nupnQueue.put(nupnsb.toString());
 				nupnsb.delete(0, nupnsb.length());
 				placesIntId.clear();
@@ -1159,22 +1175,26 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				vn.pop();
 			}
 		} else {
-
+			if (hasNUPNToolspecific) {
+				log.info("NUPN tool specific section detected in the PNML.");
+				log.info("However, no mixed generation strategy requested. Therefore the NUPN structure in that section will not be used.");
+				log.info("Will continue with the default, simplest generation strategy.");
+			}
 			// Write the number of Units. Check case there is just one place.
 			if (nbPl > 1) {
-				nupnsb.append(UNITS).append(WS).append(HK).append(nbPl + 1).append(WS).append(ZERO).append(DOTS)
-						.append(nbPl).append(NL);
+				nupnsb.append(NUPNConstants.UNITS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPl + 1).append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS)
+						.append(nbPl).append(NUPNConstants.NL);
 			} else {
-				nupnsb.append(UNITS).append(WS).append(HK).append(nbPl).append(WS).append(ZERO).append(DOTS)
-						.append(nbPl - 1).append(NL);
+				nupnsb.append(NUPNConstants.UNITS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPl).append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS)
+						.append(nbPl - 1).append(NUPNConstants.NL);
 			}
 
 			// Root unit declaration - id is N - 1. Check case there is just one
 			// place.
 			if (nbPl > 1) {
-				nupnsb.append(ROOT_UNIT).append(WS).append(nbPl).append(NL);
+				nupnsb.append(NUPNConstants.ROOT_UNIT).append(NUPNConstants.WS).append(nbPl).append(NUPNConstants.NL);
 			} else {
-				nupnsb.append(ROOT_UNIT).append(WS).append(nbPl - 1).append(NL);
+				nupnsb.append(NUPNConstants.ROOT_UNIT).append(NUPNConstants.WS).append(nbPl - 1).append(NUPNConstants.NL);
 			}
 			nupnQueue.put(nupnsb.toString());
 			nupnsb.delete(0, nupnsb.length());
@@ -1183,8 +1203,8 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			// First the initial places
 			long count = 0L;
 			for (Long l : initPlaces) {
-				nupnsb.append(U).append(count).append(WS).append(HK).append(ONE).append(WS).append(l).append(DOTS)
-						.append(l).append(WS).append(HK).append(ZERO).append(NL);
+				nupnsb.append(NUPNConstants.U).append(count).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ONE).append(NUPNConstants.WS).append(l).append(NUPNConstants.DOTS)
+						.append(l).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.NL);
 				nupnQueue.put(nupnsb.toString());
 				count++;
 				nupnsb.delete(0, nupnsb.length());
@@ -1203,10 +1223,10 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 				 * if (pId == -1L) { pId = iDCount++; placesId2bpnMap.put(id,
 				 * pId); }
 				 */
-				tsmapping.append(pId).append(WS).append(id).append(NL);
+				tsmapping.append(pId).append(NUPNConstants.WS).append(id).append(NUPNConstants.NL);
 				psQueue.put(tsmapping.toString());
-				nupnsb.append(U).append(count).append(WS).append(HK).append(ONE).append(WS).append(pId).append(DOTS)
-						.append(pId).append(WS).append(HK).append(ZERO).append(NL);
+				nupnsb.append(NUPNConstants.U).append(count).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ONE).append(NUPNConstants.WS).append(pId).append(NUPNConstants.DOTS)
+						.append(pId).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.NL);
 				nupnQueue.put(nupnsb.toString());
 				// placesId2bpnMap.put(id, iDCount);
 				nupnsb.delete(0, nupnsb.length());
@@ -1218,22 +1238,22 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 			// / Root Unit N and its subunits. Check case there is just one
 			// place.
 			if (nbPl > 1) {
-				nupnsb.append(U).append(nbPl).append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS)
-						.append(ZERO).append(WS).append(HK).append(nbPl);
+				nupnsb.append(NUPNConstants.U).append(nbPl).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.WS).append(NUPNConstants.ONE).append(NUPNConstants.DOTS)
+						.append(NUPNConstants.ZERO).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPl);
 				for (count = 0L; count < nbPl; count++) {
-					nupnsb.append(WS).append(count);
+					nupnsb.append(NUPNConstants.WS).append(count);
 				}
 			} else if (nbPl == 1) {
 				// DO NOTHING, already handled above.
 				log.warn("I encountered the case where there is just one place in the net.");
 			} else { // FIXME This case should not happen.
-				nupnsb.append(U).append(nbPl).append(WS).append(HK).append(ZERO).append(WS).append(ONE).append(DOTS)
-						.append(ZERO).append(WS).append(HK).append(ZERO);
+				nupnsb.append(NUPNConstants.U).append(nbPl).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.WS).append(NUPNConstants.ONE).append(NUPNConstants.DOTS)
+						.append(NUPNConstants.ZERO).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO);
 				log.error("I encountered the case where there is no place at all in the net.");
 				log.error("This violates the rules stating that root unit must have at least 2 sub-units, if it does not contain any place.");
 				throw new InvalidNetException("No place in the net! See error messages above.");
 			}
-			nupnsb.append(NL);
+			nupnsb.append(NUPNConstants.NL);
 			nupnQueue.put(nupnsb.toString());
 			nupnsb.delete(0, nupnsb.length());
 		}
@@ -1294,6 +1314,84 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	private String generateUnsafePlacesReport() {
 		return spnc.getExplanation();
 	}
+	
+	private void insertUnitSafePragma() throws InterruptedException {
+		PNML2NUPNUtils.insertPragma(MainPNML2NUPN.PRAGMA_UNIT_SAFE_BY_BOUNDS + NUPNConstants.NL, nupnQueue);
+	}
+
+	
+
+	/**
+	 * @param journal
+	 */
+	private void initLog(Logger journal) {
+		this.log = journal;
+	}
+
+	
+	/**
+	 * Initializes internal data structures for transitions.
+	 */
+	private void initTransitionsMaps() {
+		if (trId2bpnMap == null) {
+			trId2bpnMap = new Object2LongOpenHashMap<String>();
+			trId2bpnMap.defaultReturnValue(-1L);
+		}
+		if (tr2InPlacesMap == null) {
+			tr2InPlacesMap = new Long2ObjectOpenHashMap<>();
+			tr2InPlacesMap.defaultReturnValue(null);
+		}
+		if (tr2OutPlacesMap == null) {
+			tr2OutPlacesMap = new Long2ObjectOpenHashMap<>();
+			tr2OutPlacesMap.defaultReturnValue(null);
+		}
+		if (tr2InAllArcsMap == null) {
+			tr2InAllArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
+			tr2InAllArcsMap.defaultReturnValue(null);
+		}
+		if (tr2OutAllArcsMap == null) {
+			tr2OutAllArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
+			tr2OutAllArcsMap.defaultReturnValue(null);
+		}
+	}
+
+	/**
+	 * Initialises the data structure for unsafe transitions.
+	 */
+	private void initUnsafeTransMaps() {
+		if (tr2InUnsafeArcsMap == null) {
+			tr2InUnsafeArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
+			tr2InUnsafeArcsMap.defaultReturnValue(null);
+		}
+		if (tr2OutUnsafeArcsMap == null) {
+			tr2OutUnsafeArcsMap = new Object2ObjectOpenHashMap<String, LongBigArrayBigList>();
+			tr2OutUnsafeArcsMap.defaultReturnValue(null);
+		}
+	}
+
+	/**
+	 * Initializes internal data structures for places.
+	 */
+	private void initPlacesMap() {
+		iDCount = 0L;
+		if (placesId2bpnMap == null) {
+			placesId2bpnMap = new Object2LongOpenHashMap<String>();
+			placesId2bpnMap.defaultReturnValue(-1L);
+		}
+	}
+
+	/**
+	 * Initializes internal data structures for arcs.
+	 */
+	private void initUnsafeArcsMap() {
+		if (unsafeArcsMap == null) {
+			unsafeArcsMap = new Object2LongOpenHashMap<>();
+			unsafeArcsMap.defaultReturnValue(-1);
+		}
+		if (unsafeNodes == null) {
+			unsafeNodes = new ObjectOpenHashSet<>();
+		}
+	}
 
 	/**
 	 * Emergency stop.
@@ -1326,113 +1424,14 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 	 * @throws IOException
 	 */
 	private void stop(File outFile) throws InterruptedException, IOException {
-		cancelWriters(nupnQueue, tsQueue, psQueue);
-		cancelWriter(uaQueue);
-		closeChannels(ocbBpn, ocbTs, ocbPs);
-		closeChannel(ocbUA);
-		deleteOutputFiles(outFile, outTSFile, outPSFile);
-		deleteOutputFile(outUAFile);
-	}
+		PNML2NUPNUtils.cancelWriters(nupnQueue, tsQueue, psQueue);
+		PNML2NUPNUtils.cancelWriter(uaQueue);
+		PNML2NUPNUtils.closeChannels(ocbBpn, ocbTs, ocbPs);
+		PNML2NUPNUtils.closeChannel(ocbUA);
+		PNML2NUPNUtils.deleteOutputFiles(outFile, outTSFile, outPSFile);
+		PNML2NUPNUtils.deleteOutputFile(outUAFile);
+	}	
 
-	/**
-	 * Emergency stop actions.
-	 * 
-	 * @param outFile
-	 * @param outTSFile
-	 * @param outPSFile
-	 */
-	private void deleteOutputFiles(File outFile, File outTSFile, File outPSFile) {
-		deleteOutputFile(outFile);
-		deleteOutputFile(outTSFile);
-		deleteOutputFile(outPSFile);
-	}
-
-	/**
-	 * Deletes an output file.
-	 * 
-	 * @param oFile
-	 */
-	private void deleteOutputFile(File oFile) {
-		if (oFile != null && oFile.exists()) {
-			oFile.delete();
-		}
-	}
-
-	/**
-	 * Closes output channels.
-	 * 
-	 * @param ocbBpn
-	 * @param ocbTs
-	 * @param ocbPs
-	 * @throws IOException
-	 */
-	private void closeChannels(OutChannelBean ocbBpn, OutChannelBean ocbTs, OutChannelBean ocbPs) throws IOException {
-		closeChannel(ocbBpn);
-		closeChannel(ocbTs);
-		closeChannel(ocbPs);
-	}
-
-	/**
-	 * Closes an output channel.
-	 * 
-	 * @param cb
-	 * @throws IOException
-	 */
-	private void closeChannel(OutChannelBean cb) throws IOException {
-		PNML2NUPNUtils.closeOutChannel(cb);
-	}
-
-	/**
-	 * Cancels writers in case of emergency stop.
-	 * 
-	 * @param bpnQueue
-	 * @param tsQueue
-	 * @param psQueue
-	 * @throws InterruptedException
-	 */
-	private void cancelWriters(BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue,
-			BlockingQueue<String> psQueue) throws InterruptedException {
-		cancelWriter(bpnQueue);
-		cancelWriter(tsQueue);
-		cancelWriter(psQueue);
-	}
-
-	/**
-	 * Cancel a writer by sending a cancellation message to it.
-	 * 
-	 * @param queue
-	 * @throws InterruptedException
-	 */
-	private void cancelWriter(BlockingQueue<String> queue) throws InterruptedException {
-		if (queue != null) {
-			queue.put(CANCEL);
-		}
-	}
-
-	/**
-	 * Normal stop.
-	 * 
-	 * @param bpnQueue
-	 * @param tsQueue
-	 * @param psQueue
-	 * @throws InterruptedException
-	 */
-	private void stopWriters(BlockingQueue<String> bpnQueue, BlockingQueue<String> tsQueue,
-			BlockingQueue<String> psQueue) throws InterruptedException {
-		stopWriter(bpnQueue);
-		stopWriter(tsQueue);
-		stopWriter(psQueue);
-	}
-
-	/**
-	 * Normal stop of a writer.
-	 * 
-	 * @param queue
-	 * @throws InterruptedException
-	 */
-	private void stopWriter(BlockingQueue<String> queue) throws InterruptedException {
-		queue.put(STOP);
-	}
 
 	/**
 	 * Clears all internal data structures for places and transitions.
@@ -1449,15 +1448,5 @@ public final class PNML2NUPNExporter implements PNMLExporter {
 		tr2OutAllArcsMap.clear();
 		unsafeNodes.clear();
 	}
-	
-	/**
-	 * Prints debug message (using info level), only if debug env variable is set.
-	 * @param msg the message to print
-	 * @param args optional arguments for variable substitution with {}
-	 */
-	private void debug(String msg, Object... args){
-		if (MainPNML2NUPN.isDebug()){
-			log.info(msg, args);
-		}
-	}
+
 }	
