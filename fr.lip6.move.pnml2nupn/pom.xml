@@ -5,12 +5,12 @@
 
 	<groupId>fr.lip6.pnml</groupId>
 	<artifactId>pnml2nupn</artifactId>
-	<version>2.1.0</version>
+	<version>2.2.0</version>
 	
 	<packaging>jar</packaging>
 
 	<name>PNML to NUPN Converter</name>
-
+	
 	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
 
 	<url>http://pnml.lip6.fr/pnml2nupn/index.html</url>
@@ -145,6 +145,24 @@
 				<includes>
 					<include>bounds</include>
 				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<targetPath>.</targetPath>
+				<includes>
+					<include>logback.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<targetPath>fr/lip6/move/pnml2nupn</targetPath>
+				<includes>
+					<include>application.properties</include>
+					<include>options.properties</include>
+					<include>options-exclusive.properties</include>
+					<include>optionsdescription.properties</include>
+				</includes>
+				<filtering>true</filtering>
 			</resource>
 		</resources>
 		<plugins>

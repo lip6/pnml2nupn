@@ -377,7 +377,7 @@ public final class PNML2NUPNUtils {
 	}
 	
 	public static final void insertCreatorPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
-		insertPragma(MainPNML2NUPN.PRAGMA_CREATOR + NUPNConstants.NL, nupnQueue);
+		insertPragma(MainPNML2NUPN.getPragmaCreator() + NUPNConstants.NL, nupnQueue);
 	}
 	
 	public static final void insertPragma(String pragma, BlockingQueue<String> nupnQueue) throws InterruptedException {
@@ -398,14 +398,14 @@ public final class PNML2NUPNUtils {
 	}
 	
 	/**
-	 * Prints debug message (using info level), only if debug env variable is set.
+	 * Prints debug message (using debug level), only if debug env variable is set.
 	 * @param msg the message to print
 	 * @param log  the logger to use
 	 * @param args optional arguments for variable substitution with {}
 	 */
 	public static final void debug(String msg,  Logger log, Object... args){
 		if (MainPNML2NUPN.isDebug()){
-			log.info(msg, args);
+			log.debug(msg, args);
 		}
 	}
 

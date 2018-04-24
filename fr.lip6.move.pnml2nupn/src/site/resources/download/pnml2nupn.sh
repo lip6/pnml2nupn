@@ -25,7 +25,7 @@
 #############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-1.5.4.jar
+JAR_FILE=pnml2nupn-2.2.0.jar
 
 # Constants
 NBPARAM=1
@@ -48,6 +48,7 @@ FORCE_NUPN_GEN="-Dforce.nupn.generation=true"
 UNIT_SAFENESS_CHECKING="-Dunit.safeness.checking=false"
 
 # Enable or disable unit safeness checking only? Default is false.
+# This option also activates UNIT_SAFENESS_CHECKING
 UNIT_SAFENESS_CHECKING_ONLY="-Dunit.safeness.checking.only=false"
 
 # How many places (at most) to report when the net is unsafe? 
@@ -55,14 +56,15 @@ UNIT_SAFENESS_CHECKING_ONLY="-Dunit.safeness.checking.only=false"
 UNSAFE_PLACES_NB_REPORT="-Dunsafe.places.nb.report=10"
 
 # Check if the net has unsafe arcs. Default is false. 
-# This option is exlusive of all the others.When it is set, it deactivates the others. 
+# This option is exlusive of all the others. When it is set, it deactivates the others. 
 HAS_UNSAFE_ARCS="-Dhas.unsafe.arcs=false"
 
 # Use NUPN tool info section (if present) to complement the naive generation strategy of NUPN.
-PRESERVE_NUPN_MIX="-Dpreserve.nupn.mix"
+PRESERVE_NUPN_MIX="-Dpreserve.nupn.mix=false"
 
 # Use NUPN tool info section (if present) right from the beginning to generate the NUPN.
-PRESERVE_NUPN_NATIVE="-Dpreserve.nupn.native"
+# This option preempts preserve.nupn.mix. Therefore, it deactivates preserve.nupn.mix when it is set.
+PRESERVE_NUPN_NATIVE="-Dpreserve.nupn.native=false"
 
 # Activate debug mode (print stack traces in case of error)? Uncomment the following if you wish so.
 export PNML2NUPN_DEBUG=true
@@ -76,11 +78,11 @@ fi
 
 echo "Launching PNML2NUPN program"
 
-TRADUCTEUR_PNML2NUPN="java $HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $JVM_ARGS -jar $JAR_FILE"
+PNML2NUPN="java $HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $PRESERVE_NUPN_MIX $PRESERVE_NUPN_NATIVE $JVM_ARGS -jar $JAR_FILE"
 
 for file in $1/*.pnml
 do
-	$TRADUCTEUR_PNML2NUPN $file &> ${file%.*}.log
+	$PNML2NUPN $file &> ${file%.*}.log
 	
 done
 
