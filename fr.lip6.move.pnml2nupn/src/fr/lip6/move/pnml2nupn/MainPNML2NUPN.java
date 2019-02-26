@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014-2016 Université Paris Nanterre and Sorbonne Université,
+ *  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Université,
  * 							 CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -82,6 +82,9 @@ public final class MainPNML2NUPN {
 	 */
 	public static final String UNIT_SAFENESS_CHECKING_ONLY = "unit.safeness.checking.only";
 
+	/**
+	 * Check if there are unsafe arcs in the net.
+	 */
 	public static final String HAS_UNSAFE_ARCS = "has.unsafe.arcs";
 
 	/**

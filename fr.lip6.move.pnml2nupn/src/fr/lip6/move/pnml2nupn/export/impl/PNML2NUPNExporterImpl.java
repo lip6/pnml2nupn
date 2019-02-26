@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014-2016 Université Paris Nanterre and Sorbonne Université,
+ *  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Université,
  *  					CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -222,15 +222,16 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			log.info("Exporting into NUPN: {}", inFile.getCanonicalPath());
 			openXMLStream(inFile);
 			boolean hasNupnToolInfo = hasNUPNToolSpecificSection(inFile);
-			/*
+			
 			if (MainPNML2NUPN.isPreserveNupnNative() && hasNupnToolInfo) {
 				journal.info("NUPN extraction in native mode requested, and there is a NUPN tool specific section.");
+				journal.info("Switching to native NUPN extraction mode.");
 				NativeNUPNExtractor nupnExtractor = new NativeNUPNExtractor(inFile, outFile, journal);
 				nupnExtractor.extractNUPN(vn, ap);
 			} else {
 				translateIntoNUPN(inFile, outFile, journal);
-			}*/
-			translateIntoNUPN(inFile, outFile, journal);
+			}
+			//translateIntoNUPN(inFile, outFile, journal);
 		} catch (ValidationException | fr.lip6.move.pnml2nupn.exceptions.InvalidFileTypeException
 				| fr.lip6.move.pnml2nupn.exceptions.InvalidFileException | InternalException | InvalidPNMLTypeException e) {
 			throw new PNMLImportExportException(e);
@@ -244,11 +245,17 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		ap = new AutoPilotHuge(vn);
 	}
 
+	/**
+	 * Checks the presence of NUPN tool specific section in the PNML.
+	 * @param inFile
+	 * @return
+	 * @throws PNMLImportExportException
+	 */
 	private boolean hasNUPNToolSpecificSection(File inFile) throws PNMLImportExportException {
 		boolean hasNUPNToolspecific = false;
 		ap.resetXPath();
 		try {
-			log.info("Checking for the presence of a NUPN tool specific section...");
+			log.info("Checking for the presence of a NUPN tool specific section.");
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.NUPN_TOOL_SPECIFIC);
 			String version;
@@ -282,7 +289,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 
 		boolean isSafe = false;
 		try {
-
 			log.info("Checking it is a PT Net.");
 			if (!isPTNet(ap, vn)) {
 				throw new InvalidPNMLTypeException(
@@ -363,7 +369,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 
 			// export transitions
 			log.info("Exporting transitions.");
-			// exportTransitions(ap, vn, bpnQueue, tsQueue);
 			exportTransitions130(ap, vn, nupnQueue);
 
 			// Stop Writers
@@ -394,10 +399,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		}
 	}
 
-
-
 	/**
-	 * Export transitions into NUPN (since 1.3.0)
+	 * Exports transitions into NUPN (since 1.3.0)
 	 * 
 	 * @param ap
 	 * @param vn
@@ -432,6 +435,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	}
 
 	/**
+	 * Builds the description of a transition in NUPN 
 	 * @param bpnsb
 	 * @param trId
 	 */
@@ -473,7 +477,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	}
 
 	/**
-	 * Build transitions collections, collecting unsafe arcs and corresponding
+	 * Builds transitions collections, collecting unsafe arcs and corresponding
 	 * transitions.
 	 * 
 	 * @param ap
@@ -1274,6 +1278,12 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		return result;
 	}
 
+	/**
+	 * Checks that the currently analyzed net is 1-safe
+	 * @return true if the net is 1-safe
+	 * @throws IOException
+	 * @throws PNMLImportExportException
+	 */
 	private boolean isNet1Safe() throws IOException, PNMLImportExportException {
 		spnc.setPnmlDocPath(this.currentInputFile.getCanonicalPath());
 		boolean res = spnc.isNet1Safe();
@@ -1284,6 +1294,10 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		return spnc.getExplanation();
 	}
 
+	/**
+	 * Inserts unit safeness pragma (as reported by the unit safeness checking tool)
+	 * @throws InterruptedException
+	 */
 	private void insertUnitSafePragma() throws InterruptedException {
 		PNML2NUPNUtils.insertPragma(MainPNML2NUPN.PRAGMA_UNIT_SAFE_BY_BOUNDS + NUPNConstants.NL, nupnQueue);
 	}
@@ -1291,6 +1305,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 
 
 	/**
+	 * Inits the log.
 	 * @param journal
 	 */
 	private void initLog(Logger journal) {
@@ -1386,7 +1401,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	}
 
 	/**
-	 * Stop NUPN writers and releases opened resources
+	 * Stosp NUPN writers and releases resources
 	 * 
 	 * @param outFile
 	 * @throws InterruptedException
