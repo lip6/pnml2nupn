@@ -222,7 +222,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			
 			if (MainPNML2NUPN.isPreserveNupnNative() && hasNupnToolInfo) {
 				journal.info("NUPN extraction in native mode requested, and there is a NUPN tool specific section.");
-				journal.info("Switching to native NUPN extraction mode.");
+				journal.info("NUPN extraction in native mode supersedes NUPN extraction in mixed mode.");
 				NativeNUPNExtractor nupnExtractor = new NativeNUPNExtractor(inFile, outFile, journal);
 				nupnExtractor.extractNUPN(vn, ap);
 			} else {

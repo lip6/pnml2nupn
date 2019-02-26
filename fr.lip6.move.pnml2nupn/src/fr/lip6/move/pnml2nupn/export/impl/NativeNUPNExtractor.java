@@ -148,13 +148,6 @@ public final class NativeNUPNExtractor {
 			ap.selectXPath(PNMLPaths.MARKED_PLACES);
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
-				placeId = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
-				plNupnId = plId2nupnMap.getLong(placeId);
-				if (plNupnId == -1L) {
-					log.error("Marked place {} was not reported in the NUPN toolspecific section!", placeId);
-				}
-				markedPlaces.add(placeId);
-				markedPlacesNupnId.add(plNupnId);
 				vn.toElement(VTDNavHuge.FIRST_CHILD);
 				while (!vn.matchElement(NUPNConstants.TEXT)) {
 					vn.toElement(VTDNavHuge.NEXT_SIBLING);
@@ -163,6 +156,14 @@ public final class NativeNUPNExtractor {
 
 				vn.toElement(VTDNavHuge.PARENT);
 				vn.toElement(VTDNavHuge.PARENT);
+				placeId = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+				plNupnId = plId2nupnMap.getLong(placeId);
+				if (plNupnId == -1L) {
+					log.error("Marked place {} was not reported in the NUPN toolspecific section!", placeId);
+				}
+				markedPlaces.add(placeId);
+				markedPlacesNupnId.add(plNupnId);
+				
 				if (mkg > 1) {
 					unsafePlaces.add(placeId);
 					PNML2NUPNUtils.setMin(mkg, minMarking);
@@ -455,7 +456,6 @@ public final class NativeNUPNExtractor {
 		} catch (InterruptedException | NavExceptionHuge | XPathParseExceptionHuge e) {
 			throw new PNMLImportExportException(e);
 		}
-
 		ap.resetXPath();
 	}
 
@@ -483,8 +483,10 @@ public final class NativeNUPNExtractor {
 	}
 
 	private void checkAndSetNavAutopilot() throws PNMLImportExportException {
-		if (vn == null || ap == null) {
+		if (vn == null) {
 			vn = PNML2NUPNUtils.openXMLStream(inFile).getNav();
+		}
+		if (ap == null) {
 			ap = new AutoPilotHuge(vn);
 		}
 	}
@@ -493,6 +495,8 @@ public final class NativeNUPNExtractor {
 		outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.TRANS_EXT);
 		outPSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.STATES_EXT);
 		ocbNupn = PNML2NUPNUtils.openOutChannel(outFile);
+		ocbTs = PNML2NUPNUtils.openOutChannel(outTSFile);
+		ocbPs = PNML2NUPNUtils.openOutChannel(outPSFile);
 		nupnQueue = PNML2NUPNUtils.initQueue();
 		tsQueue = PNML2NUPNUtils.initQueue();
 		psQueue = PNML2NUPNUtils.initQueue();

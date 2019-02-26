@@ -202,6 +202,7 @@ public final class MainPNML2NUPN {
 		optProperties = new Properties();
 		exclusiveOptProperties = new Properties();
 		optDescProperties = new Properties();
+		myLog.info("Loading application properties.");
 		try {
 			appProperties.load(MainPNML2NUPN.class.getResourceAsStream(APPPROP_FILE_NAME));
 			optProperties.load(MainPNML2NUPN.class.getResourceAsStream(OPTPROP_FILE_NAME));
