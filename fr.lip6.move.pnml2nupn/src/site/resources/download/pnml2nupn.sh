@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-#  Copyright 2014-2018 Université Paris Nanterre and Sorbonne Universités,
+#  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Universités,
 # 							CNRS, LIP6
 #
 #  All rights reserved.   This program and the accompanying materials
@@ -10,22 +10,18 @@
 #
 #  Project leader / Principal Contributor:
 #    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
-#
-#  Mailing list:
-#    lom-messan.hillah@lip6.fr
-#
 
 
 #############################################################################################
 # Script to launch PNML 2 NuPN (1-Safe P/T Net) model transformation.                       #
-# Version: 2018-04-23       (since v1.5.2)                                                  #
+# Version: 2019-02-27       (since v1.5.2)                                                  #
 # Contributors: Lom M. Hillah                                                               #
 # Institutions: Sorbonne Université, and Univ. Paris Nanterre, CNRS LIP6                    #
 # Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]  #
 #############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-2.2.0.jar
+JAR_FILE=pnml2nupn-2.3.0.jar
 
 # Constants
 NBPARAM=1
