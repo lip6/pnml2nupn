@@ -17,17 +17,19 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2018-04
+2019-02
  ------
 
 Changelog
 
-* What's new in version ${project.version}? (2.2.0)
+* What's new in version ${project.version}? (2.3.0)
+
+* What's new in version 2.2.0?
 
  * Add (not yet activated) option to preserve NUPN tool info section in native mode, without considering the rest of the PNML structure (i.e. without
- activating the naive translation strategy). The resulting NUPN is thus directly extracted from the tool info section. 
+ activating the naive translation strategy). The resulting NUPN should thus directly extracted from the tool info section. 
 
-* What's new in version 2.1.0
+* What's new in version 2.1.0?
   
   * Bug fix: the bug introduced in calculating min-in and min-out in version 2.0.0 was fixed.
   * Remove deprecated input options to the programme
