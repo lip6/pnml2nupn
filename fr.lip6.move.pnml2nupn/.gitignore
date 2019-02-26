@@ -16,3 +16,5 @@ build4cov.sh
 src/site/resources/download/*.jar
 /deployWebSite.sh
 /brouillon/
+/PNML-NUPN-Sonar.launch
+/sonarqube.sh
