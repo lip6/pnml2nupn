@@ -1,7 +1,6 @@
 /**
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2019 Université Paris Ouest and Sorbonne Université,
+ * 							CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -10,12 +9,6 @@
  *
  *  Project leader / Initial Contributor:
  *    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
- *
- *  Contributors:
- *    ${ocontributors} - <$oemails}>
- *
- *  Mailing list:
- *    lom-messan.hillah@lip6.fr
  */
 package fr.lip6.move.pnml2nupn.utils;
 

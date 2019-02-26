@@ -1,5 +1,5 @@
 #*
- *  Copyright 2014-2018 Sorbonne Université, CNRS, LIP6, Paris, France
+ *  Copyright 2014-2019 Sorbonne Université, CNRS, LIP6, Paris, France
  *                     and Université Paris Nanterre, France
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -10,8 +10,6 @@
  *  Project leader / Initial Contributor:
  *    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
  *
- *  Mailing list:
- *    lom-messan.hillah@lip6.fr
  *#
  ------
 Changelog of PNML to NUPN Converter ${project.version}
@@ -23,6 +21,8 @@ Changelog of PNML to NUPN Converter ${project.version}
 Changelog
 
 * What's new in version ${project.version}? (2.3.0)
+
+ * Activate the native NUPN extraction mode from the NUPN toolspecific section in the PNML.
 
 * What's new in version 2.2.0?
 

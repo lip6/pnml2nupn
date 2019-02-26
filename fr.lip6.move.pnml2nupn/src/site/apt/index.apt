@@ -1,5 +1,5 @@
 ~~
-~~  Copyright 2014-2018 Sorbonne Université, CNRS, LIP6, Paris, France
+~~  Copyright 2014-2019 Sorbonne Université, CNRS, LIP6, Paris, France
 ~~                      and Université Paris Nanterre, Nanterre, France
 ~~
 ~~  All rights reserved.   This program and the accompanying materials
@@ -21,7 +21,7 @@
 Petri Nets PNML to NUPN Converter
  ------
  ------
-2015-01
+2019-02
  ------
 
 PNML to Nested-Unit Petri Nets (NUPN) Converter

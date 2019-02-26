@@ -1,7 +1,6 @@
 /**
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2019 Université Paris Ouest and Sorbonne Université,
+ * 							CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0

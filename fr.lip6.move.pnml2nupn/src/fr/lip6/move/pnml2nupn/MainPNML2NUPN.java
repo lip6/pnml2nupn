@@ -10,9 +10,6 @@
  *  Project leader / Initial Contributor:
  *    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
  *
- *
- *  Mailing list:
- *    lom-messan.hillah@lip6.fr
  */
 package fr.lip6.move.pnml2nupn;
 
