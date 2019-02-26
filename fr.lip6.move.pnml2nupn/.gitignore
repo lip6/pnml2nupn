@@ -15,3 +15,4 @@ test
 build4cov.sh
 src/site/resources/download/*.jar
 /deployWebSite.sh
+/brouillon/
