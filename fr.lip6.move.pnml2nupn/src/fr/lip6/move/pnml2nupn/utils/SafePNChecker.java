@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014-2019 Université Paris Ouest and Sorbonne Université,
+ *  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Université,
  * 							CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -28,11 +28,8 @@ import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.apache.regexp.internal.recompile;
-
 import fr.lip6.move.pnml.cpnami.cami.CamiFactory;
 import fr.lip6.move.pnml.cpnami.cami.Runner;
-import fr.lip6.move.pnml.cpnami.cami.model.Ca;
 import fr.lip6.move.pnml.cpnami.exceptions.CamiException;
 import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
 import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
