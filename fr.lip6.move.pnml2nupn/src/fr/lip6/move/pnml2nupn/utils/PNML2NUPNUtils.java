@@ -1,7 +1,6 @@
 /**
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2016 Université Paris Nanterre and Sorbonne Université,
+ *			 			CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -38,7 +37,6 @@ import javax.xml.bind.ValidationException;
 
 import org.slf4j.Logger;
 
-import com.ximpleware.extended.AutoPilotHuge;
 import com.ximpleware.extended.ParseExceptionHuge;
 import com.ximpleware.extended.VTDGenHuge;
 import com.ximpleware.extended.XMLMemMappedBuffer;
@@ -51,6 +49,10 @@ import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
 import fr.lip6.move.pnml2nupn.export.impl.NUPNConstants;
 import fr.lip6.move.pnml2nupn.export.impl.NUPNWriter;
 import fr.lip6.move.pnml2nupn.export.impl.OutChannelBean;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongSortedSet;
 
 /**
  * Provides a set of utility methods, useful mainly for channel-related
@@ -235,7 +237,7 @@ public final class PNML2NUPNUtils {
 				throw new InvalidFileTypeException(message, new Throwable(message));
 			}
 		} catch (NullPointerException npe) {
-			MainPNML2NUPN.printStackTrace(npe);
+			PNML2NUPNUtils.printStackTrace(npe);
 			throw new InternalException("Null pointer exception", new Throwable(
 					"Something went wrong. Please, re-submit."));
 		} catch (SecurityException se) {
@@ -397,6 +399,62 @@ public final class PNML2NUPNUtils {
 		return vg;
 	}
 	
+	public static final void setMin(long newNb, LongArrayList minHolder) {
+		if (minHolder.isEmpty()) {
+			minHolder.add(newNb);
+		} else {
+			long currentDiff = minHolder.getLong(0);
+			currentDiff = Math.min(currentDiff, newNb);
+			minHolder.set(0, currentDiff);
+		}	
+	}
+
+	public static final void setMax(long newNb, LongArrayList maxHolder) {
+		if (maxHolder.isEmpty()) {
+			maxHolder.add(newNb);
+		} else {
+			long currentDiff = maxHolder.getLong(0);
+			currentDiff = Math.max(currentDiff, newNb);
+			maxHolder.set(0, currentDiff);
+		}
+	}
+	
+	/**
+	 * It is assumed that the list in argument is sorted.
+	 * @param ll
+	 * @return
+	 */
+	public static final long arithmeticProgression(LongList ll) {
+		int n = ll.size();
+		return ((long)n * (ll.getLong(0) + ll.getLong(ll.size() - 1))) / 2L;
+	}
+	
+	public static final long sum(LongList ll) {
+		return ll.stream().mapToLong(x -> x).sum();
+	}
+	
+	/**
+	 * It is assumed that the list in argument is sorted.
+	 * The constant in the arithmetic progression between NUPN Ids is 1. 
+	 * @param idList
+	 * @param faultyIds the resulting list where the consecutive elements not being in arithmetic progression  
+	 * @return true if there is arithmetic progression, false otherwise
+	 */
+	public static boolean isArithmeticProgressionOnNUPNIds(LongList idList, LongSortedSet faultyIds) {
+		Boolean isArPr = Boolean.TRUE;
+		if (faultyIds == null) {
+			faultyIds = new LongAVLTreeSet();
+		}
+		for (int i = 0; i < idList.size() - 1; i++) {
+			if (idList.getLong(i + 1) - idList.getLong(i) != 1L) {
+				faultyIds.add(idList.getLong(i));
+				faultyIds.add(idList.getLong(i + 1));
+		    	 isArPr =Boolean.valueOf(Boolean.logicalAnd(isArPr.booleanValue(), false));
+		     }
+		}
+		return isArPr;
+	}
+	
 	/**
 	 * Prints debug message (using debug level), only if debug env variable is set.
 	 * @param msg the message to print
@@ -408,5 +466,18 @@ public final class PNML2NUPNUtils {
 			log.debug(msg, args);
 		}
 	}
+	
+	/**
+	 * Prints the stack trace of the exception passed as parameter.
+	 * 
+	 * @param e
+	 */
+	public static synchronized void printStackTrace(Exception e) {
+		if (MainPNML2NUPN.isDebug()) {
+			e.printStackTrace();
+		}
+	}
+
+	
 
 }

@@ -28,7 +28,6 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
 import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
 
 /**
@@ -66,7 +65,7 @@ public final class NUPNWriter implements Runnable {
 			}
 		} catch (InterruptedException | IOException e) {
 			log.error(e.getMessage());
-			MainPNML2NUPN.printStackTrace(e);
+			PNML2NUPNUtils.printStackTrace(e);
 		} 
 	}
 

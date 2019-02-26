@@ -46,11 +46,13 @@ import fr.lip6.move.pnml2nupn.export.PNML2NUPNExporter;
 import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
 import fr.lip6.move.pnml2nupn.utils.SafePNChecker;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.LongCollection;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
+import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -608,25 +610,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		vn.toElement(VTDNavHuge.ROOT);
 	}
 
-	private void setMin(long newNb, LongArrayList minHolder) {
-		if (minHolder.isEmpty()) {
-			minHolder.add(newNb);
-		} else {
-			long currentDiff = minHolder.getLong(0);
-			currentDiff = Math.min(currentDiff, newNb);
-			minHolder.set(0, currentDiff);
-		}	
-	}
-
-	private void setMax(long newNb, LongArrayList maxHolder) {
-		if (maxHolder.isEmpty()) {
-			maxHolder.add(newNb);
-		} else {
-			long currentDiff = maxHolder.getLong(0);
-			currentDiff = Math.max(currentDiff, newNb);
-			maxHolder.set(0, currentDiff);
-		}
-	}
+	
 
 	/**
 	 * Builds unsafe arcs pragma
@@ -661,8 +645,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				.append(" unsafe incoming arc(s) with respective valuation(s):");
 				for (long v : arcVals) {
 					warnMsg.append(NUPNConstants.WS).append(v);
-					setMin(v, minValIn);
-					setMax(v, maxValIn);
+					PNML2NUPNUtils.setMin(v, minValIn);
+					PNML2NUPNUtils.setMax(v, maxValIn);
 					/*minValIn = Math.min(minValIn, v);
 					maxValIn = Math.max(maxValIn, v);*/
 					inValT += v;
@@ -688,8 +672,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 					.append(" unsafe outgoing arc(s) with respective valuation(s):");
 					for (long v : arcVals) {
 						warnMsg.append(NUPNConstants.WS).append(v);
-						setMin(v, minValOut);
-						setMax(v, maxValOut);
+						PNML2NUPNUtils.setMin(v, minValOut);
+						PNML2NUPNUtils.setMax(v, maxValOut);
 						/*minValOut = Math.min(minValOut, v);
 						maxValOut = Math.max(maxValOut, v);*/
 						outValT += v;
@@ -718,8 +702,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				nbUnsafeTrans++;
 
 				diff = outValT - inValT;
-				setMin(diff, minAllDiff);
-				setMax(diff, maxAllDiff);
+				PNML2NUPNUtils.setMin(diff, minAllDiff);
+				PNML2NUPNUtils.setMax(diff, maxAllDiff);
 				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
 					maxDiff = diff;
@@ -753,8 +737,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				nbTransOut++;
 				for (long v : arcVals) {
 					warnMsg.append(NUPNConstants.WS).append(v);
-					setMin(v, minValOut);
-					setMax(v, maxValOut);
+					PNML2NUPNUtils.setMin(v, minValOut);
+					PNML2NUPNUtils.setMax(v, maxValOut);
 					/*minValOut = Math.min(minValOut, v);
 					maxValOut = Math.max(maxValOut, v);*/
 					outValT += v;
@@ -789,8 +773,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				nbUnsafeTrans++;
 
 				diff = outValT - inValT;
-				setMin(diff, minAllDiff);
-				setMax(diff, maxAllDiff);
+				PNML2NUPNUtils.setMin(diff, minAllDiff);
+				PNML2NUPNUtils.setMax(diff, maxAllDiff);
 
 				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
@@ -834,8 +818,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 					tr2OutAllArcsMap.remove(s);
 				}
 				diff = outValT - inValT;
-				setMin(diff, minAllDiff);
-				setMax(diff, maxAllDiff);
+				PNML2NUPNUtils.setMin(diff, minAllDiff);
+				PNML2NUPNUtils.setMax(diff, maxAllDiff);
 
 				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
@@ -858,8 +842,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 					outValT += v;
 				}
 				diff = outValT - inValT;
-				setMin(diff, minAllDiff);
-				setMax(diff, maxAllDiff);
+				PNML2NUPNUtils.setMin(diff, minAllDiff);
+				PNML2NUPNUtils.setMax(diff, maxAllDiff);
 
 				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
 					minDiff = diff;
@@ -1050,10 +1034,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 
 		if (nbUnsafePlaces > 0) {
 			log.info("Checking invariant 'total nb of tokens > nb initial places': {}", totalMkg > nbMarkedPlaces);
-
 			log.info("Checking invariant 'nb unsafe initial places <= nb initial places': {}",
 					nbUnsafePlaces <= nbMarkedPlaces);
-
 			log.info(
 					"Checking invariant '(nb_init - nb_places) + (nb_places * min) <= nb_tokens <= (nb_init - nb_places) + (nb_places * max)': {}",
 					(nbMarkedPlaces - nbUnsafePlaces) + (nbUnsafePlaces * minMarking) <= totalMkg
@@ -1126,8 +1108,10 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			String[] elemId;
 			String unitSId;
 			long unitLId;
-			LongList placesIntId = new LongArrayList();
 			long plId;
+			LongList placesIntId = new LongArrayList();
+			LongSortedSet faultyIds = new LongAVLTreeSet();
+			boolean doubleCheck;
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
 				unitSId = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
@@ -1136,7 +1120,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 					unitLId = unitIDGen++;
 					unitsIdMap.put(unitSId, unitLId);
 				}
-				nupnsb.append("U").append(unitLId);
+				nupnsb.append(NUPNConstants.U).append(unitLId);
 				// places
 				vn.toElement(VTDNavHuge.FIRST_CHILD);
 				if (vn.getText() != -1) {
@@ -1155,12 +1139,29 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 					}
 					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(placesIntId.size());
 					if (placesIntId.size() > 1) {
-						placesIntId.stream().forEach(i -> nupnsb.append(NUPNConstants.WS).append(i));
+						// calculate arithmetic progression of the nupn Ids to check if they are incremental in the unit
+						placesIntId.sort(null);
+						long sumArrProg = PNML2NUPNUtils.arithmeticProgression(placesIntId);
+						PNML2NUPNUtils.debug("Assumed arithmetic progression of places Ids in unit {} ({}): {}", log, unitSId, unitLId, sumArrProg);
+						long sumCheck = PNML2NUPNUtils.sum(placesIntId);
+						PNML2NUPNUtils.debug("Manual sum of the places Ids in unit {} ({}): {} ", log, unitSId, unitLId, sumCheck);
+						if (sumArrProg != sumCheck) {
+							// double check
+							doubleCheck = PNML2NUPNUtils.isArithmeticProgressionOnNUPNIds(placesIntId, faultyIds);
+							log.error("The arithmetic progression of places Ids in unit {} ({}) is not satisfied! Double check result is (false -> no arithmetic progression): {}", unitSId, unitLId, doubleCheck); 
+							log.error("List of consecutive places IDs not being in arithmetic progression in unit {} ({}): {}", unitSId, unitLId, faultyIds.toString());
+							log.error("Consequently, the NUPN output for units will not be syntax-compliant.");
+							placesIntId.stream().forEach(i -> nupnsb.append(NUPNConstants.WS).append(i));
+							faultyIds.clear();
+						} else {
+							nupnsb.append(NUPNConstants.WS).append(placesIntId.getLong(0)).append(NUPNConstants.DOTS).append(placesIntId.getLong(placesIntId.size() - 1));
+						}
 					} else {
 						nupnsb.append(NUPNConstants.WS).append(placesIntId.getLong(0)).append(NUPNConstants.DOTS).append(placesIntId.getLong(0));
 					}
 				} else {
-					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.WS).append(NUPNConstants.ONE).append(NUPNConstants.DOTS).append(NUPNConstants.ZERO);
+					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.WS)
+					.append(NUPNConstants.ONE).append(NUPNConstants.DOTS).append(NUPNConstants.ZERO);
 				}
 				// subunits
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);

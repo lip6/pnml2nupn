@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -144,7 +143,7 @@ public final class MainPNML2NUPN {
 		} catch (IOException e1) {
 			myLog.error("Could not successfully extract all source files paths. See log.");
 			myLog.error(e1.getMessage());
-			MainPNML2NUPN.printStackTrace(e1);
+			PNML2NUPNUtils.printStackTrace(e1);
 		}
 		initSignatureMessage();
 		PNML2NUPNExporter pe = PNML2NUPNFactory.instance().createExporter();
@@ -160,7 +159,7 @@ public final class MainPNML2NUPN {
 				}
 			} catch (PNMLImportExportException | InterruptedException | IOException | InvalidPNMLTypeException | EarlyStopException e) {
 				myLog.error(e.getMessage());
-				MainPNML2NUPN.printStackTrace(e);
+				PNML2NUPNUtils.printStackTrace(e);
 				error |= true;
 			}
 		}
@@ -211,7 +210,7 @@ public final class MainPNML2NUPN {
 		} catch (IOException ex) {
 			myLog.error("Could not get access to the properties file in the classpath.");
 			myLog.error(ex.getMessage());
-			MainPNML2NUPN.printStackTrace(ex);
+			PNML2NUPNUtils.printStackTrace(ex);
 			error |= true;
 		}
 	}
@@ -387,17 +386,6 @@ public final class MainPNML2NUPN {
 
 	public static synchronized void appendMesgLineToSignature(String msg) {
 		signatureMesg.append(NL).append(COLWS).append(msg);
-	}
-
-	/**
-	 * Prints the stack trace of the exception passed as parameter.
-	 * 
-	 * @param e
-	 */
-	public static synchronized void printStackTrace(Exception e) {
-		if (MainPNML2NUPN.isDebug) {
-			e.printStackTrace();
-		}
 	}
 
 	public static String getPragmaCreator() {
