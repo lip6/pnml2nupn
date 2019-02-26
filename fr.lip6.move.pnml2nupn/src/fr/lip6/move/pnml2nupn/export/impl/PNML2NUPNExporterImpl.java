@@ -610,7 +610,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		vn.toElement(VTDNavHuge.ROOT);
 	}
 
-	
 
 	/**
 	 * Builds unsafe arcs pragma
@@ -620,9 +619,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	 */
 	private void buildUnsafeArcsPragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
 		LongBigArrayBigList arcVals = null;
-		//long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
-		//long minValIn = 1, minValOut = 1, maxValIn = 1, maxValOut = 1;
-		//long minDiff = -1_000_000L, maxDiff = -10_000_000L;
 		LongArrayList minValIn = new LongArrayList(2);
 		LongArrayList minValOut = new LongArrayList(2);
 		LongArrayList maxValIn = new LongArrayList(2);
@@ -704,14 +700,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				diff = outValT - inValT;
 				PNML2NUPNUtils.setMin(diff, minAllDiff);
 				PNML2NUPNUtils.setMax(diff, maxAllDiff);
-				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
-					minDiff = diff;
-					maxDiff = diff;
-				} else if (diff < minDiff) {
-					minDiff = diff;
-				} else if (diff > maxDiff) {
-					maxDiff = diff;
-				}*/
 
 				if (diff == 0) {
 					int replacementStartIndex = 12 + s.length();
@@ -722,7 +710,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				}
 
 				warnMsg.delete(0, warnMsg.length());
-				//debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
 				PNML2NUPNUtils.debug("Diff for transition {}: outVal({}) - inVal({}) = {}", log, s, s, s, diff);
 			}
 
@@ -739,8 +726,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 					warnMsg.append(NUPNConstants.WS).append(v);
 					PNML2NUPNUtils.setMin(v, minValOut);
 					PNML2NUPNUtils.setMax(v, maxValOut);
-					/*minValOut = Math.min(minValOut, v);
-					maxValOut = Math.max(maxValOut, v);*/
 					outValT += v;
 				}
 				// they could also have outgoing arcs with valuation = 1...
@@ -776,18 +761,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				PNML2NUPNUtils.setMin(diff, minAllDiff);
 				PNML2NUPNUtils.setMax(diff, maxAllDiff);
 
-				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
-					minDiff = diff;
-					maxDiff = diff;
-				} else if (diff < minDiff) {
-					minDiff = diff;
-				} else if (diff > maxDiff) {
-					maxDiff = diff;
-				}*/
-
-				/*tr2InAllArcsMap.remove(s);
-				tr2OutAllArcsMap.remove(s);*/
-
 				if (diff == 0) {
 					int replacementStartIndex = 12 + s.length();
 					warnMsg.replace(replacementStartIndex, replacementStartIndex + 3, "might be ");
@@ -820,17 +793,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				diff = outValT - inValT;
 				PNML2NUPNUtils.setMin(diff, minAllDiff);
 				PNML2NUPNUtils.setMax(diff, maxAllDiff);
-
-				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
-					minDiff = diff;
-					maxDiff = diff;
-				} else if (diff < minDiff) {
-					minDiff = diff;
-				} else if (diff > maxDiff) {
-					maxDiff = diff;
-				}*/
-				//debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
-
 				PNML2NUPNUtils.debug("Diff for transition {}: outVal({}) - inVal({}) = {}", log, s, s, s, diff);
 			}
 
@@ -844,16 +806,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				diff = outValT - inValT;
 				PNML2NUPNUtils.setMin(diff, minAllDiff);
 				PNML2NUPNUtils.setMax(diff, maxAllDiff);
-
-				/*if (minDiff == -1_000_000L && diff > maxDiff && diff > minDiff) {
-					minDiff = diff;
-					maxDiff = diff;
-				} else if (diff < minDiff) {
-					minDiff = diff;
-				} else if (diff > maxDiff) {
-					maxDiff = diff;
-				}*/
-				//debug("Diff for transition {}: Min-Diff= {}; Max-Diff= {}", s, minDiff, maxDiff);
 				PNML2NUPNUtils.debug("Diff for transition {}: outVal({}) - inVal({}) = {}", log, s, s, s, diff);
 			}
 
