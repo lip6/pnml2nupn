@@ -11,7 +11,7 @@ jdk:
 
 before_script:
   - wget http://pnml.lip6.fr/camipnml/download/fr.lip6.pnml.cami2pnml-2.1.13.jar
-  - mvn install:install-file -Dfile=fr.lip6.pnml.cami2pnml-2.1.13.jar
+  - mvn install:install-file -Dfile=fr.lip6.pnml.cami2pnml-2.1.13.jar -DgroupId=fr.lip6.pnml -DartifactId=fr.lip6.pnml.cami2pnml -Dversion=2.1.13 -Dpackaging=jar
 
 # script to launch
 script: "./build.sh"
