@@ -10,18 +10,12 @@
 ~~  Project leader / Initial Contributor:
 ~~    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
 ~~
-~~  Contributors:
-~~    ${ocontributors} - <$oemails}>
-~~
-~~  Mailing list:
-~~    lom-messan.hillah@lip6.fr
-~~
 
  ------
 Petri Nets PNML to NUPN Converter
  ------
  ------
-2019-02
+2019-02-27
  ------
 
 PNML to Nested-Unit Petri Nets (NUPN) Converter

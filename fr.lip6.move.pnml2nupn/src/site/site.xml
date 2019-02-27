@@ -11,7 +11,6 @@
 
      Project leader / Initial Contributor:
        Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
-
 -->
 <project xmlns="http://maven.apache.org/DECORATION/1.7.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -75,7 +74,7 @@
 			<skinAttribution>false</skinAttribution>
 			<pages>
 				<index project="fr.lip6.move.pnml2nupn">
-					<titleTemplate>Cami to PNML Converter</titleTemplate>
+					<titleTemplate>PNML to NUPN Converter</titleTemplate>
 					<shortTitle>Welcome</shortTitle>
 					<breadcrumbs>false</breadcrumbs>
 					<toc>false</toc>
@@ -124,7 +123,7 @@
 	<body>
 		<head>
 			<![CDATA[
-				<link rel="author" href="http://lip6.fr/Lom-Messan.Hillah"/>
+				<link rel="author" href="https://lip6.fr/Lom-Messan.Hillah"/>
 			]]>
 		</head>
 
@@ -146,13 +145,13 @@
 			<item name="Caesar.bdd" href="http://cadp.inria.fr/man/caesar.bdd.html" />
 			<item name="PNML Framework" href="http://pnml.lip6.fr" />
 			<item name="PNML.org" href="http://www.pnml.org" />
-			<item name="Project on GitHub" href="https://github.com/lhillah/pnml2nupn/tree/master/fr.lip6.move.pnml2nupn" />
+			<item name="Project on GitHub" href="https://github.com/lip6/pnml2nupn/tree/master/fr.lip6.move.pnml2nupn" />
 		</menu>
 		<menu name="Contribute" inherit="bottom">
 			<item name="Contribute" href="contribute.html" />
 			<item name="Issues"
-				href="https://github.com/lhillah/pnml2nupn/issues" />
-			<item name="Fork on GitHub" href="https://github.com/lhillah/pnml2nupn" />
+				href="https://github.com/lip6/pnml2nupn/issues" />
+			<item name="Fork on GitHub" href="https://github.com/lip6/pnml2nupn" />
 		</menu>
 		<menu name="Maven documentation" ref="reports" inherit="bottom" />
 	</body>

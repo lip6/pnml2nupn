@@ -15,7 +15,7 @@
 Usage Information
  -------
  -------
-2019-02
+2019-02-27
  -------
 
 Overview
@@ -37,7 +37,7 @@ Basic command-line invocation
 
 Advanced command-line invocation
 
- Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9):
+ Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9+):
  
  <java -d64 -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToFile [pathToFolder pathToAnotherFile ...]>
  
@@ -48,16 +48,15 @@ Advanced command-line invocation
  
 Invocation using a Shell script
 
-  We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using PNML to NuPN Converter.
+  We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using the PNML to NuPN Converter.
 In particular, the above set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
 
   For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
 PNML documents (a few hundreds KB), we advise you decrease it (current setting is 2 GB). If you use large documents,
-(a few hundreds MB to GB), then you should increase it in order to avoid out of memory errors.
+(a few hundreds MB to GB), then you should increase it in order to avoid out-of-memory errors.
 
- The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable. See below.
- 
- Up to v1.2.2 of this tool, use the following {{{./download/pnml2bpn.sh}Shell script}} instead.
+ The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable.
+ See below.
 
 ===
 
@@ -65,7 +64,7 @@ Output
 
  Upon successful execution, this tool will output 3 files:
  
-  * A <<*.nupn>> file that contains the Basic Petri Net obtained from the PNML P/T translation;
+  * A <<*.nupn>> file that contains the Nested Unit Petri Net obtained from the PNML P/T translation;
   
   * A <<*.places>> file that contains the mapping between the places ids from PNML and their counterparts in NUPN;
   
@@ -107,11 +106,45 @@ Options
 
  This tool supports some options (technically speaking: properties) that you might activate to change its behaviour.
 
+* Preserve NUPN in native mode
+
+ With this option, if there is a NUPN toolspecific section in the PNML document, it will be directly considered
+ to extract and produce the NUPN files. This option takes precedences over the preserve.nupn.mix mode (see below).
+ Set this option if you are aware of a NUPN toolspecific section in the PNML document, and you want to extract 
+ exactly the NUPN stored in that section.
+ 
+ To enable this property, proceed like so: 
+ 
+ <java -Dpreserve.nupn.native=true ...>
+
+ The default value for this option is <false>.
+ 
+ ** Supporting versions
+
+  Since v2.3.0.
+
+* Preserve NUPN in mixed mode
+
+ With this option, if there is a NUPN toolspecific section in the PNML document, it will be considered
+ while exporting to NUPN with the default generation strategy, i.e. one place per unit. 
+ The default strategy prevails, but it is guided with information from the NUPN toolspecific section to produce the
+ final *.nupn file.
+ 
+ To set this property, proceed like so: 
+ 
+ <java -Dpreserve.nupn.mix=true ...>
+
+ The default value for this option is <false>.
+ 
+ ** Supporting versions
+
+  Since v2.1.0.
+
 * Unit Safeness Checking (previously Bounds Checking)
  
  Unit safeness checking can be requested, by setting the <<unit.safeness.checking>> property set to true.
  If disabled (which is the default), NUPN generation will be faster since this step, that can take a long time, is skipped.
- To enable that property, proceed like so: 
+ To set this property, proceed like so: 
  
  <java -Dunit.safeness.checking=true ...>
 
@@ -130,7 +163,7 @@ Options
  property is also enabled.
  
  If <<unit.safeness.checking.only>> is enabled, no NUPN generation will happen, so that part of the process is skipped.
- To enable that property, proceed like so: 
+ To set this property, proceed like so: 
  
  <java -Dunit.safeness.checking.only=true ...>
 

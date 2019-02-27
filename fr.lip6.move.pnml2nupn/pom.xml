@@ -57,11 +57,11 @@
 	</developers>
 
 	<scm>
-		<url>scm:svn:https://github.com/lhillah/pnml2nupn.git</url>
+		<url>scm:git:https://github.com/lip6/pnml2nupn.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/lhillah/pnml2nupn/issues</url>
+		<url>https://github.com/lip6/pnml2nupn/issues</url>
 	</issueManagement>
 	<licenses>
 		<license>
@@ -200,7 +200,6 @@
 				<configuration>
 					<archive>
 						<manifestFile>${manifestdir}/MANIFEST.MF</manifestFile>
-						<!-- <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> -->
 					</archive>
 				</configuration>
 			</plugin>
