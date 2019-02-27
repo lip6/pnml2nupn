@@ -24,12 +24,13 @@ Changelog
 
  * Activate the native NUPN extraction mode from the NUPN toolspecific section in the PNML.
   Native NUPN extraction mode directly considers the information from the NUPN toolspecific section to build
-  the resulting NUPN files (*.nupn, *.places, and *.trans).  
+  the resulting NUPN files (*.nupn, *.places, and *.trans). It also uses information from the rest of the PNML,
+  but the NUPN toolspecific section provides the primary information used to build the .nupn file. 
 
 * What's new in version 2.2.0?
 
- * Add (not yet activated) option to preserve NUPN tool info section in native mode, without considering the rest of the PNML structure (i.e. without
- activating the naive translation strategy). The resulting NUPN should thus directly extracted from the tool info section. 
+ * Add (not yet activated) option to preserve NUPN toolspecific section in native mode, without activating the naive translation strategy. 
+   The resulting NUPN should thus directly be extracted from the NUPN toolspecific section in the PNML. 
 
 * What's new in version 2.1.0?
   

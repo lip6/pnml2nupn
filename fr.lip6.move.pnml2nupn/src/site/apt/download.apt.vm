@@ -40,8 +40,6 @@ Previous stable versions
 
  * Download {{{./download/pnml2nupn-1.5.4.jar}version 1.5.4}}
  
- * Download {{{./download/pnml2nupn-1.5.2.jar}version 1.5.3}}
- 
  * Download {{{./download/pnml2nupn-1.5.2.jar}version 1.5.2}}
  
  * Download {{{./download/pnml2nupn-1.5.1.jar}version 1.5.1}}
@@ -65,6 +63,8 @@ Previous stable versions
 ===
 
 Previous unstable versions (no more proposed for download)
+
+ * 2.0.0: bug in the generated NUPN
 
  * 1.5.3: bug in outputting the unique initial place ID (see changelog for version 1.5.4)
 
