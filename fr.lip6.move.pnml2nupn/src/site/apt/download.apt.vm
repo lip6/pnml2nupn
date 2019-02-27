@@ -34,6 +34,8 @@ Download PNML to NUPN Converter ${project.version}
 
 Previous stable versions
 
+ * Download {{{./download/pnml2nupn-2.2.0.jar}version 2.2.0}}
+
  * Download {{{./download/pnml2nupn-2.1.0.jar}version 2.1.0}}
 
  * Download {{{./download/pnml2nupn-1.5.4.jar}version 1.5.4}}
@@ -70,7 +72,7 @@ Requirements
 
   * Runs on Java 1.7+
   
-  * This tool was successfully run on Mac OS 10.9.2+. The integrated Bounds tool was compiled on
+  * This tool was successfully run on Mac OS from 10.9.2 to 10.14.3. The integrated Bounds tool was compiled on
 Mac OS 10.8. Therefore, <<there is no guaranty that it will successfully run on Linux, not even mentioning Windows>>.
 There is currently no plan to release a version specifically for Windows or Linux, until we get the opportunity to do so.
      

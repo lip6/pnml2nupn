@@ -23,6 +23,8 @@ Changelog
 * What's new in version ${project.version}? (2.3.0)
 
  * Activate the native NUPN extraction mode from the NUPN toolspecific section in the PNML.
+  Native NUPN extraction mode directly considers the information from the NUPN toolspecific section to build
+  the resulting NUPN files (*.nupn, *.places, and *.trans).  
 
 * What's new in version 2.2.0?
 
