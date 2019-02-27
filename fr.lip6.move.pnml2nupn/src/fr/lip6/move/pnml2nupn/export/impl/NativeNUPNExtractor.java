@@ -206,7 +206,7 @@ public final class NativeNUPNExtractor {
 						tId = count++;
 						trId2nupnMap.put(trg, tId);
 						tsQueue.put(tId + NUPNConstants.WS + trg + NUPNConstants.NL);
-						log.warn("Added new transition {} referenced by arc {}", trg, arc);
+						log.warn("Added new transition {} referenced by arc {}.", trg, arc);
 					}
 					pls = tr2InPlacesMap.get(tId);
 					if (pls == null) {
@@ -275,7 +275,7 @@ public final class NativeNUPNExtractor {
 						psmapping.delete(0, psmapping.length());
 					}
 					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(placesIntId.size());
-					PNML2NUPNUtils.debug("Collected places in unit {} ({}): {} ", log, unitSId, unitLId,
+					PNML2NUPNUtils.debug("Collected places in unit {} ({}): {}", log, unitSId, unitLId,
 							placesIntId.toString());
 					if (placesIntId.size() > 1) {
 						nupnsb.append(NUPNConstants.WS).append(placesIntId.getLong(0)).append(NUPNConstants.DOTS)
@@ -423,7 +423,7 @@ public final class NativeNUPNExtractor {
 	}
 
 	private void writeTransitions() throws PNMLImportExportException {
-		log.info("Exporting transitions");
+		log.info("Exporting transitions.");
 		try {
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.COUNT_TRANSITIONS_PATH);
