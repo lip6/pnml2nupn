@@ -101,39 +101,6 @@ public final class NativeNUPNExtractor {
 		}
 	}
 
-	private void writeUnits() throws InterruptedException {
-		log.info("Exporting units.");
-		int nbUnits = unitsIdMap.size();
-		nupnsb.append(NUPNConstants.UNITS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbUnits)
-				.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbUnits - 1)
-				.append(NUPNConstants.NL);
-		nupnsb.append(NUPNConstants.ROOT_UNIT).append(NUPNConstants.WS).append(unitsIdMap.getLong(rootUnitId))
-				.append(NUPNConstants.NL);
-		nupnQueue.put(nupnsb.toString());
-		for (String l : nupnLines) {
-			nupnQueue.put(l);
-		}
-		clearNUPNStringBuilder();
-	}
-
-	private void writeInitialPlaces() throws InterruptedException {
-		log.info("Exporting initial places.");
-		long nbMarkedPlaces = markedPlaces.size64();
-		if (nbMarkedPlaces > 1) {
-			nupnsb.append(NUPNConstants.INIT_PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK)
-					.append(nbMarkedPlaces);
-			for (String pId : markedPlaces) {
-				nupnsb.append(NUPNConstants.WS).append(plId2nupnMap.getLong(pId));
-			}
-		} else {
-			nupnsb.append(NUPNConstants.INIT_PLACE).append(NUPNConstants.WS)
-					.append(plId2nupnMap.getLong(markedPlaces.get(0)));
-		}
-		nupnsb.append(NUPNConstants.NL);
-		nupnQueue.put(nupnsb.toString());
-		clearNUPNStringBuilder();
-	}
-
 	private void collectInitialPlaces() throws PNMLImportExportException {
 		log.info("Collecting initially marked places.");
 		String placeId;
@@ -201,67 +168,68 @@ public final class NativeNUPNExtractor {
 		ap.resetXPath();
 	}
 
-	private void extractSizes() throws PNMLImportExportException {
+	private void collectTransitions() throws PNMLImportExportException {
+		String arc, src, trg, id;
+		long count = 0L;
+		long tId, pId;
+		LongBigArrayBigList pls = null;
 		try {
-			log.info("Extracting sizes.");
+			log.info("Collecting transitions.");
 			vn.toElement(VTDNavHuge.ROOT);
-			ap.selectXPath(PNMLPaths.NUPN_SIZE);
+			ap.selectXPath(PNMLPaths.TRANSITIONS_PATH);
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
-				nbPlaces = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.PLACES_ATTR)));
-				nbTrans = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.TRANS_ATTR)));
-				nbArcs = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.ARCS_ATTR)));
+				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+				tId = count++;
+				trId2nupnMap.put(id, tId);
+				tsQueue.put(tId + NUPNConstants.WS + id + NUPNConstants.NL);
 				vn.pop();
 			}
-			log.info("Nb places = {}; nb transitions = {}; nb arcs = {}", nbPlaces, nbTrans, nbArcs);
-
-		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge e) {
-			throw new PNMLImportExportException(e);
-		}
-		ap.resetXPath();
-	}
-
-	private void extractStructure() throws PNMLImportExportException {
-		try {
-			log.info("Extracting NUPN toolinfo structure.");
+	
+			ap.resetXPath();
 			vn.toElement(VTDNavHuge.ROOT);
-			ap.selectXPath(PNMLPaths.NUPN_STRUCTURE);
+			ap.selectXPath(PNMLPaths.ARCS_PATH);
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
-				nbUnits = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.UNITS_ATTR)));
-				rootUnitId = vn.toString(vn.getAttrVal(PNMLPaths.ROOT_ATTR));
-				plId2nupnMap.put(rootUnitId, nupnUnitIdGen++);
-				isSafe = Boolean.valueOf((vn.toString(vn.getAttrVal(PNMLPaths.SAFE_ATTR))));
+				pls = null;
+				arc = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+				src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
+				trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
+	
+				tId = trId2nupnMap.getLong(src);
+				if (tId == -1L) { // transition is the target
+					tId = trId2nupnMap.getLong(trg);
+					if (tId == -1L) {
+						log.warn(
+								"New transition {} referenced by arc {}, that I did not find earlier while parsing all transitions.",
+								trg, arc);
+						tId = count++;
+						trId2nupnMap.put(trg, tId);
+						tsQueue.put(tId + NUPNConstants.WS + trg + NUPNConstants.NL);
+						log.warn("Added new transition {} referenced by arc {}", trg, arc);
+					}
+					pls = tr2InPlacesMap.get(tId);
+					if (pls == null) {
+						pls = new LongBigArrayBigList();
+						tr2InPlacesMap.put(tId, pls);
+					}
+					// associate the input place
+					pId = plId2nupnMap.getLong(src);
+					pls.add(pId);
+	
+				} else {// transition is the source
+					pls = tr2OutPlacesMap.get(tId);
+					if (pls == null) {
+						pls = new LongBigArrayBigList();
+						tr2OutPlacesMap.put(tId, pls);
+					}
+					// associate the output place
+					pId = plId2nupnMap.getLong(trg);
+					pls.add(pId);
+				}
 				vn.pop();
-			}
-			log.info("Nb units = {}; root unit id = {}; is Safe = {}", nbUnits, rootUnitId, isSafe);
-			if (isSafe) {
-				insertUnitSafePragma();
 			}
 		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | InterruptedException e) {
-			throw new PNMLImportExportException(e);
-		}
-		ap.resetXPath();
-	}
-
-	private void writeNUPNPlaces() throws PNMLImportExportException {
-		try {
-			log.info("Exporting places.");
-			vn.toElement(VTDNavHuge.ROOT);
-			ap.selectXPath(PNMLPaths.COUNT_PLACES_PATH);
-			long nbPl = (long) ap.evalXPathToNumber();
-			if (nbPl != nbPlaces) {
-				log.error(
-						"The number of places I counted in the PNML file ({}) is not equal to the number reported ({}) in the NUPN size element!",
-						nbPl, nbPlaces);
-				log.warn("I will output in the NUPN the number reported in the NUPN size element.");
-			}
-			nupnsb.append(NUPNConstants.PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPlaces)
-					.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbPlaces - 1)
-					.append(NUPNConstants.NL);
-			nupnQueue.put(nupnsb.toString());
-			clearNUPNStringBuilder();
-		} catch (NavExceptionHuge | XPathParseExceptionHuge | InterruptedException e) {
 			throw new PNMLImportExportException(e);
 		}
 		ap.resetXPath();
@@ -341,7 +309,7 @@ public final class NativeNUPNExtractor {
 					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO);
 				}
 				nupnsb.append(NUPNConstants.NL);
-
+	
 				nupnLines.add(nupnsb.toString());
 				clearNUPNStringBuilder();
 				placesIntId.clear();
@@ -355,68 +323,100 @@ public final class NativeNUPNExtractor {
 		ap.resetXPath();
 	}
 
-	private void collectTransitions() throws PNMLImportExportException {
-		String arc, src, trg, id;
-		long count = 0L;
-		long tId, pId;
-		LongBigArrayBigList pls = null;
+	private void extractSizes() throws PNMLImportExportException {
 		try {
-			log.info("Collecting transitions.");
+			log.info("Extracting sizes.");
 			vn.toElement(VTDNavHuge.ROOT);
-			ap.selectXPath(PNMLPaths.TRANSITIONS_PATH);
+			ap.selectXPath(PNMLPaths.NUPN_SIZE);
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
-				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
-				tId = count++;
-				trId2nupnMap.put(id, tId);
-				tsQueue.put(tId + NUPNConstants.WS + id + NUPNConstants.NL);
+				nbPlaces = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.PLACES_ATTR)));
+				nbTrans = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.TRANS_ATTR)));
+				nbArcs = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.ARCS_ATTR)));
 				vn.pop();
 			}
+			log.info("Nb places = {}; nb transitions = {}; nb arcs = {}", nbPlaces, nbTrans, nbArcs);
 
-			ap.resetXPath();
+		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge e) {
+			throw new PNMLImportExportException(e);
+		}
+		ap.resetXPath();
+	}
+
+	private void extractStructure() throws PNMLImportExportException {
+		try {
+			log.info("Extracting NUPN toolinfo structure.");
 			vn.toElement(VTDNavHuge.ROOT);
-			ap.selectXPath(PNMLPaths.ARCS_PATH);
+			ap.selectXPath(PNMLPaths.NUPN_STRUCTURE);
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
-				pls = null;
-				arc = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
-				src = vn.toString(vn.getAttrVal(PNMLPaths.SRC_ATTR));
-				trg = vn.toString(vn.getAttrVal(PNMLPaths.TRG_ATTR));
-
-				tId = trId2nupnMap.getLong(src);
-				if (tId == -1L) { // transition is the target
-					tId = trId2nupnMap.getLong(trg);
-					if (tId == -1L) {
-						log.warn(
-								"New transition {} referenced by arc {}, that I did not find earlier while parsing all transitions.",
-								trg, arc);
-						tId = count++;
-						trId2nupnMap.put(trg, tId);
-						tsQueue.put(tId + NUPNConstants.WS + trg + NUPNConstants.NL);
-						log.warn("Added new transition {} referenced by arc {}", trg, arc);
-					}
-					pls = tr2InPlacesMap.get(tId);
-					if (pls == null) {
-						pls = new LongBigArrayBigList();
-						tr2InPlacesMap.put(tId, pls);
-					}
-					// associate the input place
-					pId = plId2nupnMap.getLong(src);
-					pls.add(pId);
-
-				} else {// transition is the source
-					pls = tr2OutPlacesMap.get(tId);
-					if (pls == null) {
-						pls = new LongBigArrayBigList();
-						tr2OutPlacesMap.put(tId, pls);
-					}
-					// associate the output place
-					pId = plId2nupnMap.getLong(trg);
-					pls.add(pId);
-				}
+				nbUnits = Long.parseLong(vn.toString(vn.getAttrVal(PNMLPaths.UNITS_ATTR)));
+				rootUnitId = vn.toString(vn.getAttrVal(PNMLPaths.ROOT_ATTR));
+				unitsIdMap.put(rootUnitId, nupnUnitIdGen++);
+				isSafe = Boolean.valueOf((vn.toString(vn.getAttrVal(PNMLPaths.SAFE_ATTR))));
 				vn.pop();
+			}
+			log.info("Nb units = {}; root unit id = {}; is Safe = {}", nbUnits, rootUnitId, isSafe);
+			if (isSafe) {
+				insertUnitSafePragma();
 			}
 		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | InterruptedException e) {
+			throw new PNMLImportExportException(e);
+		}
+		ap.resetXPath();
+	}
+
+	private void writeInitialPlaces() throws InterruptedException {
+		log.info("Exporting initial places.");
+		long nbMarkedPlaces = markedPlaces.size64();
+		if (nbMarkedPlaces > 1) {
+			nupnsb.append(NUPNConstants.INIT_PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK)
+					.append(nbMarkedPlaces);
+			for (String pId : markedPlaces) {
+				nupnsb.append(NUPNConstants.WS).append(plId2nupnMap.getLong(pId));
+			}
+		} else {
+			nupnsb.append(NUPNConstants.INIT_PLACE).append(NUPNConstants.WS)
+					.append(plId2nupnMap.getLong(markedPlaces.get(0)));
+		}
+		nupnsb.append(NUPNConstants.NL);
+		nupnQueue.put(nupnsb.toString());
+		clearNUPNStringBuilder();
+	}
+
+	private void writeUnits() throws InterruptedException {
+		log.info("Exporting units.");
+		int nbUnits = unitsIdMap.size();
+		nupnsb.append(NUPNConstants.UNITS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbUnits)
+				.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbUnits - 1)
+				.append(NUPNConstants.NL);
+		nupnsb.append(NUPNConstants.ROOT_UNIT).append(NUPNConstants.WS).append(unitsIdMap.getLong(rootUnitId))
+				.append(NUPNConstants.NL);
+		nupnQueue.put(nupnsb.toString());
+		for (String l : nupnLines) {
+			nupnQueue.put(l);
+		}
+		clearNUPNStringBuilder();
+	}
+
+	private void writeNUPNPlaces() throws PNMLImportExportException {
+		try {
+			log.info("Exporting places.");
+			vn.toElement(VTDNavHuge.ROOT);
+			ap.selectXPath(PNMLPaths.COUNT_PLACES_PATH);
+			long nbPl = (long) ap.evalXPathToNumber();
+			if (nbPl != nbPlaces) {
+				log.error(
+						"The number of places I counted in the PNML file ({}) is not equal to the number reported ({}) in the NUPN size element!",
+						nbPl, nbPlaces);
+				log.warn("I will output in the NUPN the number reported in the NUPN size element.");
+			}
+			nupnsb.append(NUPNConstants.PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPlaces)
+					.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbPlaces - 1)
+					.append(NUPNConstants.NL);
+			nupnQueue.put(nupnsb.toString());
+			clearNUPNStringBuilder();
+		} catch (NavExceptionHuge | XPathParseExceptionHuge | InterruptedException e) {
 			throw new PNMLImportExportException(e);
 		}
 		ap.resetXPath();
