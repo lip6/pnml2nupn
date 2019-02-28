@@ -141,9 +141,13 @@ Options
   Since v2.1.0.
 
 * Unit Safeness Checking (previously Bounds Checking)
+
+  Thanks to the Bounds tool by {{{https://www.lip6.fr/actualite/personnes-fiche.php?ident=P165}Emmanuel Paviot-Adet}},
+  this tool can first check that the P/T Net model in the PNML you want to translate into NUPN is 1-Safe. 
+  If that condition is not satisfied, the translation does not happen, unless you deactivate this option.
  
  Unit safeness checking can be requested, by setting the <<unit.safeness.checking>> property set to true.
- If disabled (which is the default), NUPN generation will be faster since this step, that can take a long time, is skipped.
+ If disabled (which is the default), NUPN generation will be faster since this step, which can take a long time, is skipped.
  To set this property, proceed like so: 
  
  <java -Dunit.safeness.checking=true ...>
