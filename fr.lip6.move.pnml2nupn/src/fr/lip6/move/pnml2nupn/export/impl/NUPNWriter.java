@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014-2019 Université Paris Ouest and Sorbonne Université,
+ *  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Université,
  * 							CNRS, LIP6
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -30,9 +30,7 @@ import org.slf4j.LoggerFactory;
 import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
 
 /**
- * Thread task to write contents read from a queue int a channel.
- * @author lom
- *
+ * Thread task to write contents read from a queue into a channel.
  */
 public final class NUPNWriter implements Runnable {
 

@@ -15,7 +15,7 @@
 Usage Information
  -------
  -------
-2019-02-27
+2019-09-20
  -------
 
 Overview
@@ -39,7 +39,7 @@ Advanced command-line invocation
 
  Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9+):
  
- <java -d64 -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToFile [pathToFolder pathToAnotherFile ...]>
+ <java -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToFile [pathToFolder pathToAnotherFile ...]>
  
  In particular, increase the value of <-Xmx> argument which allocates max memory to the heap,
  when you are dealing with very large input files. In the above invocation, it is set to 2 GB.
@@ -49,7 +49,9 @@ Advanced command-line invocation
 Invocation using a Shell script
 
   We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using the PNML to NuPN Converter.
-In particular, the above set of arguments for the Java VM is included, that you can start with and modify to your system's settings.
+  You must set in the script the path to the Java executable (i.e., java or java.exe) in your OS.
+
+  The above set of arguments for the Java VM is included in the script, so that you can start with and modify to your system's settings.
 
   For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
 PNML documents (a few hundreds KB), we advise you decrease it (current setting is 2 GB). If you use large documents,
@@ -60,7 +62,15 @@ PNML documents (a few hundreds KB), we advise you decrease it (current setting i
 
 ===
 
-Output
+Output since version 3.0.0
+
+ Upon successful execution, this tool will output a single file:
+ 
+  * A <<*.nupn>> file that contains the Nested Unit Petri Net obtained from the PNML P/T translation.
+  Mappings between PNML places ids and their NUPN counterparts are included in the NUPN file. 
+  The same holds for mappings between PNML transition ids and their NUPN counterparts.
+ 
+Output before version 3.0.0
 
  Upon successful execution, this tool will output 3 files:
  

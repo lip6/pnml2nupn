@@ -15,7 +15,7 @@
 Download PNML to NUPN Converter ${project.version}
  ------
  ------
-2019-02-27
+2019-09-19
  ------
 
 Download PNML to NUPN Converter ${project.version}
@@ -32,8 +32,24 @@ Download PNML to NUPN Converter ${project.version}
 
 ===
 
+Requirements
+
+  * Runs on Java 11+ starting from version 3.0.0
+   
+  * Runs on Java 1.7+ up to version 2.3.0
+  
+  * This tool was successfully run on Mac OS from 10.9.2 to 10.14.6. The integrated Bounds tool was compiled on
+Mac OS 10.8. Therefore, <<there is no guaranty that it will successfully run on Linux, not even mentioning Windows>>.
+There is currently no plan to release a version specifically for Windows or Linux, until we get the opportunity to do so.
+     
+
+
+===
+
 Previous stable versions
 
+ * Download {{{./download/pnml2nupn-2.3.0.jar}version 2.3.0}}
+ 
  * Download {{{./download/pnml2nupn-2.2.0.jar}version 2.2.0}}
 
  * Download {{{./download/pnml2nupn-2.1.0.jar}version 2.1.0}}
@@ -68,12 +84,5 @@ Previous unstable versions (no more proposed for download)
 
  * 1.5.3: bug in outputting the unique initial place ID (see changelog for version 1.5.4)
 
-Requirements
 
-  * Runs on Java 1.7+
-  
-  * This tool was successfully run on Mac OS from 10.9.2 to 10.14.3. The integrated Bounds tool was compiled on
-Mac OS 10.8. Therefore, <<there is no guaranty that it will successfully run on Linux, not even mentioning Windows>>.
-There is currently no plan to release a version specifically for Windows or Linux, until we get the opportunity to do so.
-     
  

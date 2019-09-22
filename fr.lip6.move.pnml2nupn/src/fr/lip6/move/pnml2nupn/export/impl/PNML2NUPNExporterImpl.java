@@ -15,6 +15,7 @@ package fr.lip6.move.pnml2nupn.export.impl;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -56,53 +57,52 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
- * Actual PNML 2 BPN exporter.
- * 
- * @author lom
- * 
+ * Actual PNML 2 NUPN exporter.
  */
 public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 
-	private Logger log = null;
+	private Logger log;
 
-	private Object2LongOpenHashMap<String> placesId2NupnMap = null;
-	private Object2LongOpenHashMap<String> trId2NupnMap = null;
-	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap = null;
-	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap = null;
-	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2InAllArcsMap = null;
-	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2OutAllArcsMap = null;
-	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2InUnsafeArcsMap = null;
-	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2OutUnsafeArcsMap = null;
-	private ObjectSet<String> unsafeNodes = null;
-	private Object2LongOpenHashMap<String> unsafeArcsMap = null;
+	private Object2LongOpenHashMap<String> placesId2NupnMap;
+	private Object2LongOpenHashMap<String> trId2NupnMap;
+	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2OutPlacesMap;
+	private Long2ObjectOpenHashMap<LongBigArrayBigList> tr2InPlacesMap;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2InAllArcsMap;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2OutAllArcsMap;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2InUnsafeArcsMap;
+	private Object2ObjectOpenHashMap<String, LongBigArrayBigList> tr2OutUnsafeArcsMap;
+	private ObjectSet<String> unsafeNodes;
+	private Object2LongOpenHashMap<String> unsafeArcsMap;
 
-	private File currentInputFile = null;
-	private SafePNChecker spnc = null;
+	private File currentInputFile;
+	private SafePNChecker spnc;
 	private long nbUnsafeArcs, nbUnsafePlaces, nbUnsafeTrans;
-	private long nbTransIn = 0L, nbTransOut = 0L, nbTransInOut = 0L;
+	private long nbTransIn, nbTransOut, nbTransInOut;
 	// For places id count
 	private long iDCount;
-	private boolean unsafePlaces, unsafeArcs, unsafeTrans;
+	private boolean unsafePlaces, unsafeTrans;
 	/* For the NuPN file */
-	private BlockingQueue<String> nupnQueue = null;
+	private BlockingQueue<String> nupnQueue;
 	/* For Transitions mapping NuPN - PNML */
-	private BlockingQueue<String> tsQueue = null;
+	private BlockingQueue<String> tsQueue;
 	/* For Places mapping NuPN - PNML */
-	private BlockingQueue<String> psQueue = null;
+	private BlockingQueue<String> psQueue;
 	/* For unsafe arcs */
-	private BlockingQueue<String> uaQueue = null;
-	private OutChannelBean ocbBpn = null;
-	private OutChannelBean ocbTs = null;
-	private OutChannelBean ocbPs = null;
-	private OutChannelBean ocbUA = null;
-	private File outTSFile = null;
-	private File outPSFile = null;
-	private File outUAFile = null;
+	private BlockingQueue<String> uaQueue;
+	private OutChannelBean ocbNupn;
+	private OutChannelBean ocbTs;
+	private OutChannelBean ocbPs;
+	private OutChannelBean ocbUA;
+	private File outTSFile;
+	private File outPSFile;
+	private File outUAFile;
 	/*Navigation in the XML*/
 	private VTDNavHuge vn;
 	private AutoPilotHuge ap;
 	/*NUPN tool specific section in the PNML?*/
 	private boolean hasNUPNToolspecific;
+	/*For greatest label length - since v-3.0.0.*/
+	private int labelLength;
 
 	public PNML2NUPNExporterImpl() {
 		spnc = new SafePNChecker();
@@ -334,7 +334,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.TRANS_EXT);
 			outPSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.STATES_EXT);
 			// Channels for NuPN, transitions and places id mapping
-			ocbBpn = PNML2NUPNUtils.openOutChannel(outFile);
+			ocbNupn = PNML2NUPNUtils.openOutChannel(outFile);
 			ocbTs = PNML2NUPNUtils.openOutChannel(outTSFile);
 			ocbPs = PNML2NUPNUtils.openOutChannel(outPSFile);
 			// Queues for NUPN, transitions and places id mapping
@@ -343,7 +343,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			psQueue = PNML2NUPNUtils.initQueue();
 
 			// Start writers
-			Thread nupnWriter = PNML2NUPNUtils.startWriter(ocbBpn, nupnQueue);
+			Thread nupnWriter = PNML2NUPNUtils.startWriter(ocbNupn, nupnQueue);
 			Thread tsWriter = PNML2NUPNUtils.startWriter(ocbTs, tsQueue);
 			Thread psWriter = PNML2NUPNUtils.startWriter(ocbPs, psQueue);
 
@@ -354,7 +354,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				insertUnitSafePragma();
 			}
 
-			// Init data type for places id and transitions
+			// Init data structure for places id and transitions
 			initPlacesMap();
 			initUnsafeArcsMap();
 			initTransitionsMaps();
@@ -367,19 +367,35 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			// export transitions
 			log.info("Exporting transitions.");
 			exportTransitions130(ap, vn, nupnQueue);
-
-			// Stop Writers
-			PNML2NUPNUtils.stopWriters(nupnQueue, tsQueue, psQueue);
-			// stopWriter(uaQueue);
-			nupnWriter.join();
+			
+			// write labels line
+			setLabelsLine(nupnQueue);
+			
+			// Stop place and transition files Writers
+			PNML2NUPNUtils.stopWriters(tsQueue, psQueue);
 			tsWriter.join();
 			psWriter.join();
-			// Close channels
-			PNML2NUPNUtils.closeChannels(ocbBpn, ocbTs, ocbPs);
+			// Close channels on place and transition files
+			PNML2NUPNUtils.closeChannels(ocbTs, ocbPs);
+			
+			// append contents of place and transition files to NUPN file
+			log.info("Appending place Ids-labels mappings to NUPN file");
+			appendFileContentToNUPN(outPSFile, nupnQueue);
+			log.info("Appending transition Ids-labels mappings to NUPN file");
+			appendFileContentToNUPN(outTSFile, nupnQueue);
+			
+			// stop NUPN writer and release related resources
+			PNML2NUPNUtils.stopWriters(nupnQueue);
+			nupnWriter.join();
+			PNML2NUPNUtils.closeChannels(ocbNupn);
+			
+			// Delete place and transition files
+			log.info("Deleting place and transition Ids-labels mappings files");
+			PNML2NUPNUtils.deleteOutputFiles(outPSFile, outTSFile);
+			
 			// clear maps
 			clearAllCollections();
-			log.info("See NUPN and mapping files: {}, {} and {}", outFile.getCanonicalPath(),
-					outTSFile.getCanonicalPath(), outPSFile.getCanonicalPath());
+			log.info("See NUPN file: {}", outFile.getCanonicalPath());
 		} catch (EarlyStopException e) {
 			normalStop(outFile);
 			throw e;
@@ -401,20 +417,20 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	 * 
 	 * @param ap
 	 * @param vn
-	 * @param bpnQueue
+	 * @param npnQueue
 	 * @param tsQueue
 	 * @throws XPathParseExceptionHuge
 	 * @throws NavExceptionHuge
 	 * @throws InterruptedException
 	 * @throws XPathEvalExceptionHuge
 	 */
-	private void exportTransitions130(AutoPilotHuge ap, VTDNavHuge vn, BlockingQueue<String> bpnQueue)
+	private void exportTransitions130(AutoPilotHuge ap, VTDNavHuge vn, BlockingQueue<String> npnQueue)
 			throws XPathParseExceptionHuge, NavExceptionHuge, InterruptedException, XPathEvalExceptionHuge {
 		long nb = trId2NupnMap.size();
 		StringBuilder bpnsb = new StringBuilder();
 		bpnsb.append(NUPNConstants.TRANSITIONS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nb).append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nb - 1L)
 		.append(NUPNConstants.NL);
-		bpnQueue.put(bpnsb.toString());
+		npnQueue.put(bpnsb.toString());
 		bpnsb.delete(0, bpnsb.length());
 
 		LongCollection allTr = new LongRBTreeSet(trId2NupnMap.values());
@@ -424,7 +440,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			buildConnectedPlaces2Transition(bpnsb, trId, tr2InPlacesMap);
 			buildConnectedPlaces2Transition(bpnsb, trId, tr2OutPlacesMap);
 			bpnsb.append(NUPNConstants.NL);
-			bpnQueue.put(bpnsb.toString());
+			npnQueue.put(bpnsb.toString());
 			bpnsb.delete(0, bpnsb.length());
 		}
 		bpnsb.delete(0, bpnsb.length());
@@ -496,7 +512,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 			tId = count++;
 			trId2NupnMap.put(id, tId);
-			tsQueue.put(tId + NUPNConstants.WS + id + NUPNConstants.NL);
+			tsQueue.put(NUPNConstants.T_PREFX + tId + NUPNConstants.WS + id + NUPNConstants.NL);
+			updateLabelLength(id);
 			vn.pop();
 		}
 
@@ -516,7 +533,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				if (tId == -1L) {
 					tId = count++;
 					trId2NupnMap.put(trg, tId);
-					tsQueue.put(tId + NUPNConstants.WS + trg + NUPNConstants.NL);
+					tsQueue.put(NUPNConstants.T_PREFX + tId + NUPNConstants.WS + trg + NUPNConstants.NL);
+					updateLabelLength(trg);
 				}
 				pls = tr2InPlacesMap.get(tId);
 				if (pls == null) {
@@ -845,7 +863,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		long nbMarkedPlaces = 0L;
 		long minMarking = 0, maxMarking = 0, mkg, totalMkg = 0;
 		unsafePlaces = false;
-		unsafeArcs = false;
 		nbUnsafePlaces = 0L;
 		nbUnsafeArcs = 0L;
 		String id;
@@ -915,7 +932,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			vn.pop();
 		}
 		if (nbUnsafeArcs > 0) {
-			unsafeArcs = true;
 			unsafeTrans = true;
 			log.warn("There are {} unsafe arcs in this net.", nbUnsafeArcs);
 		}
@@ -957,8 +973,10 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 					pId = placesId2NupnMap.getLong(id);
 					// placesId2bpnMap.put(id, pId);
 					initPlaces.add(pId);
-					if (!hasNUPNToolspecific)
-						psQueue.put(pId + NUPNConstants.WS + id + NUPNConstants.NL);
+					if (!hasNUPNToolspecific) {
+						psQueue.put(NUPNConstants.P_PREFX + pId + NUPNConstants.WS + id + NUPNConstants.NL);
+						updateLabelLength(id);
+					}
 					initPlacesId.append(id + NUPNConstants.COMMAWS);
 				} catch (InterruptedException e) {
 					log.error(e.getMessage());
@@ -1085,8 +1103,9 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 						plId = placesId2NupnMap.getLong(s);
 						if (plId != -1L) {
 							placesIntId.add(plId);
-							psmapping.append(plId).append(NUPNConstants.WS).append(s).append(NUPNConstants.NL);
+							psmapping.append(NUPNConstants.P_PREFX).append(plId).append(NUPNConstants.WS).append(s).append(NUPNConstants.NL);
 							psQueue.put(psmapping.toString());
+							updateLabelLength(s);
 							psmapping.delete(0, psmapping.length());
 						}
 					}
@@ -1193,8 +1212,9 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				 * if (pId == -1L) { pId = iDCount++; placesId2bpnMap.put(id,
 				 * pId); }
 				 */
-				psmapping.append(pId).append(NUPNConstants.WS).append(id).append(NUPNConstants.NL);
+				psmapping.append(NUPNConstants.P_PREFX).append(pId).append(NUPNConstants.WS).append(id).append(NUPNConstants.NL);
 				psQueue.put(psmapping.toString());
+				updateLabelLength(id);
 				nupnsb.append(NUPNConstants.U).append(count).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ONE).append(NUPNConstants.WS).append(pId).append(NUPNConstants.DOTS)
 				.append(pId).append(NUPNConstants.WS).append(NUPNConstants.HK).append(NUPNConstants.ZERO).append(NUPNConstants.NL);
 				nupnQueue.put(nupnsb.toString());
@@ -1299,8 +1319,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		PNML2NUPNUtils.insertPragma(MainPNML2NUPN.PRAGMA_UNIT_SAFE_BY_BOUNDS + NUPNConstants.NL, nupnQueue);
 	}
 
-
-
 	/**
 	 * Inits the log.
 	 * @param journal
@@ -1308,7 +1326,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	private void initLog(Logger journal) {
 		this.log = journal;
 	}
-
 
 	/**
 	 * Initializes internal data structures for transitions.
@@ -1337,7 +1354,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	}
 
 	/**
-	 * Initialises the data structure for unsafe transitions.
+	 * Initializes the data structure for unsafe transitions.
 	 */
 	private void initUnsafeTransMaps() {
 		if (tr2InUnsafeArcsMap == null) {
@@ -1398,7 +1415,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	}
 
 	/**
-	 * Stosp NUPN writers and releases resources
+	 * Stops NUPN writers and releases resources
 	 * 
 	 * @param outFile
 	 * @throws InterruptedException
@@ -1407,12 +1424,11 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	private void stop(File outFile) throws InterruptedException, IOException {
 		PNML2NUPNUtils.cancelWriters(nupnQueue, tsQueue, psQueue);
 		PNML2NUPNUtils.cancelWriter(uaQueue);
-		PNML2NUPNUtils.closeChannels(ocbBpn, ocbTs, ocbPs);
+		PNML2NUPNUtils.closeChannels(ocbNupn, ocbTs, ocbPs);
 		PNML2NUPNUtils.closeChannel(ocbUA);
 		PNML2NUPNUtils.deleteOutputFiles(outFile, outTSFile, outPSFile);
 		PNML2NUPNUtils.deleteOutputFile(outUAFile);
 	}	
-
 
 	/**
 	 * Clears all internal data structures for places and transitions.
@@ -1430,4 +1446,33 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		unsafeNodes.clear();
 	}
 
+	/**
+	 * Updates current label length only if new label length is strictly greater.
+	 * @param newLabel
+	 */
+	private void updateLabelLength(String newLabel) {
+		int newLength = newLabel.length();
+		if (newLength > labelLength)
+			labelLength = newLength;
+	}
+	
+	private void setLabelsLine(BlockingQueue<String> nupnQueue) throws InterruptedException, IOException {
+		String endOfLabel = NUPNConstants.WS + labelLength + NUPNConstants.NL;
+		if (!trId2NupnMap.isEmpty()) {
+			nupnQueue.put(NUPNConstants.LABELS_1_1_0 + endOfLabel);
+		} else {
+			nupnQueue.put(NUPNConstants.LABELS_1_0_0 + endOfLabel);
+		}
+	}
+	
+	private void appendFileContentToNUPN(File outPlacesFile, BlockingQueue<String> nupnQueue) throws IOException {
+		Files.lines(outPlacesFile.toPath()).forEach(l -> {
+			try {
+				nupnQueue.put(l + NUPNConstants.NL);
+			} catch (InterruptedException e) {
+				log.error("Error while appending content of external file {} to NUPN file: {}", outPlacesFile.getAbsolutePath(), e.getMessage());
+				PNML2NUPNUtils.printStackTrace(e);
+			}
+		});
+	}
 }	

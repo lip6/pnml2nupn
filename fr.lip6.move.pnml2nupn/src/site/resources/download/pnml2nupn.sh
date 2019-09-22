@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 #  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Universités,
 # 							CNRS, LIP6
@@ -13,15 +13,15 @@
 
 
 #############################################################################################
-# Script to launch PNML 2 NuPN (1-Safe P/T Net) model transformation.                       #
-# Version: 2019-02-27       (since v1.5.2)                                                  #
+# Script to launch PNML 2 NUPN (1-Safe P/T Net) model transformation.                       #
+# Version: 2019-09-19       (since v1.5.2)                                                  #
 # Contributors: Lom M. Hillah                                                               #
-# Institutions: Sorbonne Université, and Univ. Paris Nanterre, CNRS LIP6                    #
+# Institutions: Sorbonne Université, and Univ. Paris Nanterre, LIP6, CNRS                   #
 # Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]  #
 #############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-2.3.0.jar
+JAR_FILE=pnml2nupn-3.0.0.jar
 
 # Constants
 NBPARAM=1
@@ -29,8 +29,18 @@ E_NOFILE=66
 E_ERROR=-1
 E_SUCCESS=0
 
+# Setting d64 as arg to JVM depends on usinsg SunOS.
+case `uname -s` in
+	SunOS ) D64="-d64 " ;;
+	* ) D64="" ;; 
+esac
+
+# Set below the path to Java in your OS.
+# Starting from version 3.0.0, pnml2nupn runs with Java 11+.
+JAVA=""
+
 # Set of advanced arguments for JVM. Increase or decrease memory for the heap if needed by modifying the value of -Xmx
-JVM_ARGS="-d64 -server -Xmx7g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -XX:+UseConcMarkSweepGC -XX:+UseParNewGC"
+JVM_ARGS="$D64 -server -Xmx7g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA"
 
 # Should the program keep temporary Cami file? Set to true if you want to keep them. Default is false.
 CAMI_TMP_KEEP="-Dcami.tmp.keep=false"
@@ -74,12 +84,23 @@ fi
 
 echo "Launching PNML2NUPN program"
 
-PNML2NUPN="java $HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $PRESERVE_NUPN_MIX $PRESERVE_NUPN_NATIVE $JVM_ARGS -jar $JAR_FILE"
+PNML2NUPN="$JAVA $HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $PRESERVE_NUPN_MIX $PRESERVE_NUPN_NATIVE $JVM_ARGS -jar $JAR_FILE"
 
-for file in $1/*.pnml
+list=""
+for file in "$@" 
 do
-	$PNML2NUPN $file &> ${file%.*}.log
-	
+	if [ -d "$file" ]
+	then
+		list="$list `ls $file/*.pnml`"
+	else
+		file=`dirname $file`/`basename $file .pnml`.pnml
+		list="$list $file" 
+	fi
+done
+
+for file in $list
+do
+	$PNML2NUPN $file &> ${file%.*}.log 
 done
 
 exit "$E_SUCCESS"

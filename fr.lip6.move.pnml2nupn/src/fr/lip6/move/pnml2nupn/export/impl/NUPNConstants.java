@@ -27,6 +27,10 @@ public final class NUPNConstants {
 	public static final String COMMA = ",";
 	public static final String COMMAWS = COMMA + WS;
 	public static final String STRUCTURE = "structure";
+	public static final String P_PREFX = "p";
+	public static final String T_PREFX = "t";
+	public static final String LABELS_1_0_0 = "labels 1 0 0"; // When there is no transition
+	public static final String LABELS_1_1_0 = "labels 1 1 0"; // When there is at least one transition
 
 	private NUPNConstants() {super();}
 	

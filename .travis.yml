@@ -7,14 +7,30 @@ branches:
 
 # jdk
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 
 before_script:
-  - wget http://pnml.lip6.fr/camipnml/download/fr.lip6.pnml.cami2pnml-2.1.13.jar
-  - mvn install:install-file -Dfile=fr.lip6.pnml.cami2pnml-2.1.13.jar -DgroupId=fr.lip6.pnml -DartifactId=fr.lip6.pnml.cami2pnml -Dversion=2.1.13 -Dpackaging=jar
+  - wget http://pnml.lip6.fr/camipnml/download/fr.lip6.pnml.cami2pnml-2.2.0.jar
+  - mvn install:install-file -Dfile=fr.lip6.pnml.cami2pnml-2.2.0.jar -DgroupId=fr.lip6.pnml -DartifactId=fr.lip6.pnml.cami2pnml -Dversion=2.2.0 -Dpackaging=jar
 
 # script to launch
 script: "./build.sh"
+
+# deploiement
+before_deploy:
+  - export BODY="$(cat ./fr.lip6.move.pnml2nupn/src/main/resources/changelog.md)"
+
+deploy:
+  provider: releases
+  api_key: "$GITHUB_OAUTH_TOKEN"
+  file_glob: true
+  file: ./fr.lip6.move.pnml2nupn/target/pnml2nupn-*.jar
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+  name: "$TRAVIS_TAG"
+  body: "$BODY"
 
 # cache
 cache:

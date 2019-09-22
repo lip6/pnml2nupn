@@ -2,6 +2,7 @@ package fr.lip6.move.pnml2nupn.export.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
@@ -47,6 +48,8 @@ public final class NativeNUPNExtractor {
 	private ObjectBigArrayBigList<String> nupnLines;
 	private long nupnPlIdGen, nupnUnitIdGen;
 	private final StringBuilder nupnsb;
+	/*For greatest label length. Since v-3.0.0*/
+	private int labelLength;
 
 	public NativeNUPNExtractor(File input, File output, Logger journal) {
 		this.inFile = input;
@@ -84,16 +87,33 @@ public final class NativeNUPNExtractor {
 
 			collectTransitions();
 			writeTransitions();
+			
+			// write labels line
+			setLabelsLine(nupnQueue);
 
-			// Stop Writers and release resources
-			PNML2NUPNUtils.stopWriters(nupnQueue, tsQueue, psQueue);
-			nupnWriter.join();
+			// Stop place and transition writers, and release related resources
+			PNML2NUPNUtils.stopWriters(tsQueue, psQueue);
 			tsWriter.join();
 			psWriter.join();
-			PNML2NUPNUtils.closeChannels(ocbNupn, ocbTs, ocbPs);
+			PNML2NUPNUtils.closeChannels(ocbTs, ocbPs);
+			
+			// append contents of place and transition files to NUPN file
+			log.info("Appending place Ids-labels mappings to NUPN file");
+			appendFileContentToNUPN(outPSFile, nupnQueue);
+			log.info("Appending transition Ids-labels mappings to NUPN file");
+			appendFileContentToNUPN(outTSFile, nupnQueue);
+			
+			// Stop NUPN writer, and release related resources
+			PNML2NUPNUtils.stopWriters(nupnQueue);
+			nupnWriter.join();
+			PNML2NUPNUtils.closeChannels(ocbNupn);
+			
+			// Delete place and transition files
+			log.info("Deleting place and transition Ids-labels mappings files");
+			PNML2NUPNUtils.deleteOutputFiles(outPSFile, outTSFile);
+			
 			clearDataStructures();
-			log.info("See NUPN and mapping files: {}, {} and {}", outFile.getCanonicalPath(),
-					outTSFile.getCanonicalPath(), outPSFile.getCanonicalPath());
+			log.info("See NUPN file: {}, {} and {}", outFile.getCanonicalPath());
 
 		} catch (InterruptedException | PNMLImportExportException | IOException e) {
 			emergencyStop(outFile);
@@ -182,7 +202,8 @@ public final class NativeNUPNExtractor {
 				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
 				tId = count++;
 				trId2nupnMap.put(id, tId);
-				tsQueue.put(tId + NUPNConstants.WS + id + NUPNConstants.NL);
+				tsQueue.put(NUPNConstants.T_PREFX + tId + NUPNConstants.WS + id + NUPNConstants.NL);
+				updateLabelLength(id);
 				vn.pop();
 			}
 	
@@ -205,7 +226,8 @@ public final class NativeNUPNExtractor {
 								trg, arc);
 						tId = count++;
 						trId2nupnMap.put(trg, tId);
-						tsQueue.put(tId + NUPNConstants.WS + trg + NUPNConstants.NL);
+						tsQueue.put(NUPNConstants.T_PREFX + tId + NUPNConstants.WS + trg + NUPNConstants.NL);
+						updateLabelLength(trg);
 						log.warn("Added new transition {} referenced by arc {}.", trg, arc);
 					}
 					pls = tr2InPlacesMap.get(tId);
@@ -270,8 +292,9 @@ public final class NativeNUPNExtractor {
 							plId2nupnMap.put(s, plId);
 						}
 						placesIntId.add(plId);
-						psmapping.append(plId).append(NUPNConstants.WS).append(s).append(NUPNConstants.NL);
+						psmapping.append(NUPNConstants.P_PREFX).append(plId).append(NUPNConstants.WS).append(s).append(NUPNConstants.NL);
 						psQueue.put(psmapping.toString());
+						updateLabelLength(s);
 						psmapping.delete(0, psmapping.length());
 					}
 					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(placesIntId.size());
@@ -564,4 +587,34 @@ public final class NativeNUPNExtractor {
 		markedPlacesNupnId.clear();
 	}
 
+	/**
+	 * Updates current label length only if new label length is strictly greater.
+	 * @param newLabel
+	 */
+	private void updateLabelLength(String newLabel) {
+		int newLength = newLabel.length();
+		if (newLength > labelLength)
+			labelLength = newLength;
+	}
+	
+	private void setLabelsLine(BlockingQueue<String> nupnQueue) throws InterruptedException, IOException {
+		String endOfLabel = NUPNConstants.WS + labelLength + NUPNConstants.NL;
+		if (!trId2nupnMap.isEmpty()) {
+			nupnQueue.put(NUPNConstants.LABELS_1_1_0 + endOfLabel);
+		} else {
+			nupnQueue.put(NUPNConstants.LABELS_1_0_0 + endOfLabel);
+		}
+	}
+	
+	
+	private void appendFileContentToNUPN(File outPlacesFile, BlockingQueue<String> nupnQueue) throws IOException {
+		Files.lines(outPlacesFile.toPath()).forEach(l -> {
+			try {
+				nupnQueue.put(l + NUPNConstants.NL);
+			} catch (InterruptedException e) {
+				log.error("Error while appending content of external file {} to NUPN file: {}", outPlacesFile.getAbsolutePath(), e.getMessage());
+				PNML2NUPNUtils.printStackTrace(e);
+			}
+		});
+	}
 }

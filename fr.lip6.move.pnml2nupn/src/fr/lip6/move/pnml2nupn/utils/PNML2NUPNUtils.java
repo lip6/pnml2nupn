@@ -70,7 +70,6 @@ public final class PNML2NUPNUtils {
 		final FileChannel fc = fos.getChannel();
 		OutChannelBean ocb = new OutChannelBean(fc, fos);
 		return ocb;
-
 	}
 
 	public static void closeOutChannel(OutChannelBean ocb) throws IOException {
@@ -471,7 +470,4 @@ public final class PNML2NUPNUtils {
 			e.printStackTrace();
 		}
 	}
-
-	
-
 }

@@ -15,10 +15,15 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2019-02-27
+2019-09-19
  ------
 
 Changelog
+
+* What's new in version ${project.version}? (3.0.0)
+
+ * Switch to new NUPN format. With the new format, *.places and *.trans files no longer exist as part of the 
+   files output from the PNML to NUPN translation. 
 
 * What's new in version ${project.version}? (2.3.0)
 
