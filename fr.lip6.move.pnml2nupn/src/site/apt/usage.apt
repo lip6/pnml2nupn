@@ -24,22 +24,25 @@ Overview
   It will recursively scan directories and their sub-directories, looking for PNML files.
   
   You may provide a mix of paths to PNML files and directories containing them.
+ 
+ * Important note:
+  Since version 3.0.0, pnml2nupn runs on Java 11+. Consequently, versions 3.x.x of pnml2nupn will not run on Java below 11. 
   
 ===
 
 Basic command-line invocation
   
-  The basic command-line invocation is the following (update the name of the jar to the latest version of this tool):
+  The basic command-line invocation is the following (update the name of the jar file with the version you are using):
   
- <java -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]>
+ <java -jar pnml2nupn-latest-version.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]>
 
 ===
 
 Advanced command-line invocation
 
- Advanced invocation includes arguments for the JVM (tested on Mac OS 10.9+):
+ Advanced invocation includes arguments for the JVM:
  
- <java -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -jar fr.lip6.move.pnml2nupn-latest-version.jar pathToFile [pathToFolder pathToAnotherFile ...]>
+ <java -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA -jar pnml2nupn-latest-version.jar pathToFile [pathToFolder pathToAnotherFile ...]>
  
  In particular, increase the value of <-Xmx> argument which allocates max memory to the heap,
  when you are dealing with very large input files. In the above invocation, it is set to 2 GB.
@@ -48,16 +51,19 @@ Advanced command-line invocation
  
 Invocation using a Shell script
 
-  We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using the PNML to NuPN Converter.
-  You must set in the script the path to the Java executable (i.e., java or java.exe) in your OS.
+  We provide a {{{./download/pnml2nupn.sh}Shell script}} to help you increase productivity in using the PNML to NuPN Converter. 
+  Feel free to use it and adapt it to your environment.
+  
+  Before you use this script, you must first set in the script the path to the Java executable (i.e., java or java.exe) in your OS.
 
-  The above set of arguments for the Java VM is included in the script, so that you can start with and modify to your system's settings.
+  The above set of advanced arguments for the Java VM is included in the script, so that you can start with and modify them to your system's settings.
+  However, they are not included in the invocation of java by default. Please, set them as you see fit for your environment. 
 
   For instance, the -Xmx argument allocates some max amount of memory to the heap. If you mostly deal with small
 PNML documents (a few hundreds KB), we advise you decrease it (current setting is 2 GB). If you use large documents,
 (a few hundreds MB to GB), then you should increase it in order to avoid out-of-memory errors.
 
- The Shell script also contains some properties and an environment variable for the tool, that you can enable or disable.
+ The Shell script also contains some properties and a debug environment variable for pnml2nupn, that you can enable or disable.
  See below.
 
 ===
@@ -167,7 +173,10 @@ Options
 ** Supporting versions
 
   Since v1.4.0.
-
+  
+** Note
+  Using pnml2nupn does not require the Bounds tool. Just run it with the above property set to false.  
+     
 
 * Unit Safeness Checking Only
  

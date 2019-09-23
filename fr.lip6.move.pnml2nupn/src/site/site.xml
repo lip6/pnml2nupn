@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014-2019 Université Paris Nanterre and Sorbonne Université, 
-	CNRS, LIP6 All rights reserved. This program and the accompanying materials 
+	CNRS, LIP6, All rights reserved. This program and the accompanying materials 
 	are made available under the terms of the Eclipse Public License v1.0 which 
 	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
 	Project leader / Initial Contributor: Lom Messan Hillah - <lom-messan.hillah@lip6.fr> -->
@@ -38,7 +38,7 @@
 				<name>PNML to NUPN Converter</name>
 				<href>http://pnml.lip6.fr/pnml2nupn/index.html</href>
 			</brand>
-			<slogan>Free Tool to transform your PNML P/T Documents into NUPN
+			<slogan>Free and open-source tool to translate your PNML P/T Documents into NUPN
 				(Format of Caesar.bdd)</slogan>
 			<titleTemplate>%2$s | %1$s</titleTemplate>
 			
@@ -51,8 +51,8 @@
 			</bottomNav>
 			<bottomDescription>
 			<![CDATA[
-				 <span class="color-highlight">PNML to NUPN Converter</span> is a free command-line tool to transform your <a href="http://www.pnml.org">Petri Net Markup Language</a> Documents into 
-				NUPN, the format of the <a href="http://cadp.inria.fr/man/caesar.bdd.html#sect4">Caesar.bdd tool</a>.
+				 <span class="color-highlight">PNML to NUPN Converter</span> is a free command-line tool to translate your <a href="http://www.pnml.org">Petri Net Markup Language</a> documents into 
+				<a href="http://cadp.inria.fr/man/nupn.html">NUPN</a>, the format of the <a href="http://cadp.inria.fr/man/caesar.bdd.html">Caesar.bdd tool</a>.
 			 ]]>
 			</bottomDescription>
 			<pages>
@@ -108,8 +108,8 @@
 			<item name="Usage" href="usage.html" />
 		</menu>
 		<menu name="Find out more" inherit="bottom">
-			<item name="Caesar.bdd"
-				href="http://cadp.inria.fr/man/caesar.bdd.html" />
+			<item name="Nested-Unit Petri Nets"
+				href="http://cadp.inria.fr/man/nupn.html" />
 			<item name="PNML Framework" href="http://pnml.lip6.fr/" />
 			<item name="PNML.org" href="http://www.pnml.org/" />
 			<item name="Project on GitHub"

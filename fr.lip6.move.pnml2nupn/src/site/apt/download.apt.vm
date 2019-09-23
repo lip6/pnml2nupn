@@ -34,16 +34,15 @@ Download PNML to NUPN Converter ${project.version}
 
 Requirements
 
-  * Runs on Java 11+ starting from version 3.0.0
+  * Runs on Java 11+ starting from version 3.0.0.
    
-  * Runs on Java 1.7+ up to version 2.3.0
+  * Runs on Java 7 to Java 8, up to version 2.3.0.
   
-  * This tool was successfully run on Mac OS from 10.9.2 to 10.14.6. The integrated Bounds tool was compiled on
-Mac OS 10.8. Therefore, <<there is no guaranty that it will successfully run on Linux, not even mentioning Windows>>.
-There is currently no plan to release a version specifically for Windows or Linux, until we get the opportunity to do so.
-     
+* Note
+  The Bounds tool, integrated in pnml2nupn, was compiled on Mac OS 10.8. Therefore, <<there is no guaranty that Bounds will successfully run on Linux, not even mentioning Windows>>.
+There is currently no plan to release a version of Bounds specifically for Windows or Linux.
 
-
+   However, <<using pnml2nupn does not requires the Bounds tool>>s. The option that makes use of the Bounds tool is unset by default (see the {{{./usage.html}usage page}}). 
 ===
 
 Previous stable versions

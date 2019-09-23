@@ -16,12 +16,12 @@
 How to contribute
  ------
  ------
-2019-02-27
+2019-09-23
  ------
 
 Purpose
 
- PNML to NUPN Converter is a free and open-source tool to help you easily transform your Petri Net Markup Language P/T Documents into NUPN.
+ PNML to NUPN Converter is a free and open-source tool to help you translate your Petri Net Markup Language P/T documents into {{{https://cadp.inria.fr/man/nupn.html}Nested-Units Petri Net}}..
  It is developed and maintained by Lom Messan Hillah, in LIP6.
 
  This tool can be used freely and is released under the {{{https://eclipse.org/org/documents/epl-v10.php}Eclipse Public License Version 1.0}}.
@@ -31,7 +31,7 @@ Purpose
 Issues
 
  Please report any bugs found, feature requests or other issues on
-{{{https://github.com/lhillah/pnml2nupn/issues}PNML to NUPN GitHub tracker}}.
+{{{https://github.com/lip6/pnml2nupn/issues}PNML to NUPN GitHub tracker}}.
 
  When creating a new issue, try following {{{http://github.com/necolas/issue-guidelines/#readme}these guidelines for contributing}}.
  
@@ -39,7 +39,7 @@ Issues
 
 Fork, patch and contribute code
 
- Feel free to fork PNML to NUPN Converter {{{https://github.com/lhillah/pnml2nupn}Git repository at GitHub}} for your own use and updates.
+ Feel free to fork PNML to NUPN Converter {{{https://github.com/lip6/pnml2nupn}Git repository at GitHub}} for your own use and updates.
 
  Contribute your fixes and new features back to the main codebase using
 {{{http://help.github.com/articles/using-pull-requests}GitHub pull requests}}.

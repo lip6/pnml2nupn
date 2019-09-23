@@ -35,12 +35,17 @@ case `uname -s` in
 	* ) D64="" ;; 
 esac
 
-# Set below the path to Java in your OS.
-# Starting from version 3.0.0, pnml2nupn runs with Java 11+.
+# First, you must set below the path to the java executable in your OS.
+# Starting from version 3.0.0, pnml2nupn runs with Java 11+. 
+# pnml2nupn versions 3.x.x will not run with Java versions before 11.
 JAVA=""
 
-# Set of advanced arguments for JVM. Increase or decrease memory for the heap if needed by modifying the value of -Xmx
-JVM_ARGS="$D64 -server -Xmx7g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA"
+# Set of advanced arguments for JVM. By default it is empty. See below if you want to use a predefined set.
+JVM_ARGS=""
+
+# Uncomment the JVM_ARGS line below if you want to use the proposed, predefined set of advanced arguments for the JVM.
+# In particular, you can increase or decrease max memory to allocate for the heap, if needed, by modifying the value of -Xmx
+# JVM_ARGS="$D64 -server -Xmx2g -Xmn128m -XX:NewSize=2g -XX:MaxNewSize=2g -XX:+UseNUMA"
 
 # Should the program keep temporary Cami file? Set to true if you want to keep them. Default is false.
 CAMI_TMP_KEEP="-Dcami.tmp.keep=false"
@@ -49,7 +54,7 @@ CAMI_TMP_KEEP="-Dcami.tmp.keep=false"
 FORCE_NUPN_GEN="-Dforce.nupn.generation=true"
 
 # Enable or disable unit safeness checking of the PNML model? Default is false.
-# This option would properly work only on *nix systems since it relies on 
+# This option would work only on *nix systems since it relies on 
 # the Bounds tool (embedded but deployed locally at runtime)
 UNIT_SAFENESS_CHECKING="-Dunit.safeness.checking=false"
 
