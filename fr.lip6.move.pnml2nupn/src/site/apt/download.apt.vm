@@ -15,7 +15,7 @@
 Download PNML to NUPN Converter ${project.version}
  ------
  ------
-2019-09-19
+2019-09-23
  ------
 
 Download PNML to NUPN Converter ${project.version}
@@ -47,6 +47,8 @@ There is currently no plan to release a version of Bounds specifically for Windo
 
 Previous stable versions
 
+ * Download {{{./download/pnml2nupn-3.0.0.jar}version 3.0.0}}
+ 
  * Download {{{./download/pnml2nupn-2.3.0.jar}version 2.3.0}}
  
  * Download {{{./download/pnml2nupn-2.2.0.jar}version 2.2.0}}

@@ -15,12 +15,16 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2019-09-19
+2019-09-23
  ------
 
 Changelog
 
-* What's new in version ${project.version}? (2019-09-20)
+* What's new in version ${project.version}? (2019-09-23)
+
+ * Fix resource leaking and null pointer dereferencing issues.
+
+* What's new in version 3.0.0? (2019-09-20)
 
  * Switch to new NUPN format. With the new format, *.places and *.trans files no longer exist as part of the 
    files output from the PNML to NUPN translation. 
