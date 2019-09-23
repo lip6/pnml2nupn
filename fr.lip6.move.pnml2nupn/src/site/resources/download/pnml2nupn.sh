@@ -26,11 +26,10 @@ JAR_FILE=pnml2nupn-3.0.0.jar
 # Constants
 NBPARAM=1
 E_NOFILE=66
-E_ERROR=-1
 E_SUCCESS=0
 
 # Setting d64 as arg to JVM depends on usinsg SunOS.
-case `uname -s` in
+case $(uname -s) in
 	SunOS ) D64="-d64 " ;;
 	* ) D64="" ;; 
 esac
@@ -38,10 +37,10 @@ esac
 # First, you must set below the path to the java executable in your OS.
 # Starting from version 3.0.0, pnml2nupn runs with Java 11+. 
 # pnml2nupn versions 3.x.x will not run with Java versions before 11.
-JAVA=""
+JAVA="java"
 
 # Set of advanced arguments for JVM. By default it is empty. See below if you want to use a predefined set.
-JVM_ARGS=""
+JVM_ARGS="-Xmx2g"
 
 # Uncomment the JVM_ARGS line below if you want to use the proposed, predefined set of advanced arguments for the JVM.
 # In particular, you can increase or decrease max memory to allocate for the heap, if needed, by modifying the value of -Xmx
@@ -83,7 +82,7 @@ export PNML2NUPN_DEBUG=true
 if [ $# -lt "$NBPARAM" ] 
 	then
 	 echo "At least one argument is expected, either a path to a PNML file or directory containing them."
-	 echo "Usage: ./`basename $0` pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]"
+	 echo "Usage: ./$(basename $0) pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]"
 	 exit "$E_NOFILE" 
 fi
 
@@ -96,9 +95,9 @@ for file in "$@"
 do
 	if [ -d "$file" ]
 	then
-		list="$list `ls $file/*.pnml`"
+		list="$list $(ls $file/*.pnml)"
 	else
-		file=`dirname $file`/`basename $file .pnml`.pnml
+		file=$(dirname $file)/$(basename $file .pnml).pnml
 		list="$list $file" 
 	fi
 done
