@@ -39,10 +39,12 @@ Requirements
   * Runs on Java 7 to Java 8, up to version 2.3.0.
   
 * Note
+
   The Bounds tool, integrated in pnml2nupn, was compiled on Mac OS 10.8. Therefore, <<there is no guaranty that Bounds will successfully run on Linux, not even mentioning Windows>>.
 There is currently no plan to release a version of Bounds specifically for Windows or Linux.
 
-   However, <<using pnml2nupn does not requires the Bounds tool>>s. The option that makes use of the Bounds tool is unset by default (see the {{{./usage.html}usage page}}). 
+   However, <<using pnml2nupn does not requires the Bounds tool>>s. The option that makes use of the Bounds tool is unset by default (see the {{{./usage.html}usage page}}).
+ 
 ===
 
 Previous stable versions

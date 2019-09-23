@@ -25,7 +25,8 @@ Overview
   
   You may provide a mix of paths to PNML files and directories containing them.
  
- * Important note:
+* Important note
+
   Since version 3.0.0, pnml2nupn runs on Java 11+. Consequently, versions 3.x.x of pnml2nupn will not run on Java below 11. 
   
 ===
