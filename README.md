@@ -7,7 +7,7 @@ PNML to Nested-Unit Petri Net (NUPN) Converter
 
 PNML2NUPN transforms 1-Safe Place/Transition Petri nets from the [Petri Net Markup Language](http://www.pnml.org) into the [Nested-Units Petri Nets](https://cadp.inria.fr/man/nupn.html) format handled by the Caesar.bdd structural analyser tool of the [CADP tool suite](http://cadp.inria.fr).
 
-Download PNML2NUPN executable jar from its [companion web site](http://pnml.lip6.fr/pnml2nupn/), or the [releases page](releases) of this repository.
+Download PNML2NUPN executable jar from its [companion web site](http://pnml.lip6.fr/pnml2nupn/), or the [releases page](https://github.com/lip6/pnml2nupn/releases) of this repository.
 
 ## Usage
 
