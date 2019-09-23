@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,9 +41,9 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
  */
 public final class MainPNML2NUPN {
 
-	private static final String APPPROP_FILE_NAME="application.properties";
-	private static final String OPTPROP_FILE_NAME="options.properties";
-	private static final String EXCLOPTPROP_FILE_NAME="options-exclusive.properties";
+	private static final String APPPROP_FILE_NAME = "application.properties";
+	private static final String OPTPROP_FILE_NAME = "options.properties";
+	private static final String EXCLOPTPROP_FILE_NAME = "options-exclusive.properties";
 	private static final String OPTDESCPROP_FILE_NAME = "optionsdescription.properties";
 	public static final String DOT = ".";
 	public static final String NL = "\n";
@@ -66,8 +67,8 @@ public final class MainPNML2NUPN {
 	public static final String PNML2NUPN_DEBUG = "PNML2NUPN_DEBUG";
 	public static final String CAMI_TMP_KEEP = "cami.tmp.keep";
 	/**
-	 * Force NUPN Generation works by default for the case where bounds checking
-	 * is disabled.
+	 * Force NUPN Generation works by default for the case where bounds checking is
+	 * disabled.
 	 */
 	public static final String FORCE_NUPN_GENERATION = "force.nupn.generation";
 	/**
@@ -85,15 +86,16 @@ public final class MainPNML2NUPN {
 	public static final String HAS_UNSAFE_ARCS = "has.unsafe.arcs";
 
 	/**
-	 * Preserve NUPN toolspecific section when encountered during the generation - best effort mode.
-	 * Mixed generation strategy: naive one combined with NUPN information.
+	 * Preserve NUPN toolspecific section when encountered during the generation -
+	 * best effort mode. Mixed generation strategy: naive one combined with NUPN
+	 * information.
 	 */
 	public static final String PRESERVE_NUPN_MIX = "preserve.nupn.mix";
 	/**
-	 * Preserve NUPN toolspecific section right from the beginning by looking for it first - native mode
+	 * Preserve NUPN toolspecific section right from the beginning by looking for it
+	 * first - native mode
 	 */
 	public static final String PRESERVE_NUPN_NATIVE = "preserve.nupn.native";
-	
 
 	private static StringBuilder signatureMesg;
 	/**
@@ -116,8 +118,7 @@ public final class MainPNML2NUPN {
 	private static DirFileFilter dff;
 
 	private static boolean error;
-	private static org.slf4j.Logger myLog ;
-	
+	private static org.slf4j.Logger myLog;
 
 	private MainPNML2NUPN() {
 		super();
@@ -132,7 +133,8 @@ public final class MainPNML2NUPN {
 		StringBuilder msg = new StringBuilder();
 		error = false;
 		if (args.length < 1) {
-			myLog.error("The path to at least one PNML P/T file is expected. You may provide a file, a directory, or a mix of several of these.");
+			myLog.error(
+					"The path to at least one PNML P/T file is expected. You may provide a file, a directory, or a mix of several of these.");
 			return;
 		}
 		loadProperties();
@@ -157,7 +159,8 @@ public final class MainPNML2NUPN {
 				} else {
 					pe.export2NUPN(new File(pathSrc.get(i)), new File(pathDest.get(i)), jr);
 				}
-			} catch (PNMLImportExportException | InterruptedException | IOException | InvalidPNMLTypeException | EarlyStopException e) {
+			} catch (PNMLImportExportException | InterruptedException | IOException | InvalidPNMLTypeException
+					| EarlyStopException e) {
 				myLog.error(e.getMessage());
 				PNML2NUPNUtils.printStackTrace(e);
 				error |= true;
@@ -170,7 +173,7 @@ public final class MainPNML2NUPN {
 			msg.append("Finished in error.");
 			if (!MainPNML2NUPN.isDebug) {
 				msg.append(" Activate debug mode to print stacktraces, like so: export ").append(PNML2NUPN_DEBUG)
-				.append("=true");
+						.append("=true");
 			}
 			myLog.error(msg.toString());
 		}
@@ -187,7 +190,7 @@ public final class MainPNML2NUPN {
 	private static void loadActualCommandLineOptions(StringBuilder msg) {
 		// Debug mode?
 		checkDebugMode(myLog, msg);
-		optProperties.keySet().stream().map(p-> (String)p).sorted().forEachOrdered(p -> {
+		optProperties.keySet().stream().map(p -> (String) p).sorted().forEachOrdered(p -> {
 			checkCmdlineOption(p, msg, Boolean.valueOf(exclusiveOptProperties.getProperty(p)));
 		});
 	}
@@ -203,11 +206,14 @@ public final class MainPNML2NUPN {
 		exclusiveOptProperties = new Properties();
 		optDescProperties = new Properties();
 		myLog.info("Loading application properties.");
-		try {
-			appProperties.load(MainPNML2NUPN.class.getResourceAsStream(APPPROP_FILE_NAME));
-			optProperties.load(MainPNML2NUPN.class.getResourceAsStream(OPTPROP_FILE_NAME));
-			exclusiveOptProperties.load(MainPNML2NUPN.class.getResourceAsStream(EXCLOPTPROP_FILE_NAME));
-			optDescProperties.load(MainPNML2NUPN.class.getResourceAsStream(OPTDESCPROP_FILE_NAME));
+		try (final InputStream appPropIs = MainPNML2NUPN.class.getResourceAsStream(APPPROP_FILE_NAME);
+				final InputStream optPropIs = MainPNML2NUPN.class.getResourceAsStream(OPTPROP_FILE_NAME);
+				final InputStream exclOptPropIs = MainPNML2NUPN.class.getResourceAsStream(EXCLOPTPROP_FILE_NAME);
+				final InputStream optDescPropIs = MainPNML2NUPN.class.getResourceAsStream(OPTDESCPROP_FILE_NAME)) {
+			appProperties.load(appPropIs);
+			optProperties.load(optPropIs);
+			exclusiveOptProperties.load(exclOptPropIs);
+			optDescProperties.load(optDescPropIs);
 		} catch (IOException ex) {
 			myLog.error("Could not get access to the properties file in the classpath.");
 			myLog.error(ex.getMessage());
@@ -219,13 +225,13 @@ public final class MainPNML2NUPN {
 	private static void initSignatureMessage() {
 		signatureMesg = new StringBuilder();
 		signatureMesg.append(COLWS).append("generated by ").append(appProperties.getProperty(TOOL_NAME_PROP))
-		.append(" version ").append(appProperties.getProperty(TOOL_VERSION_PROP));
+				.append(" version ").append(appProperties.getProperty(TOOL_VERSION_PROP));
 		signatureMesg.append(" with options");
-		for (String key: optionsMap.keySet().stream().sorted().collect(Collectors.toList())) {
+		for (String key : optionsMap.keySet().stream().sorted().collect(Collectors.toList())) {
 			signatureMesg.append(WSDASH).append(key).append(EQ).append(optionsMap.getBoolean(key));
 		}
 	}
-	
+
 	private static void checkCmdlineOption(String option, StringBuilder msg, boolean isExclusiveOption) {
 		PNML2NUPNUtils.debug("Checking option {}", myLog, option);
 		String optionStr = System.getProperty(option);
@@ -236,17 +242,19 @@ public final class MainPNML2NUPN {
 		} else {
 			optionsMap.put(option, false);
 			msg.append("Option ").append("'").append(optionDesc).append("'").append(" not set.")
-			 .append(" Default is false. If you want to enable that option, then invoke this program with the ")
-			 .append(" corresponding property like so: java -D").append(option)
-			 .append("=true [JVM OPTIONS] -jar ...");
+					.append(" Default is false. If you want to enable that option, then invoke this program with the ")
+					.append(" corresponding property like so: java -D").append(option)
+					.append("=true [JVM OPTIONS] -jar ...");
 			myLog.info(msg.toString());
 			msg.delete(0, msg.length());
 		}
 		if (isExclusiveOption) {
-			myLog.info("When set, this option ({}) disables all the others (therefore I will ignore the other options.)", option);
+			myLog.info(
+					"When set, this option ({}) disables all the others (therefore I will ignore the other options.)",
+					option);
 		}
 	}
-	
+
 	private static void checkDebugMode(org.slf4j.Logger myLog, StringBuilder msg) {
 		String debug = System.getenv(PNML2NUPN_DEBUG);
 		if ("true".equalsIgnoreCase(debug)) {
@@ -255,8 +263,8 @@ public final class MainPNML2NUPN {
 			setDebug(false);
 			msg.append(
 					"Debug mode not set. If you want to activate the debug mode (print stacktraces in case of errors), then set the ")
-			.append(PNML2NUPN_DEBUG).append(" environment variable like so: export ").append(PNML2NUPN_DEBUG)
-			.append("=true.");
+					.append(PNML2NUPN_DEBUG).append(" environment variable like so: export ").append(PNML2NUPN_DEBUG)
+					.append("=true.");
 			myLog.info(msg.toString());
 			msg.delete(0, msg.length());
 		}
@@ -298,12 +306,14 @@ public final class MainPNML2NUPN {
 		List<File> res = new ArrayList<File>();
 		// filter PNML files
 		File[] pfiles = srcf.listFiles(pff);
-		res.addAll(Arrays.asList(pfiles));
-		// filter directories
-		pfiles = srcf.listFiles(dff);
 		if (pfiles != null) {
-			for (File f : pfiles) {
-				res.addAll(Arrays.asList(extractSrcFiles(f, pff, dff)));
+			res.addAll(Arrays.asList(pfiles));
+			// filter directories
+			pfiles = srcf.listFiles(dff);
+			if (pfiles != null) {
+				for (File f : pfiles) {
+					res.addAll(Arrays.asList(extractSrcFiles(f, pff, dff)));
+				}
 			}
 		}
 		return res.toArray(new File[0]);
@@ -325,6 +335,7 @@ public final class MainPNML2NUPN {
 
 	/**
 	 * Returns true if debug mode is set.
+	 * 
 	 * @return
 	 */
 	public static boolean isDebug() {
@@ -332,8 +343,7 @@ public final class MainPNML2NUPN {
 	}
 
 	/**
-	 * Sets the debug mode according to parameter: enable (true) or disable
-	 * (false).
+	 * Sets the debug mode according to parameter: enable (true) or disable (false).
 	 * 
 	 * @param isDebug
 	 */
@@ -369,7 +379,8 @@ public final class MainPNML2NUPN {
 	}
 
 	/**
-	 * Returns true if unit safeness checking only is enabled, false otherwise (default).
+	 * Returns true if unit safeness checking only is enabled, false otherwise
+	 * (default).
 	 * 
 	 * @return
 	 */
@@ -391,8 +402,8 @@ public final class MainPNML2NUPN {
 
 	public static String getPragmaCreator() {
 		StringBuilder pragmaCreator = new StringBuilder();
-		pragmaCreator.append(PRAGMA_CREATOR_PREFIX).append(appProperties.getProperty(TOOL_NAME_PROP))
-		.append(WS).append(appProperties.getProperty(TOOL_VERSION_PROP));
+		pragmaCreator.append(PRAGMA_CREATOR_PREFIX).append(appProperties.getProperty(TOOL_NAME_PROP)).append(WS)
+				.append(appProperties.getProperty(TOOL_VERSION_PROP));
 		return pragmaCreator.toString();
 	}
 }

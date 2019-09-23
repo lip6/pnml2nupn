@@ -242,14 +242,14 @@ public final class PNML2NUPNUtils {
 
 	/**
 	 * Extracts a file from a source path to a destination path.
-	 * 
+	 * We assume source file to be located in the jar of this tool (this is used to extract the Bounds file).
 	 * @param fromPath
 	 * @param toPath
 	 * @throws IOException
 	 */
 	public static final void extractFile(String fromPath, String toPath) throws IOException {
-		try (InputStream input = PNML2NUPNUtils.class.getClassLoader().getResourceAsStream(fromPath);
-				BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(new File(toPath)))) {
+		try (final InputStream input = PNML2NUPNUtils.class.getResourceAsStream(fromPath);
+				final BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(new File(toPath)))) {
 
 			if (input == null) {
 				System.err.println("Could not found file to load.");
@@ -301,7 +301,7 @@ public final class PNML2NUPNUtils {
 	}
 	
 	/**
-	 * Initialises and returns and blocking queue.
+	 * Initializes and returns and blocking queue.
 	 * @return
 	 */
 	public static final BlockingQueue<String> initQueue() {
