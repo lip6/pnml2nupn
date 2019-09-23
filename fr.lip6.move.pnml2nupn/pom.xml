@@ -6,7 +6,7 @@
 
 	<groupId>fr.lip6.pnml</groupId>
 	<artifactId>pnml2nupn</artifactId>
-	<version>3.0.0</version>
+	<version>3.0.1</version>
 
 	<packaging>jar</packaging>
 
@@ -125,13 +125,11 @@
 		<dependency>
 			<groupId>com.ximpleware</groupId>
 			<artifactId>vtd-xml</artifactId>
-			<!-- Previous working in pnml2nupn 1.5.3: 2.11 -->
 			<version>2.13.4</version>
 		</dependency>
 		<dependency>
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>fastutil</artifactId>
-			<!-- Previous working in pnml2nupn 1.5.3: 6.5.16 -->
 			<version>8.3.0</version>
 		</dependency>
 	</dependencies>
