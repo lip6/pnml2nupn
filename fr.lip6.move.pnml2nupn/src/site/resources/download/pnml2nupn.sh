@@ -21,7 +21,7 @@
 #############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-3.0.0.jar
+JAR_FILE=pnml2nupn-3.0.1.jar
 
 # Constants
 NBPARAM=1
