@@ -1,13 +1,13 @@
 PNML to Nested-Unit Petri Net (NUPN) Converter
 ========
 
+[![Build Status](https://travis-ci.org/lip6/pnml2nupn.svg?branch=master)](https://travis-ci.org/lip6/pnml2nupn "Travis Build Status") &nbsp; 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8798cf9d0cef45349930953ba85906e9)](https://www.codacy.com/app/lip6/pnml2nupn?utm_source=github.com&utm_medium=referral&utm_content=lip6/pnml2nupn&utm_campaign=badger)
-[![Build Status](https://travis-ci.org/lip6/pnml2nupn.svg?branch=master)](https://travis-ci.org/lip6/pnml2nupn "Travis Build Status") &nbsp;
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17780/badge.svg)](https://scan.coverity.com/projects/lip6-pnml2nupn "Coverity Scan Build Status")
 
 PNML2NUPN transforms 1-Safe Place/Transition Petri nets from the [Petri Net Markup Language](http://www.pnml.org) into the [Nested-Units Petri Nets](https://cadp.inria.fr/man/nupn.html) format handled by the Caesar.bdd structural analyser tool of the [CADP tool suite](http://cadp.inria.fr).
 
-Download PNML2NUPN executable jar from its [companion web site](http://pnml.lip6.fr/pnml2nupn/), or the [release page](https://github.com/lip6/pnml2nupn/releases) ofs this repository.
+Download PNML2NUPN executable jar from its [companion web site](http://pnml.lip6.fr/pnml2nupn/).
 
 ## Usage
 
