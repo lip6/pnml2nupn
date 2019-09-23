@@ -1,7 +1,7 @@
 PNML to Nested-Unit Petri Net (NUPN) Converter
 ========
 
-[![Build Status](https://travis-ci.org/lip6/pnml2nupn.svg?branch=master)](https://travis-ci.org/lip6/pnml2nupn "Travis Build Status") &nbsp; 
+[![Build Status](https://travis-ci.org/lip6/pnml2nupn.svg?branch=master)](https://travis-ci.org/lip6/pnml2nupn "Travis Build Status")
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8798cf9d0cef45349930953ba85906e9)](https://www.codacy.com/app/lip6/pnml2nupn?utm_source=github.com&utm_medium=referral&utm_content=lip6/pnml2nupn&utm_campaign=badger)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17780/badge.svg)](https://scan.coverity.com/projects/lip6-pnml2nupn "Coverity Scan Build Status")
 
