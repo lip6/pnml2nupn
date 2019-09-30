@@ -150,7 +150,6 @@ public final class MainPNML2NUPN {
 		initSignatureMessage();
 		PNML2NUPNExporter pe = PNML2NUPNFactory.instance().createExporter();
 		org.slf4j.Logger jr = LoggerFactory.getLogger(pe.getClass().getCanonicalName());
-		// TODO : optimize with threads
 		for (int i = 0; i < pathSrc.size(); i++) {
 			try {
 				// Option exclusive of the others
@@ -347,7 +346,7 @@ public final class MainPNML2NUPN {
 	 * 
 	 * @param isDebug
 	 */
-	public static synchronized void setDebug(boolean isDebug) {
+	public static void setDebug(boolean isDebug) {
 		MainPNML2NUPN.isDebug = isDebug;
 	}
 
@@ -356,7 +355,7 @@ public final class MainPNML2NUPN {
 	 * 
 	 * @return
 	 */
-	public static synchronized boolean isCamiTmpDelete() {
+	public static boolean isCamiTmpDelete() {
 		return optionsMap.getBoolean(CAMI_TMP_KEEP);
 	}
 
@@ -365,7 +364,7 @@ public final class MainPNML2NUPN {
 	 * 
 	 * @return
 	 */
-	public static synchronized boolean isForceNUPNGen() {
+	public static boolean isForceNUPNGen() {
 		return optionsMap.getBoolean(FORCE_NUPN_GENERATION);
 	}
 
@@ -374,7 +373,7 @@ public final class MainPNML2NUPN {
 	 * 
 	 * @return
 	 */
-	public static synchronized boolean isUnitSafenessChecking() {
+	public static boolean isUnitSafenessChecking() {
 		return optionsMap.getBoolean(UNIT_SAFENESS_CHECKING);
 	}
 
@@ -384,7 +383,7 @@ public final class MainPNML2NUPN {
 	 * 
 	 * @return
 	 */
-	public static synchronized boolean isUnitSafenessCheckingOnly() {
+	public static boolean isUnitSafenessCheckingOnly() {
 		return optionsMap.getBoolean(UNIT_SAFENESS_CHECKING_ONLY);
 	}
 
@@ -396,7 +395,7 @@ public final class MainPNML2NUPN {
 		return optionsMap.getBoolean(PRESERVE_NUPN_NATIVE);
 	}
 
-	public static synchronized void appendMesgLineToSignature(String msg) {
+	public static void appendMesgLineToSignature(String msg) {
 		signatureMesg.append(NL).append(COLWS).append(msg);
 	}
 

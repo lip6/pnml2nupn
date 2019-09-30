@@ -134,7 +134,6 @@ public final class PNML2NUPNUtils {
 	 */
 	public static synchronized void writeToChannel(OutChannelBean ocb, String output, ByteBuffer bytebuf,
 			final List<byte[]> contents) throws IOException {
-
 		final List<byte[]> contents2 = chopString(output, CONTENTSSIZE, contents);
 		for (byte[] cont : contents2) {
 			bytebuf.put(cont);
