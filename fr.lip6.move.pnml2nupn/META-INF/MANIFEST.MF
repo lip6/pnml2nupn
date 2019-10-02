@@ -13,3 +13,4 @@ Export-Package: fr.lip6.move.pnml2nupn;uses:="org.eclipse.jface.resource,org.ecl
 Bundle-Vendor: Sorbonne Université, LIP6, CNRS, and Univ. Paris Nanterre
 Bundle-ClassPath: .
 Automatic-Module-Name: fr.lip6.pnml.pnml2nupn
+Import-Package: fr.lip6.move.pnml2nupn.export

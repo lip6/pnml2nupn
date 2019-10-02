@@ -96,6 +96,14 @@ public final class MainPNML2NUPN {
 	 * first - native mode
 	 */
 	public static final String PRESERVE_NUPN_NATIVE = "preserve.nupn.native";
+	/**
+	 * Use place names to build the mapping between pnml place ids and nupn ids.
+	 */
+	public static final String USE_PLACE_NAMES = "use.place.names";
+	/**
+	 * Use transition names to build the mapping between pnml transition ids and nupn ids.
+	 */
+	public static final String USE_TRANSITION_NAMES = "use.transition.names";
 
 	private static StringBuilder signatureMesg;
 	/**
@@ -395,6 +403,15 @@ public final class MainPNML2NUPN {
 		return optionsMap.getBoolean(PRESERVE_NUPN_NATIVE);
 	}
 
+	
+	public static boolean isUsePlaceNames() {
+		return optionsMap.getBoolean(USE_PLACE_NAMES);
+	}
+	
+	public static boolean isUseTransitionNames() {
+		return optionsMap.getBoolean(USE_TRANSITION_NAMES);
+	}
+	
 	public static void appendMesgLineToSignature(String msg) {
 		signatureMesg.append(NL).append(COLWS).append(msg);
 	}

@@ -31,6 +31,7 @@ public final class NUPNConstants {
 	public static final String T_PREFX = "t";
 	public static final String LABELS_1_0_0 = "labels 1 0 0"; // When there is no transition
 	public static final String LABELS_1_1_0 = "labels 1 1 0"; // When there is at least one transition
+	public static final String NO_NAME_PREFIX = "_";          // prefix for empty place or transition names
 
 	private NUPNConstants() {super();}
 	

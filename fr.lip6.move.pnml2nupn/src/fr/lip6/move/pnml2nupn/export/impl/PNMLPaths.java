@@ -39,6 +39,12 @@ public final class PNMLPaths {
 	
 	public static final String PLACES_PATH = PAGES_PATH + "/place";
 	
+	public static final String NAME_ELEMENT = "name";
+	
+	public static final String TEXT_ELEMENT = "text";
+	
+	public static final String PLACE_NAMES_PATH =  PLACES_PATH + "/" + NAME_ELEMENT + "/" + TEXT_ELEMENT; 
+	
 	public static final String MARKED_PLACES = PLACES_PATH + "/initialMarking[text > 0]";
 	
 	public static final String UNSAFE_MARKED_PLACES = PLACES_PATH + "/initialMarking[text > 1]";
