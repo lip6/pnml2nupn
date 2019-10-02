@@ -14,7 +14,7 @@
 
 #############################################################################################
 # Script to launch PNML 2 NUPN (1-Safe P/T Net) model transformation.                       #
-# Version: 2019-09-23       (since v1.5.2)                                                  #
+# Version: 2019-10-02       (since v1.5.2)                                                  #
 # Contributors: Lom M. Hillah                                                               #
 # Institutions: Sorbonne Université, and Univ. Paris Nanterre, LIP6, CNRS                   #
 # Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]  #
@@ -76,6 +76,19 @@ PRESERVE_NUPN_MIX="-Dpreserve.nupn.mix=false"
 # This option preempts preserve.nupn.mix. Therefore, it deactivates preserve.nupn.mix when it is set.
 PRESERVE_NUPN_NATIVE="-Dpreserve.nupn.native=false"
 
+# Use PNML place names instead of their ids for the mappings PNML id/ NUPN id 
+# in the labels section of the NUPN. 
+# This option is ignored when a NUPN tool specific section is found in the PNML.
+USE_PLACE_NAMES="-Duse.place.names=false"
+
+# Use PNML transition names instead of their ids for the mappings PNML id/ NUPN id 
+# in the labels section of the NUPN.
+# This option is ignored when a NUPN tool specific section is found in the PNML.
+USE_TRANSITION_NAMES="-Duse.transition.names=false"
+
+# Group the options to pass over to the pnml2nupn translator.
+TRANSLATOR_OPTS="$HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $PRESERVE_NUPN_MIX $PRESERVE_NUPN_NATIVE $USE_PLACE_NAMES $USE_TRANSITION_NAMES"
+
 # Activate debug mode (print stack traces in case of error)? Uncomment the following if you wish so.
 export PNML2NUPN_DEBUG=true
 
@@ -88,7 +101,7 @@ fi
 
 echo "Launching PNML2NUPN program"
 
-PNML2NUPN="$JAVA $HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $PRESERVE_NUPN_MIX $PRESERVE_NUPN_NATIVE $JVM_ARGS -jar $JAR_FILE"
+PNML2NUPN="$JAVA $TRANSLATOR_OPTS $JVM_ARGS -jar $JAR_FILE"
 
 list=""
 for file in "$@" 

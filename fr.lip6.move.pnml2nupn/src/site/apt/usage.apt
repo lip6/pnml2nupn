@@ -123,6 +123,36 @@ Options
 
  This tool supports some options (technically speaking: properties) that you might activate to change its behaviour.
 
+* Use place names
+
+  This option makes the translator use place names instead of their ids for the mappings <<PNML id / NUPN id>> in the labels section of the NUPN file.
+  When there is a NUPN toolspecific section in the PNML the extraction of the NUPN ignores this option (since the grammar of that section requires
+  the list of places to be IDREFs - references to IDs).
+ 
+  To enable this property, proceed like so: 
+ 
+ <java -Duse.place.names=true ...>
+ 
+  The default value for this option is <false>.
+ 
+ ** Supporting versions
+
+  Since v3.0.2.
+ 
+* Use transition names
+ 
+  This option makes the translator use place names instead of their ids for the mappings <PNML id / NUPN id> in the labels section of the NUPN file.
+  When there is a NUPN tool specific section in the PNML the extraction of the NUPN ignores this option (since the grammar of that section requires
+  the list of places to be IDREFs - references to IDs). 
+
+ <java -Duse.transition.names=true ...>
+ 
+  The default value for this option is <false>.
+ 
+ ** Supporting versions
+
+  Since v3.0.2.
+
 * Preserve NUPN in native mode
 
  With this option, if there is a NUPN toolspecific section in the PNML document, it will be directly considered

@@ -14,7 +14,7 @@
 
 	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
 
-	<url>http://pnml.lip6.fr/pnml2nupn/index.html</url>
+	<url>https://pnml.lip6.fr/pnml2nupn/</url>
 
 	<inceptionYear>2014</inceptionYear>
 
@@ -26,7 +26,7 @@
 
 	<organization>
 		<name>Sorbonne Université, CNRS, LIP6, and Univ. Paris Nanterre</name>
-		<url>http://www.lip6.fr/</url>
+		<url>https://lip6.fr/</url>
 	</organization>
 
 	<developers>
@@ -267,9 +267,9 @@
 									<version>2.0.2</version>
 									<type>jar</type>
 									<overWrite>false</overWrite>
-									<includes> **/css/bootstrap.min.css, **/css/fontawesome/**/*,
-										**/css/themes/flatly/*.css,
-										**/js/*.js, **/js/languages/*,
+									<includes>**/css/fontawesome/**/*,
+										**/css/themes/darkly/*.css,
+										**/js/*.js, **/js/*.map, **/js/languages/*,
 										**/js/styles/github.min.css
 									</includes>
 								</artifactItem>
