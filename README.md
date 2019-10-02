@@ -27,6 +27,9 @@ The basic command-line invocation is the following (update the name of the jar f
 To increase the max allocated memory to the heap, in case you are dealing with very large PNML files, pass the -Xmx argument to the JVM. In the following example, the max memory is set to 2 Go:
 
   ***java -Xmx2g -jar pnml2nupn-version.jar pathToPNMLFile [pathToFolder pathToAnotherPNMLFile ...]***
+ 
+ 
+For the complete list of options you can pass to the tool, please have a look at the [usage page on the companion site](https://pnml.lip6.fr/pnml2nupn/usage.html), or look into the provided [Shell script](fr.lip6.move.pnml2nupn/src/site/resources/download/pnml2nupn.sh) (see below).
   
 ### Invocation using a Shell script
 
@@ -34,8 +37,7 @@ To increase the max allocated memory to the heap, in case you are dealing with v
   
   Before you use it, you must first set in this script the path to the Java executable (i.e., java or java.exe) in your OS.
   
-  The Shell script also contains some properties and a debug environment variable for pnml2nupn, that you can enable or disable.
-  See belo
+  The Shell script also contains properties you can pass to the tool, and a debug environment variable for pnml2nupn, that you can enable or disable.
  
 ### Output since version 3.0.0
 
