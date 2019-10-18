@@ -6,7 +6,7 @@
 
 	<groupId>fr.lip6.pnml</groupId>
 	<artifactId>pnml2nupn</artifactId>
-	<version>3.0.2</version>
+	<version>3.1.0</version>
 
 	<packaging>jar</packaging>
 
@@ -98,6 +98,18 @@
 					</reportSet>
 				</reportSets>
 			</plugin>
+			<plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>5.2.2</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
 		</plugins>
 	</reporting>
 
@@ -224,7 +236,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<!-- <createSourcesJar>true</createSourcesJar> -->
+							<minimizeJar>true</minimizeJar>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>
@@ -279,6 +291,18 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+              <groupId>org.owasp</groupId>
+              <artifactId>dependency-check-maven</artifactId>
+              <version>5.2.2</version>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>check</goal>
+                      </goals>
+                  </execution>
+              </executions>
+            </plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
