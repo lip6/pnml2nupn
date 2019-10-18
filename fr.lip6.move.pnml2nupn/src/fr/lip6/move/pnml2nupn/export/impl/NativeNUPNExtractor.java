@@ -2,7 +2,9 @@ package fr.lip6.move.pnml2nupn.export.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -21,6 +23,7 @@ import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
 import it.unimi.dsi.fastutil.longs.LongCollection;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
+import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectBigArrayBigList;
@@ -121,7 +124,7 @@ public final class NativeNUPNExtractor {
 			PNML2NUPNUtils.deleteOutputFiles(outPSFile, outTSFile);
 
 			clearDataStructures();
-			logger.info("See NUPN file: {}, {} and {}", outFile.getCanonicalPath());
+			logger.info("See NUPN file: {}", outFile.getCanonicalPath());
 
 		} catch (InterruptedException | PNMLImportExportException | IOException e) {
 			emergencyStop(outFile);
@@ -472,7 +475,12 @@ public final class NativeNUPNExtractor {
 	}
 	
 	private void writePlaceLabels() {
-		plId2nupnMap.forEach((pnmlId, nupnId) -> {
+		Object2LongLinkedOpenHashMap<String> sortedMap = plId2nupnMap.object2LongEntrySet().stream()
+				.sorted(Map.Entry.comparingByValue())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+						(oldValue, newValue) -> oldValue, Object2LongLinkedOpenHashMap::new));
+	
+		sortedMap.forEach((pnmlId, nupnId) -> {
 			final String nupnLabel = ExportUtils.getPNMLNodeIdOrName(pnmlId, MainPNML2NUPN.isUsePlaceNames(),
 					plId2NameMap);
 			try {

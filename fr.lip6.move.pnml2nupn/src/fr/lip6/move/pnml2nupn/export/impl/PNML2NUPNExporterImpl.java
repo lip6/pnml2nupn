@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,7 @@ import it.unimi.dsi.fastutil.longs.LongCollection;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongRBTreeSet;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -1288,7 +1290,12 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		// - no nupn in the pnml file
 		// - nupn in the pnml file but no mixed (or native) generation strategy enabled
 		if (!hasNUPNToolspecific || (hasNUPNToolspecific && !MainPNML2NUPN.isPreserveNupnMix())) {
-			placesId2NupnMap.forEach((pnmlId, nupnId) -> {
+			Object2LongLinkedOpenHashMap<String> sortedMap = placesId2NupnMap.object2LongEntrySet().stream()
+					.sorted(Map.Entry.comparingByValue())
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+							(oldValue, newValue) -> oldValue, Object2LongLinkedOpenHashMap::new));
+			
+			sortedMap.forEach((pnmlId, nupnId) -> {
 				final String nupnLabel = ExportUtils.getPNMLNodeIdOrName(pnmlId, MainPNML2NUPN.isUsePlaceNames(),
 						placesId2NameMap);
 				try {
