@@ -15,7 +15,7 @@
 Usage Information
  -------
  -------
-2019-09-20
+2019-10-18
  -------
 
 Overview
@@ -123,6 +123,34 @@ Options
 
  This tool supports some options (technically speaking: properties) that you might activate to change its behaviour.
 
+* First place number
+
+  This option makes the translator use an arbitrary starting number for providing Ids to NUPN places, instead of the default 0..N-1.
+
+  To enable this property, proceed like so (replace 1 with the starting number you want): 
+ 
+  <java -Dfirst.place.number=1 ...>
+ 
+  The default value for this option is <0>.
+ 
+ ** Supporting versions
+
+  Since v3.1.0.
+  
+* First transition number
+
+  This option makes the translator use an arbitrary starting number for providing Ids to NUPN transitions, instead of the default 0..N-1.
+
+  To enable this property, proceed like so (replace 1 with the starting number you want): 
+ 
+  <java -Dfirst.transition.number=1 ...>
+ 
+  The default value for this option is <0>.
+ 
+ ** Supporting versions
+
+  Since v3.1.0. 
+
 * Use place names
 
   This option makes the translator use place names instead of their ids for the mappings <<PNML id / NUPN id>> in the labels section of the NUPN file.
@@ -131,7 +159,7 @@ Options
  
   To enable this property, proceed like so: 
  
- <java -Duse.place.names=true ...>
+  <java -Duse.place.names=true ...>
  
   The default value for this option is <false>.
  
