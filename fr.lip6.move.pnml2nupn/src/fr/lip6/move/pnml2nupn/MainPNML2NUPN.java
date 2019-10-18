@@ -58,9 +58,11 @@ public final class MainPNML2NUPN {
 	public static final String CREATOR = "creator";
 	public static final String UNIT_SAFE = "unit_safe";
 	public static final String BOUNDS = "cosyverif/bounds 1.0";
+	public static final String UNKNOWN = "unknown/tool";
 	public static final String PRAGMA_CREATOR_PREFIX = XP + CREATOR + WS;
 	public static final String PRAGMA_UNIT_SAFE_BY_CREATOR = XP + UNIT_SAFE;
 	public static final String PRAGMA_UNIT_SAFE_BY_BOUNDS = XP + UNIT_SAFE + WS + BOUNDS;
+	public static final String PRAGMA_UNIT_SAFE_BY_UNKNOWN = XP + UNIT_SAFE + WS + UNKNOWN;
 	public static final String PRAGMA_MULTIPLE_INIT_TOKEN = XP + "multiple_initial_tokens" + WS;
 	public static final String PRAGMA_MULTIPLE_ARCS = XP + "multiple_arcs" + WS;
 	public static final String NUPN = "nupn";
