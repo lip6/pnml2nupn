@@ -439,7 +439,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		long nb = trId2NupnMap.size();
 		StringBuilder nupnsb = new StringBuilder();
 		nupnsb.append(NUPNConstants.TRANSITIONS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nb)
-				.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nb - 1L)
+				.append(NUPNConstants.WS)
+				.append(MainPNML2NUPN.getFirstTransitionNumber()).append(NUPNConstants.DOTS).append(nb - 1L + MainPNML2NUPN.getFirstTransitionNumber())
 				.append(NUPNConstants.NL);
 		npnQueue.put(nupnsb.toString());
 		nupnsb.delete(0, nupnsb.length());
@@ -1043,7 +1044,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		final StringBuilder nupnsb = new StringBuilder();
 		// Write Number of places
 		nupnsb.append(NUPNConstants.PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPl)
-				.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbPl - 1)
+				.append(NUPNConstants.WS)
+				.append(MainPNML2NUPN.getFirstPlaceNumber()).append(NUPNConstants.DOTS).append(nbPl - 1L + MainPNML2NUPN.getFirstPlaceNumber())
 				.append(NUPNConstants.NL);
 		// Output initial places
 		if (initPlaces.size() > 1) {

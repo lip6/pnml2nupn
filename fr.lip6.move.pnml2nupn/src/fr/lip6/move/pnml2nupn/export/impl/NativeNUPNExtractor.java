@@ -460,7 +460,8 @@ public final class NativeNUPNExtractor {
 				logger.warn("I will output in the NUPN the number reported in the NUPN size element.");
 			}
 			nupnsb.append(NUPNConstants.PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbPlaces)
-					.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbPlaces - 1)
+					.append(NUPNConstants.WS)
+					.append(MainPNML2NUPN.getFirstPlaceNumber()).append(NUPNConstants.DOTS).append(nbPlaces - 1L + MainPNML2NUPN.getFirstPlaceNumber())
 					.append(NUPNConstants.NL);
 			nupnQueue.put(nupnsb.toString());
 			clearNUPNStringBuilder();
@@ -498,7 +499,8 @@ public final class NativeNUPNExtractor {
 			}
 			StringBuilder tsSb = new StringBuilder();
 			tsSb.append(NUPNConstants.TRANSITIONS).append(NUPNConstants.WS).append(NUPNConstants.HK).append(nbTrans)
-					.append(NUPNConstants.WS).append(NUPNConstants.ZERO).append(NUPNConstants.DOTS).append(nbTrans - 1L)
+					.append(NUPNConstants.WS)
+					.append(MainPNML2NUPN.getFirstTransitionNumber()).append(NUPNConstants.DOTS).append(nbTrans - 1L + MainPNML2NUPN.getFirstTransitionNumber())
 					.append(NUPNConstants.NL);
 			nupnQueue.put(tsSb.toString());
 			tsSb.delete(0, tsSb.length());
