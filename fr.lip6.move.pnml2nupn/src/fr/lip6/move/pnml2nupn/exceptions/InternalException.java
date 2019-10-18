@@ -1,7 +1,6 @@
 /**
- *  Copyright 2014-2016 Université Paris Ouest and Sorbonne Universités,
- * 							Univ. Paris 06 - CNRS UMR
- * 							7606 (LIP6)
+ *  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Université,
+ *  						 CNRS UMR 7606 (LIP6)
  *
  *  All rights reserved.   This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -27,7 +26,7 @@ package fr.lip6.move.pnml2nupn.exceptions;
  */
 public class InternalException extends Exception {
 	/**
-	 * Serialization stuff.
+	 * Serialization UID.
 	 */
 	private static final long serialVersionUID = 1L;
 
