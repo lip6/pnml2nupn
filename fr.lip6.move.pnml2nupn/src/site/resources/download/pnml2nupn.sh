@@ -14,14 +14,14 @@
 
 #############################################################################################
 # Script to launch PNML 2 NUPN (1-Safe P/T Net) model transformation.                       #
-# Version: 2019-10-02       (since v1.5.2)                                                  #
+# Version: 2019-10-18       (since v1.5.2)                                                  #
 # Contributors: Lom M. Hillah                                                               #
 # Institutions: Sorbonne Université, and Univ. Paris Nanterre, LIP6, CNRS                   #
 # Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]  #
 #############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-3.0.1.jar
+JAR_FILE=pnml2nupn-3.1.0.jar
 
 # Constants
 NBPARAM=1
@@ -86,8 +86,20 @@ USE_PLACE_NAMES="-Duse.place.names=false"
 # This option is ignored when a NUPN tool specific section is found in the PNML.
 USE_TRANSITION_NAMES="-Duse.transition.names=false"
 
+# Start numbering of places in NUPN from the specified number
+FIRST_PLACE_NUMBER="-Dfirst.place.number=0"
+
+# Start numbering of transitions in NUPN from the specified number
+FIRST_TRANSITION_NUMBER="-Dfirst.transition.number=0"
+
 # Group the options to pass over to the pnml2nupn translator.
-TRANSLATOR_OPTS="$HAS_UNSAFE_ARCS $CAMI_TMP_KEEP $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT $FORCE_NUPN_GEN $PRESERVE_NUPN_MIX $PRESERVE_NUPN_NATIVE $USE_PLACE_NAMES $USE_TRANSITION_NAMES"
+TRANSLATOR_OPTS="\
+$CAMI_TMP_KEEP\
+$HAS_UNSAFE_ARCS $UNIT_SAFENESS_CHECKING $UNIT_SAFENESS_CHECKING_ONLY $UNSAFE_PLACES_NB_REPORT\
+$FORCE_NUPN_GEN\
+$PRESERVE_NUPN_MIX $PRESERVE_NUPN_NATIVE\
+$USE_PLACE_NAMES $USE_TRANSITION_NAMES\
+$FIRST_PLACE_NUMBER $FIRST_TRANSITION_NUMBER"
 
 # Activate debug mode (print stack traces in case of error)? Uncomment the following if you wish so.
 export PNML2NUPN_DEBUG=true
