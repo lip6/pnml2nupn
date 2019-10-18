@@ -361,7 +361,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			PNML2NUPNUtils.insertCreatorPragma(nupnQueue);
 			// Insert unit_safe pragma if necessary (since 1.4.1)
 			if (MainPNML2NUPN.isUnitSafenessChecking() && isSafe) {
-				ExportUtils.insertUnitSafePragma(nupnQueue);
+				ExportUtils.insertUnitSafePragma(nupnQueue, MainPNML2NUPN.PRAGMA_UNIT_SAFE_BY_BOUNDS);
 			}
 
 			// Init data structure for places id and transitions
@@ -1252,26 +1252,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				count++;
 			}
 
-			/*
-			 * ap.resetXPath(); vn.toElement(VTDNavHuge.ROOT);
-			 * ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG); String mappingId; while
-			 * ((ap.evalXPath()) != -1) { vn.push(); id =
-			 * vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR)); pId =
-			 * placesId2NupnMap.getLong(id); mappingId = ExportUtils.getPNMLNodeIdOrName(id,
-			 * MainPNML2NUPN.isUsePlaceNames(), placesId2NameMap);
-			 * psmapping.append(NUPNConstants.P_PREFX).append(pId).append(NUPNConstants.WS).
-			 * append(mappingId) .append(NUPNConstants.NL);
-			 * psQueue.put(psmapping.toString()); labelLength =
-			 * ExportUtils.updateLabelLength(mappingId, labelLength);
-			 * nupnsb.append(NUPNConstants.U).append(count).append(NUPNConstants.WS).append(
-			 * NUPNConstants.HK)
-			 * .append(NUPNConstants.ONE).append(NUPNConstants.WS).append(pId).append(
-			 * NUPNConstants.DOTS)
-			 * .append(pId).append(NUPNConstants.WS).append(NUPNConstants.HK).append(
-			 * NUPNConstants.ZERO) .append(NUPNConstants.NL);
-			 * nupnQueue.put(nupnsb.toString()); nupnsb.delete(0, nupnsb.length());
-			 * psmapping.delete(0, psmapping.length()); count++; vn.pop(); }
-			 */
 			// / Root Unit N and its subunits. Check case there is just one
 			// place.
 			if (nbPl > 1) {
@@ -1310,7 +1290,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				final String nupnLabel = ExportUtils.getPNMLNodeIdOrName(pnmlId, MainPNML2NUPN.isUsePlaceNames(),
 						placesId2NameMap);
 				try {
-					logger.debug("Outputing mapping between nupn place id {} and its label {}", nupnId, nupnLabel);
+					logger.trace("Outputing mapping between nupn place id {} and its label {}", nupnId, nupnLabel);
 					psQueue.put(NUPNConstants.P_PREFX + nupnId + NUPNConstants.WS + nupnLabel + NUPNConstants.NL);
 					labelLength = ExportUtils.updateLabelLength(nupnLabel, labelLength);
 				} catch (InterruptedException e) {
