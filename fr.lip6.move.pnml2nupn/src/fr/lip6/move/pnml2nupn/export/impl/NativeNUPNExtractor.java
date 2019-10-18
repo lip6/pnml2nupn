@@ -85,10 +85,13 @@ public final class NativeNUPNExtractor {
 			extractStructure();
 			extractUnits();
 			collectInitialPlaces();
+			collectNonInitialPlacesNames();
 
 			writeNUPNPlaces();
 			writeInitialPlaces();
 			writeUnits();
+			
+			writePlaceLabels();
 
 			collectTransitions();
 			writeTransitions();
@@ -148,7 +151,7 @@ public final class NativeNUPNExtractor {
 
 				vn.toElement(VTDNavHuge.PARENT);
 				vn.toElement(VTDNavHuge.PARENT);
-				placeId = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+				placeId = ExportUtils.getPNMLNodeId(vn, MainPNML2NUPN.isUsePlaceNames(), plId2NameMap);
 				plNupnId = plId2nupnMap.getLong(placeId);
 				if (plNupnId == -1L) {
 					logger.error("Marked place {} was not reported in the NUPN toolspecific section!", placeId);
@@ -194,22 +197,43 @@ public final class NativeNUPNExtractor {
 		ap.resetXPath();
 	}
 
+	private void collectNonInitialPlacesNames() throws PNMLImportExportException {
+		@SuppressWarnings("unused")
+		String pnmlId;
+		if (MainPNML2NUPN.isUsePlaceNames()) {
+			try {
+				vn.toElement(VTDNavHuge.ROOT);
+				ap.selectXPath(PNMLPaths.PLACES_PATH_EXCEPT_MKG);
+				while ((ap.evalXPath()) != -1) {
+					vn.push();
+					pnmlId = ExportUtils.getPNMLNodeId(vn, true, plId2NameMap);
+					vn.pop();
+				}
+				ap.resetXPath();
+			} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge e) {
+				throw new PNMLImportExportException(e);
+			}
+		}
+	}
+
 	private void collectTransitions() throws PNMLImportExportException {
 		String arc, src, trg, id;
-		long count = 0L;
+		long count = MainPNML2NUPN.getFirstTransitionNumber();
 		long tId, pId;
 		LongBigArrayBigList pls = null;
+		String trLabel;
 		try {
 			logger.info("Collecting transitions.");
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.TRANSITIONS_PATH);
 			while ((ap.evalXPath()) != -1) {
 				vn.push();
-				id = vn.toString(vn.getAttrVal(PNMLPaths.ID_ATTR));
+				id = ExportUtils.getPNMLNodeId(vn, MainPNML2NUPN.isUseTransitionNames(), trId2NameMap);
 				tId = count++;
 				trId2nupnMap.put(id, tId);
-				tsQueue.put(NUPNConstants.T_PREFX + tId + NUPNConstants.WS + id + NUPNConstants.NL);
-				labelLength = ExportUtils.updateLabelLength(id, labelLength);
+				trLabel = ExportUtils.getPNMLNodeIdOrName(id, MainPNML2NUPN.isUseTransitionNames(), trId2NameMap);
+				tsQueue.put(NUPNConstants.T_PREFX + tId + NUPNConstants.WS + trLabel + NUPNConstants.NL);
+				labelLength = ExportUtils.updateLabelLength(trLabel, labelLength);
 				vn.pop();
 			}
 
@@ -271,7 +295,6 @@ public final class NativeNUPNExtractor {
 			long unitLId;
 			long plId;
 			LongList placesIntId = new LongArrayList();
-			final StringBuilder psmapping = new StringBuilder();
 			vn.toElement(VTDNavHuge.ROOT);
 			ap.selectXPath(PNMLPaths.NUPN_UNIT);
 			logger.info("Extracting units.");
@@ -298,11 +321,6 @@ public final class NativeNUPNExtractor {
 							plId2nupnMap.put(s, plId);
 						}
 						placesIntId.add(plId);
-						psmapping.append(NUPNConstants.P_PREFX).append(plId).append(NUPNConstants.WS).append(s)
-								.append(NUPNConstants.NL);
-						psQueue.put(psmapping.toString());
-						labelLength = ExportUtils.updateLabelLength(s, labelLength);
-						psmapping.delete(0, psmapping.length());
 					}
 					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(placesIntId.size());
 					PNML2NUPNUtils.debug("Collected places in unit {} ({}): {}", logger, unitSId, unitLId,
@@ -347,7 +365,7 @@ public final class NativeNUPNExtractor {
 				places = "";
 				vn.pop();
 			}
-		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | InterruptedException e) {
+		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge e) {
 			throw new PNMLImportExportException(e);
 		}
 		ap.resetXPath();
@@ -388,7 +406,7 @@ public final class NativeNUPNExtractor {
 			}
 			logger.info("Nb units = {}; root unit id = {}; is Safe = {}", nbUnits, rootUnitId, isSafe);
 			if (isSafe) {
-				ExportUtils.insertUnitSafePragma(nupnQueue);
+				ExportUtils.insertUnitSafePragma(nupnQueue, null);
 			}
 		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | InterruptedException e) {
 			throw new PNMLImportExportException(e);
@@ -450,6 +468,20 @@ public final class NativeNUPNExtractor {
 			throw new PNMLImportExportException(e);
 		}
 		ap.resetXPath();
+	}
+	
+	private void writePlaceLabels() {
+		plId2nupnMap.forEach((pnmlId, nupnId) -> {
+			final String nupnLabel = ExportUtils.getPNMLNodeIdOrName(pnmlId, MainPNML2NUPN.isUsePlaceNames(),
+					plId2NameMap);
+			try {
+				logger.trace("Outputing mapping between nupn place id {} and its label {}", nupnId, nupnLabel);
+				psQueue.put(NUPNConstants.P_PREFX + nupnId + NUPNConstants.WS + nupnLabel + NUPNConstants.NL);
+				labelLength = ExportUtils.updateLabelLength(nupnLabel, labelLength);
+			} catch (InterruptedException e) {
+				logger.error("Error while writing places id-label mappings: {}", e.getMessage(), e);
+			}
+		});
 	}
 
 	private void writeTransitions() throws PNMLImportExportException {
@@ -582,7 +614,7 @@ public final class NativeNUPNExtractor {
 		markedPlaces = new ObjectBigArrayBigList<>();
 		markedPlacesNupnId = new LongBigArrayBigList();
 		nupnLines = new ObjectBigArrayBigList<>();
-		nupnPlIdGen = 0L;
+		nupnPlIdGen = MainPNML2NUPN.getFirstPlaceNumber();
 		nupnUnitIdGen = 0L;
 	}
 
@@ -597,6 +629,8 @@ public final class NativeNUPNExtractor {
 		tr2InPlacesMap.clear();
 		tr2OutPlacesMap.clear();
 		unitsIdMap.clear();
+		markedPlaces.clear();
 		markedPlacesNupnId.clear();
+		nupnLines.clear();
 	}
 }
