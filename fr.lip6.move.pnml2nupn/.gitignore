@@ -18,4 +18,5 @@ src/site/resources/download/*.jar
 /brouillon/
 /PNML-NUPN-Sonar.launch
 /sonarqube.sh
+infer-out
 /exclusionlist.txt
