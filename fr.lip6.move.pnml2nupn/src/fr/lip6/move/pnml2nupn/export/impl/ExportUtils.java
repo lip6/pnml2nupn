@@ -138,11 +138,8 @@ public final class ExportUtils {
 	}
 
 	/**
-	 * Looks up and returns the PNML node id according to the option
-	 * {@link MainPNML2NUPN#USE_PLACE_NAMES} or
-	 * {@link MainPNML2NUPN#USE_TRANSITION_NAMES}. If the option is set, the id
-	 * would be the node name instead of the id (default behavior).
-	 * 
+	 * Looks up and returns the PNML node id. 
+	 * It maps the node id to its name before returning the id.
 	 * @param vn
 	 * @param useNodeName
 	 * @param id2NameMap
@@ -162,13 +159,14 @@ public final class ExportUtils {
 				while (!vn.matchElement(PNMLPaths.TEXT_ELEMENT)) {
 					vn.toElement(VTDNavHuge.NEXT_SIBLING);
 				}
-				id2NameMap.put(id, vn.toString(vn.getText()).trim());
-				// id = vn.toString(vn.getText()).trim();
+				String name = vn.toString(vn.getText()).trim();
+				if (!id2NameMap.containsKey(id)) {
+					id2NameMap.put(id, name);
+				}
 				vn.toElement(VTDNavHuge.PARENT);
 				vn.toElement(VTDNavHuge.PARENT);
 			} else {
 				id2NameMap.put(id, NUPNConstants.NO_NAME_PREFIX);
-				// id = NUPNConstants.NO_NAME_PREFIX + id;
 				vn.toElement(VTDNavHuge.PARENT);
 			}
 		}
