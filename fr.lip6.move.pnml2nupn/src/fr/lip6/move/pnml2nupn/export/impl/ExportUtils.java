@@ -73,11 +73,18 @@ public final class ExportUtils {
 
 	/**
 	 * Inserts unit safeness pragma (as reported by the unit safeness checking tool)
+	 * @param nupnQueue the output queue
+	 * @param toolName the name (and possibly the version) of the tool stating the unit safeness information.
+	 * If null, a default is set {@link MainPNML2NUPN#PRAGMA_UNIT_SAFE_BY_UNKNOWN}
 	 * 
 	 * @throws InterruptedException
 	 */
-	public static void insertUnitSafePragma(BlockingQueue<String> nupnQueue) throws InterruptedException {
-		PNML2NUPNUtils.insertPragma(MainPNML2NUPN.PRAGMA_UNIT_SAFE_BY_BOUNDS + NUPNConstants.NL, nupnQueue);
+	public static void insertUnitSafePragma(BlockingQueue<String> nupnQueue, String toolName) throws InterruptedException {
+		if (toolName != null) {
+			PNML2NUPNUtils.insertPragma(toolName + NUPNConstants.NL, nupnQueue);
+		} else {
+			PNML2NUPNUtils.insertPragma(MainPNML2NUPN.PRAGMA_UNIT_SAFE_BY_UNKNOWN + NUPNConstants.NL, nupnQueue);
+		}
 	}
 
 	/**
@@ -143,7 +150,7 @@ public final class ExportUtils {
 	 * @param vn
 	 * @param useNodeName
 	 * @param id2NameMap
-	 * @return
+	 * @return the PNML node id
 	 * @throws NavExceptionHuge
 	 */
 	public static String getPNMLNodeId(VTDNavHuge vn, boolean useNodeName,
