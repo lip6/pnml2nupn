@@ -313,10 +313,10 @@ public final class NativeNUPNExtractor {
 				// places
 				vn.toElement(VTDNavHuge.FIRST_CHILD);
 				if (vn.getText() != -1) {
-					places = vn.toString(vn.getText()).trim();
+					places = vn.toString(vn.getText());
 				}
 				if (!places.isEmpty()) {
-					elemId = places.split(NUPNConstants.WS);
+					elemId = places.split(NUPNConstants.FS);
 					for (String s : elemId) {
 						plId = plId2nupnMap.getLong(s);
 						if (plId == -1L) {
@@ -343,10 +343,10 @@ public final class NativeNUPNExtractor {
 				// subunits
 				vn.toElement(VTDNavHuge.NEXT_SIBLING);
 				if (vn.getText() != -1) {
-					subunits = vn.toString(vn.getText()).trim();
+					subunits = vn.toString(vn.getText());
 				}
 				if (!subunits.isEmpty()) {
-					elemId = subunits.split(NUPNConstants.WS);
+					elemId = subunits.split(NUPNConstants.FS);
 					nupnsb.append(NUPNConstants.WS).append(NUPNConstants.HK).append(elemId.length);
 					for (String s : elemId) {
 						unitLId = unitsIdMap.getLong(s);
