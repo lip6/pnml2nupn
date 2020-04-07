@@ -6,7 +6,7 @@
 
 	<groupId>fr.lip6.pnml</groupId>
 	<artifactId>pnml2nupn</artifactId>
-	<version>3.1.0</version>
+	<version>3.2.0</version>
 
 	<packaging>jar</packaging>
 

@@ -1,5 +1,5 @@
 #*
- *  Copyright 2014-2019 Sorbonne Université, CNRS, LIP6, Paris, France
+ *  Copyright 2014-2020 Sorbonne Université, CNRS, LIP6, Paris, France
  *                     and Université Paris Nanterre, France
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -15,12 +15,16 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2019-10-18
+2020-04-07
  ------
 
 Changelog
 
-* What's new in version ${project.version}? (2019-10-18)
+* What's new in version ${project.version}? (2020-04-07)
+
+  * Merge pull request {{{https://github.com/lip6/pnml2nupn/pull/2}#2}} which extends the notion of whitespace, as defined in the {{{https://mcc.lip6.fr/nupn.php}NUPN toolspecific section manual}}.
+
+* What's new in version 3.1.0? (2019-10-18)
  
   * Fix bug on using place names and transition names.
   

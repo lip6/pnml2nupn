@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-#  Copyright 2014-2019 Université Paris Nanterre and Sorbonne Universités,
+#  Copyright 2014-2020 Université Paris Nanterre and Sorbonne Universités,
 # 							CNRS, LIP6
 #
 #  All rights reserved.   This program and the accompanying materials
@@ -14,21 +14,21 @@
 
 #############################################################################################
 # Script to launch PNML 2 NUPN (1-Safe P/T Net) model transformation.                       #
-# Version: 2019-10-18       (since v1.5.2)                                                  #
+# Version: 2020-04-07       (since v1.5.2)                                                  #
 # Contributors: Lom M. Hillah                                                               #
 # Institutions: Sorbonne Université, and Univ. Paris Nanterre, LIP6, CNRS                   #
 # Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]  #
 #############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-3.1.0.jar
+JAR_FILE=pnml2nupn-3.2.0.jar
 
 # Constants
 NBPARAM=1
 E_NOFILE=66
 E_SUCCESS=0
 
-# Setting d64 as arg to JVM depends on usinsg SunOS.
+# Setting d64 as arg to JVM depends on using SunOS.
 case $(uname -s) in
 	SunOS ) D64="-d64 " ;;
 	* ) D64="" ;; 
@@ -39,7 +39,8 @@ esac
 # pnml2nupn versions 3.x.x will not run with Java versions before 11.
 JAVA="java"
 
-# Set of advanced arguments for JVM. By default it is empty. See below if you want to use a predefined set.
+# Set of advanced arguments for JVM. By default it is set to 2 Go max memory allocated.
+# See below if you want to use a predefined set.
 JVM_ARGS="-Xmx2g"
 
 # Uncomment the JVM_ARGS line below if you want to use the proposed, predefined set of advanced arguments for the JVM.

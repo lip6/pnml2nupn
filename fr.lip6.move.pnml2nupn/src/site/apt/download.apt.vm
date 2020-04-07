@@ -1,5 +1,5 @@
 #*
- *  Copyright 2014-2019 Sorbonne Université, CNRS, LIP6, Paris, France
+ *  Copyright 2014-2020 Sorbonne Université, CNRS, LIP6, Paris, France
  *                      and Université Paris Nanterre, Nanterre, France
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -15,7 +15,7 @@
 Download PNML to NUPN Converter ${project.version}
  ------
  ------
-2019-10-18
+2020-04-07
  ------
 
 Download PNML to NUPN Converter ${project.version}
@@ -48,6 +48,8 @@ There is currently no plan to release a version of Bounds specifically for Windo
 ===
 
 Download previous stable versions
+
+ * {{{./download/pnml2nupn-3.1.0.jar}version 3.1.0}}
 
  * {{{./download/pnml2nupn-3.0.2.jar}version 3.0.2}}
  
