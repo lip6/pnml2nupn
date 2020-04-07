@@ -21,6 +21,7 @@ public final class NUPNConstants {
 	public static final String TRANSITIONS = "transitions";
 	public static final String T = "T";
 	public static final String WS = " ";
+	public static final String FS = "[ \t\r\n]+";
 	public static final String ZERO = "0";
 	public static final String ONE = "1";
 	public static final String DOTS = "...";
