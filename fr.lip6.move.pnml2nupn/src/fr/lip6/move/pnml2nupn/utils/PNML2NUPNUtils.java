@@ -59,7 +59,7 @@ public final class PNML2NUPNUtils {
 	private static final int CONTENTSSIZEKB = 6;
 	public static final int BUFFERSIZE = BUFFERSIZEKB * 1024;
 	public static final int CONTENTSSIZE = CONTENTSSIZEKB * 1024;
-	public static final String FILE_ENCODING = "ISO-8859-1";
+	public static final String FILE_ENCODING = "UTF-8";
 
 	private PNML2NUPNUtils() {
 		super();
