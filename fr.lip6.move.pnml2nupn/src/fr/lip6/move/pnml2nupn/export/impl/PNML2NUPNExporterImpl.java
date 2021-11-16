@@ -895,10 +895,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 		ap.selectXPath(PNMLPaths.COUNT_MARKED_PLACES);
 		nbMarkedPlaces = (long) ap.evalXPathToNumber();
 
-		// Exit point if there is no initial place in the net
-		if (nbMarkedPlaces == 0L) {
-			throw new InvalidNetException("Error: there is no initial place in this net!");
-		}
 		// Check initial markings > 1. No more exit point since 1.3.0
 		// (generate.unsafe property must be removed)
 		ap.resetXPath();
@@ -1011,13 +1007,19 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			logger.warn("Unsafe initial places: {}", unsafePlacesId.toString());
 		}
 
-		// Several initial places are now accepted (since 1.1.10)
-		if (nbMarkedPlaces > 1) {
-			logger.info("There are {} initial places in this net.", nbMarkedPlaces);
+		if (nbMarkedPlaces > 0) {
+			// Several initial places are now accepted (since 1.1.10)
+			if (nbMarkedPlaces > 1) {
+				logger.info("There are {} initial places in this net.", nbMarkedPlaces);
+			}
+
+			// Remove trailing comma and space, then display initial places
+			initPlacesId.delete(initPlacesId.length() - 2, initPlacesId.length());
+			logger.info("Initial place(s): {}", initPlacesId.toString());
+		} else {
+			// We can have zero initial place now
+			logger.info("There are no initial places in this net.");
 		}
-		// Remove trailing comma and space, then display initial places
-		initPlacesId.delete(initPlacesId.length() - 2, initPlacesId.length());
-		logger.info("Initial place(s): {}", initPlacesId.toString());
 
 		if (nbUnsafePlaces > 0) {
 			logger.info("Checking invariant 'total nb of tokens > nb initial places': {}", totalMkg > nbMarkedPlaces);
@@ -1050,7 +1052,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				.append(MainPNML2NUPN.getFirstPlaceNumber()).append(NUPNConstants.DOTS).append(nbPl - 1L + MainPNML2NUPN.getFirstPlaceNumber())
 				.append(NUPNConstants.NL);
 		// Output initial places
-		if (initPlaces.size() > 1) {
+		if (initPlaces.size() != 1) {
 			nupnsb.append(NUPNConstants.INIT_PLACES).append(NUPNConstants.WS).append(NUPNConstants.HK)
 					.append(initPlaces.size());
 			for (Long l : initPlaces) {
