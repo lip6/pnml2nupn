@@ -1,5 +1,5 @@
 #*
- *  Copyright 2014-2020 Sorbonne Université, CNRS, LIP6, Paris, France
+ *  Copyright 2014-2021 Sorbonne Université, CNRS, LIP6, Paris, France
  *                      and Université Paris Nanterre, Nanterre, France
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -15,12 +15,12 @@
 Download PNML to NUPN Converter ${project.version}
  ------
  ------
-2020-04-07
+2021-12-10
  ------
 
 Download PNML to NUPN Converter ${project.version}
 
-  This tools is distributed as a single jar, mainly to be used on the command line.
+  This tool is distributed as a single jar, mainly to be used on the command line.
   However, you may also integrate it as a library in your application for whatever purpose.
 
 * Single jar with all dependencies
@@ -48,6 +48,8 @@ There is currently no plan to release a version of Bounds specifically for Windo
 ===
 
 Download previous stable versions
+
+ * {{{./download/pnml2nupn-3.1.0.jar}version 3.2.0}}
 
  * {{{./download/pnml2nupn-3.1.0.jar}version 3.1.0}}
 

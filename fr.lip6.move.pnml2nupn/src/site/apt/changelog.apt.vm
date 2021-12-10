@@ -1,5 +1,5 @@
 #*
- *  Copyright 2014-2020 Sorbonne Université, CNRS, LIP6, Paris, France
+ *  Copyright 2014-2021 Sorbonne Université, CNRS, LIP6, Paris, France
  *                     and Université Paris Nanterre, France
  *
  *  All rights reserved.   This program and the accompanying materials
@@ -10,17 +10,24 @@
  *  Project leader / Initial Contributor:
  *    Lom Messan Hillah - <lom-messan.hillah@lip6.fr>
  *
+ *  Contributors:
+ *    Pierre Bouvier - <pierre.bouvier@inria.fr>
+ *
  *#
  ------
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2020-04-07
+2021-12-10
  ------
 
 Changelog
 
-* What's new in version ${project.version}? (2020-04-07)
+* What's new in version ${project.version}? (2021-12-10)
+
+  * Merge pull request {{{https://github.com/lip6/pnml2nupn/pull/3}#3}} which allows the initial marking to be the empty set, as defined in the {{{https://cadp.inria.fr/man/nupn.html#sect3}NUPN manual}}.
+
+* What's new in version 3.2.0? (2020-04-07)
 
   * Merge pull request {{{https://github.com/lip6/pnml2nupn/pull/2}#2}} which extends the notion of whitespace, as defined in the {{{https://mcc.lip6.fr/nupn.php}NUPN toolspecific section manual}}.
 
@@ -223,7 +230,7 @@ Changelog
   	
   	* root unit is the last
   	
-  	* id mappings are splitted in 2 files, one for states and the other for transitions
+  	* id mappings are split in 2 files, one for states and the other for transitions
   	
   	[]
   
