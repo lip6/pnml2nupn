@@ -6,13 +6,13 @@
 
 	<groupId>fr.lip6.pnml</groupId>
 	<artifactId>pnml2nupn</artifactId>
-	<version>3.2.0</version>
+	<version>3.3.0</version>
 
 	<packaging>jar</packaging>
 
 	<name>PNML to NUPN Converter</name>
 
-	<description>http://cadp.inria.fr/man/caesar.bdd.html</description>
+	<description>https://cadp.inria.fr/man/caesar.bdd.html</description>
 
 	<url>https://pnml.lip6.fr/pnml2nupn/</url>
 
@@ -22,6 +22,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<manifestdir>META-INF</manifestdir>
 		<sonar.language>java</sonar.language>
+    	<maven.compiler.source>11</maven.compiler.source>
+    	<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
 	<organization>
@@ -34,7 +36,7 @@
 			<id>lhillah</id>
 			<name>Lom Messan Hillah</name>
 			<email>lom-messan.hillah@lip6.fr</email>
-			<url>http://lip6.fr/Lom-Messan.Hillah/</url>
+			<url>https://lip6.fr/Lom-Messan.Hillah/</url>
 			<organization>LIP6</organization>
 			<organizationUrl>http://www.lip6.fr/</organizationUrl>
 			<roles>
@@ -47,11 +49,23 @@
 			<id>hgaravel</id>
 			<name>Hubert Garavel</name>
 			<email>Hubert.Garavel@inria.fr</email>
-			<url>http://convecs.inria.fr/people/Hubert.Garavel/</url>
+			<url>https://convecs.inria.fr/people/Hubert.Garavel/</url>
 			<organization>INRIA Grenoble</organization>
-			<organizationUrl>http://convecs.inria.fr</organizationUrl>
+			<organizationUrl>https://convecs.inria.fr</organizationUrl>
 			<roles>
 				<role>NUPN creator</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>tic-toc</id>
+			<name>Pierre Bouvier</name>
+			<email>Pierre.Bouvier@inria.fr</email>
+			<url>https://convecs.inria.fr/people/Pierre.Bouvier/</url>
+			<organization>INRIA Grenoble</organization>
+			<organizationUrl>https://convecs.inria.fr</organizationUrl>
+			<roles>
+				<role>NUPN Maintainer</role>
 			</roles>
 			<timezone>+1</timezone>
 		</developer>
@@ -67,7 +81,7 @@
 	<licenses>
 		<license>
 			<name>PNML2NUPN License</name>
-			<url>http://pnml.lip6.fr/resources/License</url>
+			<url>https://pnml.lip6.fr/resources/License</url>
 		</license>
 	</licenses>
 	<mailingLists>
