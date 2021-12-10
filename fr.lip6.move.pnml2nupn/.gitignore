@@ -7,11 +7,13 @@ lib
 dist
 bin
 src/main/resources/bounds
+src/main/resources/safety
 .classpath
 test
 /site-avant2015.xml
 /cov-int/
 /pnml2nupn.tgz
+/pnml2nupn-cov.tgz
 build4cov.sh
 src/site/resources/download/*.jar
 /deployWebSite.sh
