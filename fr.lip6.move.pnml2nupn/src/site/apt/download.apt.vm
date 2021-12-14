@@ -26,6 +26,8 @@ Download PNML to NUPN Converter ${project.version}
 * Single jar with all dependencies
 
   Download {{{./download/${project.artifactId}-${project.version}.jar}version ${project.version}}}.
+  
+  <<Note :>> the latest releases of PNML to NUPN Converter are always published on {{{https://github.com/lip6/pnml2nupn/releases}Github}}.
 
   Usage information is available on the {{{./usage.html}dedicated page}}. 
   Check out release notes on the {{{./changelog.html}changelog page}}.
@@ -43,7 +45,7 @@ Requirements
   The Bounds tool, integrated in pnml2nupn, was compiled on Mac OS 10.8. Therefore, <<there is no guaranty that Bounds will successfully run on Linux, not even mentioning Windows>>.
 There is currently no plan to release a version of Bounds specifically for Windows or Linux.
 
-   However, <<using pnml2nupn does not requires the Bounds tool>>s. The option that makes use of the Bounds tool is unset by default (see the {{{./usage.html}usage page}}).
+   However, <<using pnml2nupn does not requires the Bounds tool>>. The option that makes use of the Bounds tool is unset by default (see the {{{./usage.html}usage page}}).
  
 ===
 

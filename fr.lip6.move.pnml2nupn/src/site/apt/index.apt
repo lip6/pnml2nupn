@@ -15,7 +15,7 @@
 Petri Nets PNML to NUPN Converter
  ------
  ------
-2019-09-19
+2021-12-13
  ------
 
 PNML to Nested-Unit Petri Nets (NUPN) Converter
@@ -24,14 +24,14 @@ PNML to Nested-Unit Petri Nets (NUPN) Converter
   into the {{{https://cadp.inria.fr/man/nupn.html}Nested-Units Petri Net}} (NUPN) format. Note that the
   {{{http://cadp.inria.fr/man/caesar.bdd.html}Caesar.bdd}} tool can translate Nested-Units Petri Nets from the NUPN format into PNML.   
   
-  Download the PNML to NUPN converter from the {{{./download.html}dedicated page}}.   
+  Download the PNML to NUPN converter from the {{{./download.html}dedicated page}} or from {{{https://github.com/lip6/pnml2nupn/releases}Github}}.   
 
 ===
 
 Execution
 
- PNML to NUPN Converter simply be run on the command line. It is expecting either a set of paths to 
- PNML files, or to folders containing them, or a mix of files and folders. It scans folders recursively,
+ PNML to NUPN Converter runs on the command line. It expects either a set of paths to 
+ PNML files, or to folders containing them, or a mix of files and folders. It recursively scans folders,
  looking for PNML files.
  
  Usage information is available on {{{./usage.html}the usage page}}.
@@ -46,7 +46,7 @@ Supported Standard Petri Net Type
 
 Acknowledgement
 
- The development of many features of this tool has benefited from the insightful advice of and exciting discussions
- with Hubert Garavel and Fabrice Kordon. I would like to thank them for their meaningful contributions.
+ The development of many features of this tool has benefited from the contributions of
+  Hubert Garavel, Fabrice Kordon, and Pierre Bouvier. I would like to thank them for their feedbacks.
  
   
