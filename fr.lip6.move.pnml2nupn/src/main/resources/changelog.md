@@ -1,1 +1,1 @@
-Switch to new NUPN format. With the new format, *.places and *.trans files no longer exist as part of the files output from the PNML to NUPN translation. For more information, see: http://pnml.lip6.fr/pnml2nupn/usage.html
+Switch to new NUPN format. With the new format, *.places and *.trans files no longer exist as part of the files output from the PNML to NUPN translation. For more information, see: https://pnml.lip6.fr/pnml2nupn/usage.html
