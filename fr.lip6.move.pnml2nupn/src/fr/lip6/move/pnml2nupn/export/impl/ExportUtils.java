@@ -14,9 +14,7 @@ import com.ximpleware.extended.XPathEvalExceptionHuge;
 import com.ximpleware.extended.XPathParseExceptionHuge;
 
 import fr.lip6.move.pnml2nupn.MainPNML2NUPN;
-import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
 import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
-import fr.lip6.move.pnml2nupn.utils.SafePNChecker;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 /**
@@ -56,19 +54,6 @@ public final class ExportUtils {
 		ap.resetXPath();
 		vn.toElement(VTDNavHuge.ROOT);
 		return result;
-	}
-
-	/**
-	 * Checks that the currently analyzed net is 1-safe
-	 * 
-	 * @return true if the net is 1-safe
-	 * @throws IOException
-	 * @throws PNMLImportExportException
-	 */
-	public static boolean isNet1Safe(SafePNChecker spnc, File inputFile) throws IOException, PNMLImportExportException {
-		spnc.setPnmlDocPath(inputFile.getCanonicalPath());
-		boolean res = spnc.isNet1Safe();
-		return res;
 	}
 
 	/**

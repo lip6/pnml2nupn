@@ -422,7 +422,7 @@ public final class PNML2NUPNUtils {
 	}
 	
 	public static final long sum(LongList ll) {
-		return ll.stream().mapToLong(x -> x).sum();
+		return ll.longStream().sum();
 	}
 	
 	/**

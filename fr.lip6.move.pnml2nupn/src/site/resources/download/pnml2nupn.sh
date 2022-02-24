@@ -14,14 +14,14 @@
 
 #############################################################################################
 # Script to launch PNML 2 NUPN (1-Safe P/T Net) model transformation.                       #
-# Version: 2021-12-10       (since v1.5.2)                                                  #
+# Version: 2022-02-24       (since v1.5.2)                                                  #
 # Contributors: Lom M. Hillah                                                               #
 # Institutions: Sorbonne Université, and Univ. Paris Nanterre, LIP6, CNRS                   #
 # Example: ./pnml2nupn.sh pathToModelsFolder [pathToASingleFile] [pathToOtherFolder] [...]  #
 #############################################################################################
 
 # Path to executable Jar file
-JAR_FILE=pnml2nupn-3.3.0.jar
+JAR_FILE=pnml2nupn-4.0.0.jar
 
 # Constants
 NBPARAM=1
@@ -35,6 +35,7 @@ case $(uname -s) in
 esac
 
 # First, you must set below the path to the java executable in your OS.
+# Starting from version 4.0.0, pnml2nupn runs with Java 17+. 
 # Starting from version 3.0.0, pnml2nupn runs with Java 11+. 
 # pnml2nupn versions 3.x.x will not run with Java versions before 11.
 JAVA="java"
@@ -56,10 +57,12 @@ FORCE_NUPN_GEN="-Dforce.nupn.generation=true"
 # Enable or disable unit safeness checking of the PNML model? Default is false.
 # This option would work only on *nix systems since it relies on 
 # the Bounds tool (embedded but deployed locally at runtime)
+# Permanently disabled since v4.0.0
 UNIT_SAFENESS_CHECKING="-Dunit.safeness.checking=false"
 
 # Enable or disable unit safeness checking only? Default is false.
 # This option also activates UNIT_SAFENESS_CHECKING
+# Permanently disabled since v4.0.0
 UNIT_SAFENESS_CHECKING_ONLY="-Dunit.safeness.checking.only=false"
 
 # How many places (at most) to report when the net is unsafe? 

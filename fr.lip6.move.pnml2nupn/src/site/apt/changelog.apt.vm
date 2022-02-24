@@ -18,12 +18,24 @@
 Changelog of PNML to NUPN Converter ${project.version}
  ------
  ------
-2021-12-10
+2022-02-24
  ------
 
 Changelog
 
-* What's new in version ${project.version}? (2021-12-10)
+* What's new in version ${project.version}? (2022-02-24)
+
+  * Switch to type-specific stream method on Long collections.
+  
+  * Remove support for the Bounds tool.
+  
+  * Remove dependency on cami2pnml.
+  
+  * Add explicit dependencies on logback and sfl4j.
+  
+  * Upgrade runtime environment to Java 17.
+
+* What's new in version 3.3.0? (2021-12-10)
 
   * Merge pull request {{{https://github.com/lip6/pnml2nupn/pull/3}#3}} which allows the initial marking to be the empty set, as defined in the {{{https://cadp.inria.fr/man/nupn.html#sect3}NUPN manual}}.
 

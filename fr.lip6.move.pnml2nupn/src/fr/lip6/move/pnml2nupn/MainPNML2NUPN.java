@@ -417,22 +417,24 @@ public final class MainPNML2NUPN {
 	}
 
 	/**
-	 * Returns true if unit safeness checking is enabled (default), false otherwise.
+	 * Returns true if unit safeness checking is enabled, false otherwise.
+	 * Permanently disabled since v4.0.0
 	 * 
 	 * @return
 	 */
 	public static boolean isUnitSafenessChecking() {
-		return boolOptionsMap.getBoolean(UNIT_SAFENESS_CHECKING);
+		return false;
 	}
 
 	/**
 	 * Returns true if unit safeness checking only is enabled, false otherwise
 	 * (default).
+	 * Permanently disabled since v4.0.0
 	 * 
 	 * @return
 	 */
 	public static boolean isUnitSafenessCheckingOnly() {
-		return boolOptionsMap.getBoolean(UNIT_SAFENESS_CHECKING_ONLY);
+		return false;
 	}
 
 	public static boolean isPreserveNupnMix() {

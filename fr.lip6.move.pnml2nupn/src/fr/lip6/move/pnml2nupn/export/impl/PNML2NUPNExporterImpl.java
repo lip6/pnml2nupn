@@ -43,7 +43,6 @@ import fr.lip6.move.pnml2nupn.exceptions.InvalidSafeNetException;
 import fr.lip6.move.pnml2nupn.exceptions.PNMLImportExportException;
 import fr.lip6.move.pnml2nupn.export.PNML2NUPNExporter;
 import fr.lip6.move.pnml2nupn.utils.PNML2NUPNUtils;
-import fr.lip6.move.pnml2nupn.utils.SafePNChecker;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -79,7 +78,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	private Object2LongOpenHashMap<String> unsafeArcsMap;
 
 	private File currentInputFile;
-	private SafePNChecker spnc;
 	private long nbUnsafeArcs, nbUnsafePlaces, nbUnsafeTrans;
 	private long nbTransIn, nbTransOut, nbTransInOut;
 	// For places and transitions id count
@@ -109,9 +107,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	/* For greatest label length - since v-3.0.0. */
 	private int labelLength;
 
-	public PNML2NUPNExporterImpl() {
-		spnc = new SafePNChecker();
-	}
+	public PNML2NUPNExporterImpl() {}
 
 	@Override
 	public void export2NUPN(URI inFile, URI outFile, Logger journal)
@@ -301,47 +297,9 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 						"The net in the document is not a P/T Net. Only P/T Nets are supported: "
 								+ this.currentInputFile.getCanonicalPath());
 			}
-			// The net must be 1-safe, if bounds checking is enabled.
-			if (MainPNML2NUPN.isUnitSafenessChecking()) {
-				logger.info("Checking if this net is 1-Safe.");
-				if (!(isSafe = ExportUtils.isNet1Safe(spnc, this.currentInputFile))) {
-					if (SafePNChecker.isBoundsVerdictInconclusive()) {
-						journal.warn(
-								"This net cannot be proven 1-safe or unsafe (the Bounds tool could not compute the bounds using structural analysis of place bounds): "
-										+ this.currentInputFile.getCanonicalPath());
-					} else {
-						journal.error(
-								"This net is not 1-safe (proven by the Bounds tool using structural analysis of place bounds): "
-										+ this.currentInputFile.getCanonicalPath());
-						journal.error("\nUNSAFE PLACES: {}", generateUnsafePlacesReport());
-					}
-
-					if (MainPNML2NUPN.isForceNUPNGen() && !MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
-						journal.warn("Forced NUPN generation is set => Continuing NUPN generation.");
-					} else {
-						if (!MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
-							if (SafePNChecker.isBoundsVerdictInconclusive()) {
-								journal.warn(
-										"Potentially unsafe net (inconclusive verdict by the Bounds tool) => Continuing NUPN generation.");
-							} else {
-								throw new InvalidSafeNetException(
-										"Unsafe net in " + this.currentInputFile.getCanonicalPath());
-							}
-						}
-					}
-				} else {
-					logger.info(
-							"This net is 1-safe (proven by the Bounds tool using structural analysis of place bounds): {}",
-							this.currentInputFile.getCanonicalPath());
-				}
-				if (MainPNML2NUPN.isUnitSafenessCheckingOnly()) {
-					journal.info("Unit safeness checking only requested. Will stop here.");
-					throw new EarlyStopException(
-							"Unit safeness checking only requested on " + this.currentInputFile.getCanonicalPath());
-				}
-			} else {
-				logger.warn("Unit safeness checking is disabled. I don't know if this net is 1-Safe.");
-			}
+			// The net must be 1-safe, but bounds checking is no longer supported from v4.0.0
+			logger.warn("Unit safeness checking is permanently disabled. I don't know if this net is 1-Safe.");
+			
 			// Open NUPN and mapping files channels, and init write queues
 			outTSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.TRANS_EXT);
 			outPSFile = new File(PNML2NUPNUtils.extractBaseName(outFile.getCanonicalPath()) + NUPNConstants.STATES_EXT);
@@ -408,9 +366,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			// clear maps
 			clearAllCollections();
 			logger.info("See NUPN file: {}", outFile.getCanonicalPath());
-		} catch (EarlyStopException e) {
-			normalStop(outFile);
-			throw e;
 		} catch (NavExceptionHuge | XPathParseExceptionHuge | XPathEvalExceptionHuge | InvalidSafeNetException
 				| InternalException | InvalidNetException e) {
 			emergencyStop(outFile);
@@ -688,11 +643,11 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				// they could also have incoming arcs with valuation = 1...
 				arcVals = tr2InAllArcsMap.get(s);
 				if (arcVals != null) {
-					long arcValsSafe = arcVals.stream().filter(v -> v == 1L).map(x -> x).reduce(0L, (a, b) -> a + b);
+					long arcValsSafe = arcVals.longStream().filter(v -> v == 1L).map(x -> x).reduce(0L, (a, b) -> a + b);
 					if (arcValsSafe > 0L) {
 						inValT += arcValsSafe;
 						warnMsg.append(", safe incoming arc(s) with respective valuation(s):");
-						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+						arcVals.longStream().filter(v -> v == 1).forEach(v -> {
 							warnMsg.append(NUPNConstants.WS).append(v);
 						});
 					}
@@ -723,11 +678,11 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				// they could also have outgoing arcs with valuation = 1...
 				arcVals = tr2OutAllArcsMap.get(s);
 				if (arcVals != null) {
-					long arcValsSafe = arcVals.stream().filter(v -> v == 1L).map(x -> x).reduce(0L, (a, b) -> a + b);
+					long arcValsSafe = arcVals.longStream().filter(v -> v == 1L).map(x -> x).reduce(0L, (a, b) -> a + b);
 					if (arcValsSafe > 0L) {
 						outValT += arcValsSafe;
 						warnMsg.append(", and safe outgoing arc(s) with respective valuation(s):");
-						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+						arcVals.longStream().filter(v -> v == 1).forEach(v -> {
 							warnMsg.append(NUPNConstants.WS).append(v);
 						});
 					}
@@ -770,11 +725,11 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				// they could also have outgoing arcs with valuation = 1...
 				arcVals = tr2OutAllArcsMap.get(s);
 				if (arcVals != null) {
-					long arcValsSafe = arcVals.stream().filter(v -> v == 1).map(x -> x).reduce(0L, (a, b) -> a + b);
+					long arcValsSafe = arcVals.longStream().filter(v -> v == 1).map(x -> x).reduce(0L, (a, b) -> a + b);
 					if (arcValsSafe > 0L) {
 						outValT += arcValsSafe;
 						warnMsg.append(", safe outgoing arc(s) with respective valuation(s):");
-						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+						arcVals.longStream().filter(v -> v == 1).forEach(v -> {
 							warnMsg.append(NUPNConstants.WS).append(v);
 						});
 					}
@@ -785,10 +740,10 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				if (arcVals != null) {
 					warnMsg.append(", and ").append(arcVals.size64())
 							.append(" safe incoming arc(s) with respective valuation(s):");
-					long arcValsSafe = arcVals.stream().filter(v -> v == 1).map(x -> x).reduce(0L, (a, b) -> a + b);
+					long arcValsSafe = arcVals.longStream().filter(v -> v == 1).map(x -> x).reduce(0L, (a, b) -> a + b);
 					if (arcValsSafe > 0L) {
 						inValT += arcValsSafe;
-						arcVals.stream().filter(v -> v == 1).forEach(v -> {
+						arcVals.longStream().filter(v -> v == 1).forEach(v -> {
 							warnMsg.append(NUPNConstants.WS).append(v);
 						});
 					}
@@ -1160,7 +1115,7 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 									"List of consecutive places IDs not being in arithmetic progression in unit {} ({}): {}",
 									unitSId, unitLId, faultyIds.toString());
 							logger.error("Consequently, the NUPN output for units will not be syntax-compliant.");
-							placesIntId.stream().forEach(i -> nupnsb.append(NUPNConstants.WS).append(i));
+							placesIntId.longStream().forEach(i -> nupnsb.append(NUPNConstants.WS).append(i));
 							faultyIds.clear();
 						} else {
 							nupnsb.append(NUPNConstants.WS).append(placesIntId.getLong(0)).append(NUPNConstants.DOTS)
@@ -1246,8 +1201,8 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 			}
 
 			// Then the rest
-			List<Long> otherPlaces = placesId2NupnMap.values().stream().filter(v -> !initPlaces.contains(v)).sorted()
-					.collect(Collectors.toList());
+			List<Long> otherPlaces = placesId2NupnMap.values().longStream().filter(v -> !initPlaces.contains(v)).sorted()
+					.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 			for (Long nupnId : otherPlaces) {
 				nupnsb.append(NUPNConstants.U).append(count).append(NUPNConstants.WS).append(NUPNConstants.HK)
 						.append(NUPNConstants.ONE).append(NUPNConstants.WS).append(nupnId).append(NUPNConstants.DOTS)
@@ -1309,10 +1264,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 				}
 			});
 		}
-	}
-
-	private String generateUnsafePlacesReport() {
-		return spnc.getExplanation();
 	}
 
 	/**
@@ -1408,17 +1359,6 @@ public final class PNML2NUPNExporterImpl implements PNML2NUPNExporter {
 	private void emergencyStop(File outFile) throws InterruptedException, IOException {
 		stop(outFile);
 		logger.error("Emergency stop. Cancelled the translation and released opened resources.");
-	}
-
-	/**
-	 * Normal stop.
-	 * 
-	 * @param outFile
-	 * @throws InterruptedException
-	 * @throws IOException
-	 */
-	private void normalStop(File outFile) throws InterruptedException, IOException {
-		stop(outFile);
 	}
 
 	/**

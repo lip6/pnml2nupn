@@ -16,8 +16,10 @@ Download PNML2NUPN executable jar from its [companion web site](http://pnml.lip6
  pnml2nupn simply runs on the command line. It is expecting either a set of paths to 
  PNML files, or to folders containing them, or a mix of files and folders. It scans folders recursively, looking for PNML files.
  
-**Requirement:**
-  Since version 3.0.0, pnml2nupn runs on Java 11+. Prior versions 2.x.x run on Java 7 to Java 8. Starting from 3.0.0, pnml2nupn will not run on Java below 11.
+### Requirement:
+  - Starting from version 4.0.0, pnml2nupn runs on Java17+. 
+  - In versions 3.x.x, it runs on Java 11+ (starting from 3.0.0, pnml2nupn will not run on Java below 11).
+  - Prior versions 2.x.x run on Java 7 to Java 8. 
  
  
 ### Command-line invocation

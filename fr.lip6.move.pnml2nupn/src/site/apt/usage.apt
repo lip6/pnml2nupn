@@ -27,6 +27,8 @@ Overview
  
 * Important note
 
+  From version 4.0.0, pnml2nupn runs on Java 17+.
+
   Since version 3.0.0, pnml2nupn runs on Java 11+. Consequently, versions 3.x.x of pnml2nupn will not run on Java below 11. 
   
 ===
@@ -231,7 +233,7 @@ Options
  
 ** Supporting versions
 
-  Since v1.4.0.
+  From v1.4.0. to v3.3.0
   
 ** Note
   Using pnml2nupn does not require the Bounds tool. Just run it with the above property set to false.  
@@ -253,7 +255,7 @@ Options
  
 ** Supporting versions
 
-  Since v1.4.0.
+  From v1.4.0. to v.3.3.0
 
 * Force NUPN Generation
  
